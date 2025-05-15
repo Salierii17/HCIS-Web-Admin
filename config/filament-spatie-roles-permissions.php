@@ -2,15 +2,13 @@
 
 return [
 
-    'user_model' => \App\Models\User::class, // ✅ add this line
+    'preload_roles' => true,
 
     'preload_permissions' => true,
 
     'navigation_section_group' => 'Security & Control', // Default uses language constant
 
-    // 'team_model' => \App\Models\Team::class,
-
-
+    'team_model' => \App\Models\Team::class,
 
     /*
      * Set to false to remove from navigation
@@ -116,10 +114,7 @@ return [
             'User.impersonate',
         ],
 
-        'user_model_class' => \App\Models\User::class,
-
-        'user_model' => App\Models\User::class, // ✅ REQUIRED HERE
-
+        'user_model' => \App\Models\User::class,
 
         'policies_namespace' => 'App\Policies',
     ],
