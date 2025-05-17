@@ -17,6 +17,9 @@ class ReferralsResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'jobopenings.postingTitle';
 
+    protected static ?string $navigationGroup = 'Recruitment';
+
+
     protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationIcon = 'healthicons-o-referral';

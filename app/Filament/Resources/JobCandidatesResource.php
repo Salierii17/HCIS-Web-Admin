@@ -23,6 +23,8 @@ class JobCandidatesResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'job.postingTitle';
 
+    protected static ?string $navigationGroup = 'Recruitment';
+
     protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationIcon = 'vaadin-diploma-scroll';

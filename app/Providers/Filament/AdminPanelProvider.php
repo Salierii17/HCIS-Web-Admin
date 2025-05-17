@@ -36,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->brandName('HCIS')
             ->maxContentWidth('full')
             ->id('recruit')
             ->path('')

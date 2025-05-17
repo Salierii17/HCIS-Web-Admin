@@ -32,7 +32,9 @@ class JobOpeningsResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'postingTitle';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Recruitment';
+
+    protected static ?int $navigationSort = -3;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 

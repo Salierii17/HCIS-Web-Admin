@@ -17,6 +17,9 @@ class DepartmentsResource extends Resource
 {
     protected static ?string $model = Departments::class;
 
+    protected static ?string $navigationGroup = 'Recruitment';
+
+
     protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'DepartmentName';

@@ -20,6 +20,7 @@ class CandidatesProfileResource extends Resource
     protected static ?string $model = Candidates::class;
 
     protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Recruitment';
 
     protected static ?string $recordTitleAttribute = 'full_name';
 
@@ -63,7 +64,7 @@ class CandidatesProfileResource extends Resource
                                 ->inline(false),
                         ])
                         ->deleteAction(
-                            fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
+                            fn(Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
                         )
                         ->columns(4),
                 ]),
@@ -114,7 +115,6 @@ class CandidatesProfileResource extends Resource
                 ])->columns(2),
 
         ];
-
     }
 
     public static function standardSkillSetFormLayout(): array
@@ -155,9 +155,7 @@ class CandidatesProfileResource extends Resource
                                     $lastUsedOptions = [];
                                     $counter = 30;
                                     for ($i = $counter; $i >= 0; $i--) {
-                                        $lastUsedOptions[
-                                        sprintf('%s', Carbon::now()->subYear($i)->year)
-                                            ] =
+                                        $lastUsedOptions[sprintf('%s', Carbon::now()->subYear($i)->year)] =
                                             sprintf('%s', Carbon::now()->subYear($i)->year);
                                     }
 
@@ -169,7 +167,6 @@ class CandidatesProfileResource extends Resource
                 ]),
 
         ];
-
     }
 
     public static function standardCurrentJobInformationFormLayout(): array
@@ -222,7 +219,7 @@ class CandidatesProfileResource extends Resource
                             Forms\Components\Textarea::make('company_address'),
                         ])
                         ->deleteAction(
-                            fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
+                            fn(Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
                         )
                         ->columns(5),
                 ]),

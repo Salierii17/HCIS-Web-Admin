@@ -6,6 +6,8 @@ namespace Database\Seeders;
 use App\Models\Departments;
 use App\Models\JobOpenings;
 use App\Models\User;
+use Database\Seeders\AttendanceStatusSeeder;
+use Database\Seeders\AttendanceSeeder;
 use Database\Seeders\concerns\ProgressBarConcern;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
@@ -113,6 +115,15 @@ class DatabaseSeeder extends Seeder
             'Status' => 'Opened',
         ]));
         $this->command->info('Job Openings created.');
+
+
+        // / Attendance
+           $this->command->warn(PHP_EOL.'Seeding Attendance Status and Attendance Records...');
+           $this->call([
+               AttendanceStatusSeeder::class,
+               AttendanceSeeder::class,
+           ]);
+           $this->command->info('Attendance data seeded.');
 
     }
 }
