@@ -3,15 +3,15 @@
 namespace App\Policies;
 
 use Illuminate\Auth\Access\Response;
-use App\Models\Attendance;
+use App\Models\Question;
 use App\Models\User;
 
-class AttendancePolicy
+class QuestionPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(\App\Models\User $user): bool
+    public function viewAny(App\Models\User $user): bool
     {
         return $user->checkPermissionTo('{{ viewAnyPermission }}');
     }
@@ -19,7 +19,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(\App\Models\User $user, Attendance $attendance): bool
+    public function view(App\Models\User $user, Question $question): bool
     {
         return $user->checkPermissionTo('{{ viewPermission }}');
     }
@@ -27,7 +27,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(\App\Models\User $user): bool
+    public function create(App\Models\User $user): bool
     {
         return $user->checkPermissionTo('{{ createPermission }}');
     }
@@ -35,7 +35,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(App\Models\User $user, Attendance $attendance): bool
+    public function update(App\Models\User $user, Question $question): bool
     {
         return $user->checkPermissionTo('{{ updatePermission }}');
     }
@@ -43,7 +43,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(\App\Models\User $user, Attendance $attendance): bool
+    public function delete(App\Models\User $user, Question $question): bool
     {
         return $user->checkPermissionTo('{{ deletePermission }}');
     }
@@ -51,7 +51,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can delete any models.
      */
-    public function deleteAny(\App\Models\User $user): bool
+    public function deleteAny(App\Models\User $user): bool
     {
         return $user->checkPermissionTo('{{ deleteAnyPermission }}');
     }
@@ -59,7 +59,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(App\Models\User $user, Attendance $attendance): bool
+    public function restore(App\Models\User $user, Question $question): bool
     {
         return $user->checkPermissionTo('{{ restorePermission }}');
     }
@@ -75,7 +75,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can replicate the model.
      */
-    public function replicate(App\Models\User $user, Attendance $attendance): bool
+    public function replicate(App\Models\User $user, Question $question): bool
     {
         return $user->checkPermissionTo('{{ replicatePermission }}');
     }
@@ -91,7 +91,7 @@ class AttendancePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(App\Models\User $user, Attendance $attendance): bool
+    public function forceDelete(App\Models\User $user, Question $question): bool
     {
         return $user->checkPermissionTo('{{ forceDeletePermission }}');
     }
