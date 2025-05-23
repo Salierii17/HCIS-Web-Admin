@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkArrangement extends Model
 {
-    protected $fillable = ['type'];
+    protected $fillable = ['arrangement_type'];
 }

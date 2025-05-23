@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,6 @@ Route::middleware('api')
             });
 
         Route::middleware('auth:sanctum')->group(function () {
-            // Route::apiResource('attendances', AttendanceController::class);
+            Route::apiResource('attendance', AttendanceController::class);
         });
     });

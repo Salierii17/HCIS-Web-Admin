@@ -121,6 +121,7 @@ class DatabaseSeeder extends Seeder
            $this->command->warn(PHP_EOL.'Seeding Attendance Status and Attendance Records...');
            $this->call([
                AttendanceStatusSeeder::class,
+               WorkArrangementSeeder::class,
                AttendanceSeeder::class,
            ]);
            $this->command->info('Attendance data seeded.');
