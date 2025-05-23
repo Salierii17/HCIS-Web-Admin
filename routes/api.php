@@ -29,4 +29,7 @@ Route::middleware('api')
                     ->middleware('auth:api');
             });
 
+        Route::middleware('auth:sanctum')->group(function () {
+            // Route::apiResource('attendances', AttendanceController::class);
+        });
     });

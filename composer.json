@@ -27,7 +27,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "hasnayeen/themes": "^3.0",
         "laravel/framework": "^10.10",
-        "laravel/sanctum": "^3.2",
+        "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "mallardduck/blade-lucide-icons": "^1.11",
         "marjose123/filament-lockscreen": "^2.0",
