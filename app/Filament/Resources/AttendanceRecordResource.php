@@ -39,13 +39,12 @@ class AttendanceRecordResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                // Assuming you have a 'department' attribute in your User model
-                TextColumn::make('employee.department')
-                    ->label('Department')
-                    ->searchable(),
+                // TextColumn::make('employee.department')
+                //     ->label('Department')
+                //     ->searchable(),
                 Select::make('location_type_id')
                     ->label('Type/Work Arrangement')
-                    ->relationship('locationType', 'name') // Assuming 'name' is the attribute in WorkArrangement
+                    ->relationship('locationType', 'arrangement_type') // Assuming 'name' is the attribute in WorkArrangement
                     ->searchable()
                     ->preload(),
                 DateTimePicker::make('check_in_time')
@@ -80,9 +79,10 @@ class AttendanceRecordResource extends Resource
                     ->label('Employee Name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('locationType.name') // Display the 'name' from the WorkArrangement model
+                TextColumn::make('locationType.arrangement_type') // Display the 'name' from the WorkArrangement model
                     ->label('Work Arrangement')
-                    ->searchable(),
+                    ->searchable()
+                    ->alignCenter(),
                 TextColumn::make('check_in_time')
                     ->label('Clock In')
                     ->time()
