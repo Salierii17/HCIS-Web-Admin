@@ -9,6 +9,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -58,6 +59,11 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
                 Profile::class,
             ])
+            ->navigationItems([
+                NavigationItem::make('Kirim Notifikasi Training')
+                    ->url('/admin/assign-training')
+                    ->icon('heroicon-o-paper-airplane'),
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
@@ -97,6 +103,7 @@ class AdminPanelProvider extends PanelProvider
                     ]),
                 // FilamentSpatieRolesPermissionsPlugin::make(),
             ])
+            
             ->spa();
     }
 }
