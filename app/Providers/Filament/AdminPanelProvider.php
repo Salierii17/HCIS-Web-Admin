@@ -86,6 +86,7 @@ class AdminPanelProvider extends PanelProvider
                 Locker::class,
             ])
             ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentAuthenticationLogPlugin::make(),
                 new Lockscreen(),
@@ -94,7 +95,7 @@ class AdminPanelProvider extends PanelProvider
                     ->excludes([
                         AuthenticationLogResource::class,
                     ]),
-                FilamentSpatieRolesPermissionsPlugin::make(),
+                // FilamentSpatieRolesPermissionsPlugin::make(),
             ])
             ->spa();
     }

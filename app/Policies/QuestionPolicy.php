@@ -2,105 +2,150 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
-use App\Models\Question;
 use App\Models\User;
+use App\Models\Question;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class QuestionPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function viewAny(App\Models\User $user): bool
+    public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ viewAnyPermission }}');
+        return $user->can('view_any_question');
     }
 
     /**
      * Determine whether the user can view the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Question  $question
+     * @return bool
      */
-    public function view(App\Models\User $user, Question $question): bool
+    public function view(User $user, Question $question): bool
     {
-        return $user->checkPermissionTo('{{ viewPermission }}');
+        return $user->can('view_question');
     }
 
     /**
      * Determine whether the user can create models.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function create(App\Models\User $user): bool
+    public function create(User $user): bool
     {
-        return $user->checkPermissionTo('{{ createPermission }}');
+        return $user->can('create_question');
     }
 
     /**
      * Determine whether the user can update the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Question  $question
+     * @return bool
      */
-    public function update(App\Models\User $user, Question $question): bool
+    public function update(User $user, Question $question): bool
     {
-        return $user->checkPermissionTo('{{ updatePermission }}');
+        return $user->can('update_question');
     }
 
     /**
      * Determine whether the user can delete the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Question  $question
+     * @return bool
      */
-    public function delete(App\Models\User $user, Question $question): bool
+    public function delete(User $user, Question $question): bool
     {
-        return $user->checkPermissionTo('{{ deletePermission }}');
+        return $user->can('delete_question');
     }
 
     /**
-     * Determine whether the user can delete any models.
+     * Determine whether the user can bulk delete.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function deleteAny(App\Models\User $user): bool
+    public function deleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ deleteAnyPermission }}');
+        return $user->can('delete_any_question');
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether the user can permanently delete.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Question  $question
+     * @return bool
      */
-    public function restore(App\Models\User $user, Question $question): bool
+    public function forceDelete(User $user, Question $question): bool
     {
-        return $user->checkPermissionTo('{{ restorePermission }}');
+        return $user->can('force_delete_question');
     }
 
     /**
-     * Determine whether the user can restore any models.
+     * Determine whether the user can permanently bulk delete.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function restoreAny(App\Models\User $user): bool
+    public function forceDeleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ restoreAnyPermission }}');
+        return $user->can('force_delete_any_question');
     }
 
     /**
-     * Determine whether the user can replicate the model.
+     * Determine whether the user can restore.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Question  $question
+     * @return bool
      */
-    public function replicate(App\Models\User $user, Question $question): bool
+    public function restore(User $user, Question $question): bool
     {
-        return $user->checkPermissionTo('{{ replicatePermission }}');
+        return $user->can('restore_question');
     }
 
     /**
-     * Determine whether the user can reorder the models.
+     * Determine whether the user can bulk restore.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function reorder(App\Models\User $user): bool
+    public function restoreAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ reorderPermission }}');
+        return $user->can('restore_any_question');
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can replicate.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Question  $question
+     * @return bool
      */
-    public function forceDelete(App\Models\User $user, Question $question): bool
+    public function replicate(User $user, Question $question): bool
     {
-        return $user->checkPermissionTo('{{ forceDeletePermission }}');
+        return $user->can('replicate_question');
     }
 
     /**
-     * Determine whether the user can permanently delete any models.
+     * Determine whether the user can reorder.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function forceDeleteAny(App\Models\User $user): bool
+    public function reorder(User $user): bool
     {
-        return $user->checkPermissionTo('{{ forceDeleteAnyPermission }}');
+        return $user->can('reorder_question');
     }
+
 }
