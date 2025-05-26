@@ -29,8 +29,8 @@ Route::middleware('api')
                 Route::post('refresh', [AuthenticationController::class, 'refresh'])
                     ->middleware('auth:api');
             });
-
-        Route::middleware('auth:sanctum')->group(function () {
-            Route::apiResource('attendance', AttendanceController::class);
-        });
+        // Route::middleware('auth:api')->group(function () {
+        //     Route::post('attendance', [AttendanceController::class, 'store']);
+        // });
+        Route::post('attendance', [AttendanceController::class, 'store']);
     });
