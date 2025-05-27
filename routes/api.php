@@ -32,5 +32,5 @@ Route::middleware('api')
         // Route::middleware('auth:api')->group(function () {
         //     Route::post('attendance', [AttendanceController::class, 'store']);
         // });
-        Route::post('attendance', [AttendanceController::class, 'store']);
+        Route::apiResource('attendance', AttendanceController::class);
     });

@@ -30,7 +30,7 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info('Attendance request received', [ // Removed backslash (optional)
+        Log::info('Attendance request received', [
             'headers' => $request->headers->all(),
             'body' => $request->all()
         ]);
@@ -94,7 +94,41 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        Log::info('Clock Out Updated', [
+            'headers' => $request->headers->all(),
+            'body' => $request->all()
+        ]);
+
+        try {
+            $validated = $request->validate([
+                'check_out_time' => 'required |date_format:H:i'
+            ]);
+
+            Log::info('Validation passed', $validated);
+
+            $attendance = Attendance::findOrFail($id);
+
+            $attendance->check_out_time = $request->input("check_out_time");
+
+            $attendance->save();
+
+            return response()->json([
+                'status' => 'success',
+                'code' => Response::HTTP_OK,
+                'message' => "Clock out for attendance record ID $id is updated",
+                "data" => $attendance,
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            Log::error('Clock Out Update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
