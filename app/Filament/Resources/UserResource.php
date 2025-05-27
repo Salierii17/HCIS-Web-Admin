@@ -17,8 +17,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 use Tapp\FilamentAuthenticationLog\RelationManagers\AuthenticationLogsRelationManager;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -28,7 +30,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationGroup = 'Security & Control';
 
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-c-user-circle';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -56,13 +58,23 @@ class UserResource extends Resource
                             ->required()
                             ->placeholder('John Doe'),
                         Forms\Components\TextInput::make('email')
-                            ->unique()
+                            ->unique(ignoreRecord: true)
                             ->required()
                             ->email(),
                         Forms\Components\Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->options(Role::all()->pluck('name', 'id')->toArray())
                             ->preload()
                             ->required()
-                            ->relationship('roles', 'name'),
+                            ->multiple()
+                            ->searchable(),
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->required(fn (string $context): bool => $context === 'create')
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->maxLength(255),
+                        Forms\Components\DateTimePicker::make('email_verified_at'),
                     ])
                     ->columnSpan(['lg' => fn (?User $record) => $record === null ? 3 : 2]),
 
@@ -99,11 +111,21 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->sortable()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('roles.name')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('email_verified_at')
                     ->boolean()
                     ->label('Verified Email'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -130,13 +152,16 @@ class UserResource extends Resource
                     ->requiresConfirmation(),
                 Impersonate::make()
                     ->color('warning')
-                    ->hidden(function (Model $record) {
-                        return ! $record->can('User.impersonate');
-                    })
+                    ->hidden(fn (Model $record) => ! $record->can('User.impersonate'))
                     ->link()
                     ->iconSize(IconSize::Small)
                     ->label('Impersonate')
                     ->icon('fas-user-secret'),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -146,7 +171,6 @@ class UserResource extends Resource
             RelationGroup::make('Authentication Logs', [
                 AuthenticationLogsRelationManager::class,
             ]),
-            //
         ];
     }
 
@@ -168,7 +192,7 @@ class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('id', '!=', auth()->user()->id)
+            ->where('id', '!=', auth()->id())
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
