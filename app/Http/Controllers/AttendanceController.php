@@ -39,8 +39,8 @@ class AttendanceController extends Controller
             $validated = $request->validate([
                 'employee_id' => 'required|exists:users,id',
                 'date' => 'required|date',
-                'check_in_time' => 'nullable|date_format:H:i',
-                'check_out_time' => 'nullable|date_format:H:i',
+                'clock_in_time' => 'nullable|date_format:H:i:s',
+                'clock_out_time' => 'nullable|date_format:H:i:s',
                 'location_type_id' => 'nullable|exists:work_arrangements,id',
                 'gps_coordinates' => 'nullable|string',
                 'status_id' => 'required|exists:attendance_statuses,id',
@@ -101,14 +101,14 @@ class AttendanceController extends Controller
 
         try {
             $validated = $request->validate([
-                'check_out_time' => 'required |date_format:H:i'
+                'clock_out_time' => 'required |date_format:H:i:s'
             ]);
 
             Log::info('Validation passed', $validated);
 
             $attendance = Attendance::findOrFail($id);
 
-            $attendance->check_out_time = $request->input("check_out_time");
+            $attendance->clock_out_time = $request->input("clock_out_time");
 
             $attendance->save();
 

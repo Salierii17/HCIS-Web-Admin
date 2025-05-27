@@ -47,9 +47,9 @@ class AttendanceRecordResource extends Resource
                     ->relationship('locationType', 'arrangement_type') // Assuming 'name' is the attribute in WorkArrangement
                     ->searchable()
                     ->preload(),
-                DateTimePicker::make('check_in_time')
+                DateTimePicker::make('clock_in_time')
                     ->label('Clock In'),
-                DateTimePicker::make('check_out_time')
+                DateTimePicker::make('clock_out_time')
                     ->label('Clock Out'),
                 TextInput::make('gps_coordinates')
                     ->label('GPS Coordinates (Latitude, Longitude)')
@@ -83,11 +83,11 @@ class AttendanceRecordResource extends Resource
                     ->label('Work Arrangement')
                     ->searchable()
                     ->alignCenter(),
-                TextColumn::make('check_in_time')
+                TextColumn::make('clock_in_time')
                     ->label('Clock In')
                     ->time()
                     ->sortable(),
-                TextColumn::make('check_out_time')
+                TextColumn::make('clock_out_time')
                     ->label('Clock Out')
                     ->time()
                     ->sortable(),

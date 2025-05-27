@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->constrained('users');
             $table->date('date');
-            $table->Time('check_in_time')->nullable();
-            $table->Time('check_out_time')->nullable();
+            $table->Time('clock_in_time')->nullable();
+            $table->Time('clock_out_time')->nullable();
             $table->foreignId('location_type_id')->nullable();
             $table->string('gps_coordinates')->nullable();
             $table->foreignId('status_id')->constrained('attendance_statuses');

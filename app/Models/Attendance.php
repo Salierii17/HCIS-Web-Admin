@@ -13,8 +13,8 @@ class Attendance extends Model
     protected $fillable = [
         'employee_id',
         'date',
-        'check_in_time',
-        'check_out_time',
+        'clock_in_time',
+        'clock_out_time',
         'location_type_id',
         'gps_coordinates',
         'status_id',
@@ -23,8 +23,8 @@ class Attendance extends Model
     ];
 
     protected $casts = [
-        'check_in_time' => 'datetime:H:i',
-        'check_out_time' => 'datetime:H:i',
+        'clock_in_time' => 'datetime:H:i',
+        'clock_out_time' => 'datetime:H:i',
         'date' => 'date',
     ];
 
