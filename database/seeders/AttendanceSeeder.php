@@ -17,8 +17,8 @@ class AttendanceSeeder extends Seeder
             [
                 'employee_id' => 1,
                 'date' => Carbon::now()->subDays(1)->toDateString(),
-                'check_in_time' => '08:05:00',
-                'check_out_time' => '17:01:00',
+                'clock_in_time' => '08:05:00',
+                'clock_out_time' => '17:01:00',
                 'location_type_id' => 1,
                 'gps_coordinates' => '-6.2431,106.8412',
                 'status_id' => 1,
@@ -30,8 +30,8 @@ class AttendanceSeeder extends Seeder
             [
                 'employee_id' => 1,
                 'date' => Carbon::now()->subDays(2)->toDateString(),
-                'check_in_time' => '09:15:00',
-                'check_out_time' => '18:00:00',
+                'clock_in_time' => '09:15:00',
+                'clock_out_time' => '18:00:00',
                 'location_type_id' => 2,
                 'gps_coordinates' => '-6.2011,106.8070',
                 'status_id' => 2,
@@ -43,8 +43,8 @@ class AttendanceSeeder extends Seeder
             [
                 'employee_id' => 1,
                 'date' => Carbon::now()->subDays(3)->toDateString(),
-                'check_in_time' => '08:10:00',
-                'check_out_time' => '17:00:00',
+                'clock_in_time' => '08:10:00',
+                'clock_out_time' => '17:00:00',
                 'location_type_id' => 1,
                 'gps_coordinates' => '-6.2445,106.8410',
                 'status_id' => 1,
