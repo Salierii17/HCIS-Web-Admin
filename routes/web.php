@@ -20,11 +20,7 @@ use App\Http\Controllers\TrainingAssignmentController;
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 
-    Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::get('/assign-training', [TrainingAssignmentController::class, 'form'])->name('admin.assign.training.form');
-    Route::post('/assign-training', [TrainingAssignmentController::class, 'assign'])->name('admin.assign.training');
-});
-   
+    
 });
 
 /*
