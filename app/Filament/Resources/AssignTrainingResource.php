@@ -65,6 +65,7 @@ class AssignTrainingResource extends Resource
                         'Email Notifications will send to: ' . $record->user->email
                     )
                 ->modalButton('Send')
+                ->successNotificationTitle('Done!')
                 ->action(function (AssignTraining $record) {
                     $user = $record->user;
                     $package = $record->package;
