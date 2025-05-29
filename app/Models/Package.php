@@ -19,4 +19,10 @@ class Package extends Model
     {
         return $this->hasMany(PackageQuestion::class, 'package_id');
     }
+
+    public function assignedTrainings()
+    {
+        return $this->hasMany(AssignTraining::class);
+    }
+
 }

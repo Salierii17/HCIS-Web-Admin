@@ -20,7 +20,7 @@ class TryoutResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-m-arrow-right-start-on-rectangle';
 
-    protected static ?string $modelLabel = 'Tryout';
+    protected static ?string $modelLabel = 'Records';
 
     protected static ?string $navigationGroup = 'Training';
     
