@@ -163,7 +163,7 @@ class AttendanceController extends Controller
     public function show(Attendance $attendance)
     {
         try {
-            $attendance->load(['employee:id,name', 'locationType:id,name', 'status:id,name']);
+        $attendance->load(['employee:id,name', 'locationType:id,arrangement_type', 'status:id,status']);
 
             return response()->json([
                 'status' => 'success',
