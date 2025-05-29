@@ -71,4 +71,22 @@ class Attendance extends Model
             }
         );
     }
+    protected function GpsCoordinatesArray(): Attribute // Note the naming convention for accessors
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                $coordinates = $attributes['gps_coordinates'] ?? null;
+                if ($coordinates) {
+                    $parts = explode(',', $coordinates);
+                    if (count($parts) === 2 && is_numeric(trim($parts[0])) && is_numeric(trim($parts[1]))) {
+                        return [
+                            'latitude' => (float) trim($parts[0]),
+                            'longitude' => (float) trim($parts[1]),
+                        ];
+                    }
+                }
+                return null;
+            }
+        );
+    }
 }
