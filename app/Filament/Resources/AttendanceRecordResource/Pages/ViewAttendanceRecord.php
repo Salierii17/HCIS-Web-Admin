@@ -11,9 +11,11 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewAttendanceRecord extends ViewRecord
 {
     protected static string $resource = AttendanceRecordResource::class;
-// D:\Capstone\Coding\Admin\Recruitment\app\Filament\Resources\AttendanceRecordResource\Pages\view-attendance-record.blade.php
-    // protected static string $view = 'filament.resources.pages.attendance.viewAttendanceRecord';
+
+    // Open Street Map
     protected static string $view = 'filament.pages.attendance.view-attendance-record-open-street-maps';
+    // Google Maps API
+    // protected static string $view = 'filament.pages.attendance.view-attendance-record';
 
     protected function getHeaderActions(): array
     {
@@ -26,7 +28,7 @@ class ViewAttendanceRecord extends ViewRecord
     {
         return $infolist
             ->schema([
-                Components\Grid::make(1) // Main grid for info list items
+                Components\Grid::make(1)
                     ->schema([
                         Components\Section::make('Attendance Details')
                             ->schema([
@@ -38,7 +40,7 @@ class ViewAttendanceRecord extends ViewRecord
                                     ->time('H:i'),
                                 Components\TextEntry::make('clock_out_time')
                                     ->time('H:i'),
-                                Components\TextEntry::make('formattedWorkDuration') // Using the accessor
+                                Components\TextEntry::make('formattedWorkDuration')
                                     ->label('Work Duration'),
                                 Components\TextEntry::make('locationType.arrangement_type')
                                     ->label('Work Arrangement')
@@ -60,18 +62,40 @@ class ViewAttendanceRecord extends ViewRecord
                                     }),
                                 Components\TextEntry::make('work_hours')
                                     ->label('Work Hours (Decimal)')
-                                    ->placeholder('N/A'),
+                                    ->placeholder('--:--'),
                                 Components\TextEntry::make('gps_coordinates')
                                     ->label('GPS Coordinates'),
                                 Components\TextEntry::make('notes')
                                     ->columnSpanFull(),
-                            ])->columns(2), // Two columns within this section
+                            ])->columns(2),
                     ]),
             ]);
     }
     public function getGpsLocation(): ?array
     {
         return $this->record->gps_coordinates_array; // Using the accessor
+    }
+
+    protected function getViewData(): array
+    {
+        return array_merge(parent::getViewData(), [
+            'location' => $this->getGpsLocation(),
+        ]);
+    }
+
+    // Optional: Add JavaScript to handle map initialization after Livewire updates
+    protected function getFooterWidgets(): array
+    {
+        return [];
+    }
+
+    // Ensure proper loading
+    public function mount($record): void
+    {
+        parent::mount($record);
+
+        // Pre-load GPS data
+        $this->getGpsLocation();
     }
 
 }
