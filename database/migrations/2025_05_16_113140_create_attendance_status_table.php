@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_statuses', function (Blueprint $table) {
+        Schema::create('attendance_status', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
+             $table->enum('status', ['Present', 'Late']);
+            // $table->string('status');
             $table->timestamps();
         });
     }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->Time('clock_out_time')->nullable();
             $table->foreignId('location_type_id')->nullable();
             $table->string('gps_coordinates')->nullable();
-            $table->foreignId('status_id')->constrained('attendance_statuses');
+            $table->foreignId('status_id')->constrained('attendance_status');
             $table->decimal('work_hours', 5, 2)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
