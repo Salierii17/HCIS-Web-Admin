@@ -6,7 +6,7 @@ return [
 
     'preload_permissions' => true,
 
-    'navigation_section_group' => 'Security & Control', // Default uses language constant
+    'navigation_group' => 'Security & Control', // Default uses language constant
 
     // 'team_model' => \App\Models\Team::class,
 

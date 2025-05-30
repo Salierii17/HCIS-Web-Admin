@@ -12,9 +12,9 @@ class WorkArrangementSeeder extends Seeder
      */
     public function run(): void
     {
-        $statuses = ['Present', 'Late'];
-        foreach ($statuses as $status) {
-            \App\Models\AttendanceStatus::create(['name' => $status]);
+       $types = ['WFO', 'WFH'];
+        foreach ($types as $type) {
+            \App\Models\WorkArrangement::create(['arrangement_type' => $type]);
         }
     }
 }

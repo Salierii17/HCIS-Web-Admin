@@ -4,45 +4,43 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException as ValidationException;
 
 class AuthenticationController extends Controller
 {
     public function login(Request $request)
     {
-        if (! $request->hasAny(['email', 'password'])) {
-            return response()->json([
-                'status' => 'failed',
-                'code' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'message' => 'Email address and Password is required.',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
         }
 
-        $credentials = request(['email', 'password']);
-
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json([
-                'status' => 'failed',
-                'code' => Response::HTTP_UNAUTHORIZED,
-                'message' => 'Invalid Email or Password.',
-            ], Response::HTTP_UNAUTHORIZED);
-        }
+        $user = $request->user();
+        $token = $user->createToken('mobile-app')->plainTextToken;
 
         return response()->json([
             'status' => 'success',
             'code' => Response::HTTP_OK,
             'message' => 'Successfully Logged in',
             'data' => [
-                'user' => auth()->user(),
+                'user' => $user,
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60,
             ],
         ], Response::HTTP_OK);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        auth()->logout();
+        // Revoke current token only
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'status' => 'success',
@@ -51,18 +49,4 @@ class AuthenticationController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function refresh()
-    {
-        return response()->json([
-            'status' => 'success',
-            'code' => Response::HTTP_OK,
-            'message' => 'Successfully refreshed',
-            'data' => [
-                'user' => auth()->user(),
-                'access_token' => auth()->refresh(),
-                'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60,
-            ],
-        ], Response::HTTP_OK);
-    }
 }

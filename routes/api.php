@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +30,8 @@ Route::middleware('api')
                     ->middleware('auth:api');
             });
 
+            // Route::middleware('auth:api')->group(function () {
+        //     Route::post('attendance', [AttendanceController::class, 'store']);
+        // });
+        Route::apiResource('attendance', AttendanceController::class);
     });

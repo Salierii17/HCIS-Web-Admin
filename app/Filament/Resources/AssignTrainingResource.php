@@ -81,7 +81,7 @@ class AssignTrainingResource extends Resource
 
         public static function canViewAny(): bool
         {
-            return true;
+            return optional(auth()->user())->can('viewAny', AssignTraining::class);
         }
         public static function getRelations(): array
         {

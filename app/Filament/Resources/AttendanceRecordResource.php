@@ -14,12 +14,21 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Models\AttendanceStatus;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\TimePicker;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 
 class AttendanceRecordResource extends Resource
 {
     protected static ?string $model = Attendance::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $modelLabel = 'Attendance Record';
 
@@ -31,39 +40,81 @@ class AttendanceRecordResource extends Resource
     {
         return $form
             ->schema([
-                DateTimePicker::make('date')
-                    ->label('Timestamp')
-                    ->required(),
-                Select::make('employee_id')
-                    ->label('Employee Name')
-                    ->relationship('employee', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                // Assuming you have a 'department' attribute in your User model
-                TextColumn::make('employee.department')
-                    ->label('Department')
-                    ->searchable(),
-                Select::make('location_type_id')
-                    ->label('Type/Work Arrangement')
-                    ->relationship('locationType', 'name') // Assuming 'name' is the attribute in WorkArrangement
-                    ->searchable()
-                    ->preload(),
-                DateTimePicker::make('check_in_time')
-                    ->label('Clock In'),
-                DateTimePicker::make('check_out_time')
-                    ->label('Clock Out'),
-                TextInput::make('gps_coordinates')
-                    ->label('GPS Coordinates (Latitude, Longitude)')
-                    ->maxLength(255),
-                Select::make('status_id')
-                    ->label('Status')
-                    ->relationship('status', 'status')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+                Grid::make(2)->schema([ // Using Grid for better layout
+                    Select::make('employee_id')
+                        ->label('Employee')
+                        ->relationship('employee', 'name')
+                        ->searchable(['name', 'email']) // Search by multiple employee attributes
+                        ->preload()
+                        ->required()
+                        ->createOptionForm([ // Allow creating new employees on the fly (optional)
+                            TextInput::make('name')->required(),
+                            TextInput::make('email')->email()->required()->unique(table: User::class, column: 'email'),
+                            // Add other necessary fields for User model
+                        ])
+                        ->columnSpan(1),
+
+                    DatePicker::make('date') // Changed from DateTimePicker to DatePicker
+                        ->label('Timestamp')
+                        ->required()
+                        ->native(false) // Use Filament's date picker UI
+                        ->default(now()) // Default to today
+                        ->columnSpan(1),
+
+                    TimePicker::make('clock_in_time') // Changed to TimePicker
+                        ->label('Clock In')
+                        ->seconds(false) // Hide seconds if not needed
+                        ->nullable()
+                        ->columnSpan(1),
+
+                    TimePicker::make('clock_out_time') // Changed to TimePicker
+                        ->label('Clock Out')
+                        ->seconds(false)
+                        ->nullable()
+                        ->columnSpan(1),
+
+                    Select::make('location_type_id')
+                        ->label('Work Arrangement')
+                        ->relationship(name: 'locationType', titleAttribute: 'arrangement_type') // Ensure 'arrangement_type' is the correct display attribute
+                        ->searchable()
+                        ->preload()
+                        ->nullable() // Make it nullable if not always required
+                        ->createOptionForm([ // Allow creating new work arrangements (optional)
+                            TextInput::make('arrangement_type')->required()->unique(table: WorkArrangement::class, column: 'arrangement_type'),
+                            // Add other fields if any for WorkArrangement
+                        ])
+                        ->columnSpan(1),
+
+                    Select::make('status_id')
+                        ->label('Status')
+                        ->relationship(name: 'status', titleAttribute: 'status') // Ensure 'status' is the correct display attribute on AttendanceStatus model
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->createOptionForm([ // Allow creating new statuses (optional)
+                            TextInput::make('status')->required()->unique(table: AttendanceStatus::class, column: 'status'),
+                        ])
+                        ->columnSpan(1),
+
+                    TextInput::make('work_hours')
+                        ->label('Work Hours (Decimal)')
+                        ->numeric()
+                        ->nullable()
+                        ->step(0.1) // For decimal input
+                        ->placeholder('e.g., 8.5 for 8h 30m')
+                        ->helperText('Leave blank to auto-calculate from clock in/out if applicable.')
+                        ->columnSpan(1),
+
+                    TextInput::make('gps_coordinates')
+                        ->label('GPS Coordinates')
+                        ->maxLength(255)
+                        ->nullable()
+                        ->columnSpan(1),
+                ]), // End Grid
+
                 Textarea::make('notes')
                     ->label('Notes')
+                    ->nullable()
                     ->columnSpan('full'),
             ]);
     }
@@ -74,34 +125,99 @@ class AttendanceRecordResource extends Resource
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Timestamp')
-                    ->dateTime()
+                    ->datetime()
                     ->sortable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('employee.name')
-                    ->label('Employee Name')
+                    ->label('Employee')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('locationType.name') // Display the 'name' from the WorkArrangement model
-                    ->label('Work Arrangement')
-                    ->searchable(),
-                TextColumn::make('check_in_time')
+                TextColumn::make('clock_in_time')
                     ->label('Clock In')
-                    ->time()
+                    ->time('H:i')
                     ->sortable(),
-                TextColumn::make('check_out_time')
+                TextColumn::make('clock_out_time')
                     ->label('Clock Out')
-                    ->time()
+                    ->time('H:i')
                     ->sortable(),
+                TextColumn::make('formattedWorkDuration')
+                    ->label('Work Duration')
+                    ->placeholder('--:--'),
+                TextColumn::make('locationType.arrangement_type') // Display the 'name' from the WorkArrangement model
+                    ->label('Arrangement')
+                    ->searchable()
+                    ->badge()
+                    ->alignCenter()
+                    ->color(fn(string $state): string => match (strtolower($state)) { // Conditional badge colors
+                        'wfo' => 'success',
+                        'wfh' => 'info',
+                        default => 'gray',
+                    }),
                 TextColumn::make('gps_coordinates')
-                    ->label('GPS Coordinates'),
+                    ->label('GPS')
+                    ->limit(20)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status.status')
                     ->label('Status')
                     ->searchable()
+                    ->badge()
+                    ->color(fn(string $state): string => match (strtolower($state)) {
+                        'present' => 'success',
+                        'late' => 'danger',
+                        'on leave' => 'warning',
+                        'holiday' => 'info',
+                        default => 'primary',
+                    })
                     ->sortable(),
+                    TextColumn::make('updated_at') // More relevant than created_at for edits
+                    ->label('Last Updated')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true), // Hidden by default
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('employee')
+                    ->relationship('employee', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Employee'),
+                SelectFilter::make('locationType')
+                    ->relationship('locationType', 'arrangement_type') // Use correct attribute
+                    ->label('Work Arrangement'),
+                SelectFilter::make('status')
+                    ->relationship('status', 'status') // Use correct attribute
+                    ->label('Status'),
+                Filter::make('date') // Custom Date Range Filter
+                    ->form([
+                        DatePicker::make('created_from')->label('Date From')->native(false),
+                        DatePicker::make('created_until')->label('Date Until')->native(false)->default(now()),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['created_from'] && !$data['created_until']) {
+                            return null;
+                        }
+                        $parts = [];
+                        if ($data['created_from']) {
+                            $parts[] = 'From: ' . Carbon::parse($data['created_from'])->toFormattedDateString();
+                        }
+                        if ($data['created_until']) {
+                            $parts[] = 'Until: ' . Carbon::parse($data['created_until'])->toFormattedDateString();
+                        }
+                        return implode(' ', $parts);
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -123,8 +239,20 @@ class AttendanceRecordResource extends Resource
         return [
             'index' => Pages\ListAttendanceRecords::route('/'),
             'create' => Pages\CreateAttendanceRecord::route('/create'),
-            // 'view' => Pages\ViewAttendanceRecord::route('/{record}'),
+            'view' => Pages\ViewAttendanceRecord::route('/{record}'),
             'edit' => Pages\EditAttendanceRecord::route('/{record}/edit'),
         ];
     }
+
+    // Optional: Improve global search results
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['employee.name', 'date', 'locationType.arrangement_type', 'status.status'];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count(); // Show total records in navigation
+    }
+
 }

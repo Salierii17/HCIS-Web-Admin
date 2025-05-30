@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Attendance extends Model
 {
@@ -13,8 +15,8 @@ class Attendance extends Model
     protected $fillable = [
         'employee_id',
         'date',
-        'check_in_time',
-        'check_out_time',
+        'clock_in_time',
+        'clock_out_time',
         'location_type_id',
         'gps_coordinates',
         'status_id',
@@ -23,9 +25,10 @@ class Attendance extends Model
     ];
 
     protected $casts = [
-        'check_in_time' => 'datetime:H:i',
-        'check_out_time' => 'datetime:H:i',
+        'clock_in_time' => 'datetime:H:i',
+        'clock_out_time' => 'datetime:H:i',
         'date' => 'date',
+        'work_hours' => 'float'
     ];
 
 
@@ -42,5 +45,48 @@ class Attendance extends Model
     public function status()
     {
         return $this->belongsTo(AttendanceStatus::class, 'status_id');
+    }
+
+    protected function formattedWorkDuration(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                if (!is_null($attributes['work_hours'])) {
+                    $workHoursDecimal = $attributes['work_hours'];
+                    $hours = floor($workHoursDecimal);
+                    $minutes = round(($workHoursDecimal - $hours) * 60);
+                    return "{$hours}h {$minutes}m";
+                }
+
+                if (!empty($attributes['clock_in_time']) && !empty($attributes['clock_out_time'])) {
+                    $clockIn = Carbon::parse($attributes['clock_in_time']);
+                    $clockOut = Carbon::parse($attributes['clock_out_time']);
+
+                    if ($clockOut->gt($clockIn)) {
+                        $duration = $clockOut->diff($clockIn);
+                        return "{$duration->h}h {$duration->i}m";
+                    }
+                }
+                return null; // Or 'N/A', or '0h 0m'
+            }
+        );
+    }
+    protected function GpsCoordinatesArray(): Attribute // Note the naming convention for accessors
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                $coordinates = $attributes['gps_coordinates'] ?? null;
+                if ($coordinates) {
+                    $parts = explode(',', $coordinates);
+                    if (count($parts) === 2 && is_numeric(trim($parts[0])) && is_numeric(trim($parts[1]))) {
+                        return [
+                            'latitude' => (float) trim($parts[0]),
+                            'longitude' => (float) trim($parts[1]),
+                        ];
+                    }
+                }
+                return null;
+            }
+        );
     }
 }
