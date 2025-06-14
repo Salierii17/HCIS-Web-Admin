@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Enums\JobOpeningStatus;
+use App\Filament\Enums\RequiredSkill;
 use App\Filament\Resources\JobOpeningsResource\Pages;
 use App\Filament\Resources\JobOpeningsResource\RelationManagers;
 use App\Models\Departments;
@@ -11,6 +12,7 @@ use App\Models\User;
 use App\Settings\JobOpeningSettings;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -67,12 +69,16 @@ class JobOpeningsResource extends Resource
                             ->label('Job Opening Unique Key ID')
                             ->readOnly()
                             ->hiddenOn('create'),
-                        DatePicker::make('TargetDate')
+                        DateTimePicker::make('TargetDate')
                             ->label('Target Date')
-                            ->format('d/m/Y')
+                            ->displayFormat('Y-m-d H:i:s') // Display format
+                            ->seconds(true) // Show seconds
                             ->native(false)
-                            ->displayFormat('m/d/Y')
-                            ->required(),
+                            ->required()
+                            ->extraAttributes([
+                                'x-data' => '',
+                                'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                            ]),
                         Select::make('Status')
                             ->options(JobOpeningStatus::class)
                             ->hiddenOn('create')
@@ -87,18 +93,22 @@ class JobOpeningsResource extends Resource
                             ->options(User::all()->pluck('name', 'id')),
                         Select::make('AssignedRecruiters')
                             ->options(User::all()->pluck('name', 'id')),
-                        DatePicker::make('DateOpened')
+                        DateTimePicker::make('DateOpened')
                             ->label('Date Opened')
-                            ->format('d/m/Y')
+                            ->displayFormat('Y-m-d H:i:s') // Display format
+                            ->seconds(true) // Show seconds
                             ->native(false)
-                            ->displayFormat('m/d/Y')
-                            ->required(),
+                            ->required()
+                            ->extraAttributes([
+                                'x-data' => '',
+                                'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                            ]),
                         Select::make('JobType')
                             ->options(config('recruit.job_opening.job_type_options'))
                             ->required(),
                         Select::make('RequiredSkill')
                             ->multiple()
-                            ->options(self::$requiredSkills)
+                            ->options(RequiredSkill::class)
                             ->required(),
                         Select::make('WorkExperience')
                             ->options(config('recruit.job_opening.work_experience'))
@@ -166,9 +176,11 @@ class JobOpeningsResource extends Resource
                 TextColumn::make('NumberOfPosition')
                     ->label('# of Vacancy'),
                 TextColumn::make('TargetDate')
-                    ->label('Target Date'),
+                    ->label('Target Date')
+                    ->dateTime('Y-m-d H:i:s'),
                 TextColumn::make('DateOpened')
-                    ->label('Date Opened'),
+                    ->label('Date Opened')
+                    ->dateTime('Y-m-d H:i:s'),
                 TextColumn::make('JobType')
                     ->label('Job Type'),
                 IconColumn::make('RemoteJob')

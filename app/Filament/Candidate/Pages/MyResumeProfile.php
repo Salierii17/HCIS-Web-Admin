@@ -15,24 +15,44 @@ use Illuminate\Support\Carbon;
 class MyResumeProfile extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
-    protected ?string $subheading = 'This profile will be used once you apply a job in the portal.';
-
+    protected ?string $subheading = 'This profile will be used once you apply for a job in the portal.';
     protected static ?int $navigationSort = 4;
 
     protected static string $view = 'filament.candidate.pages.my-resume-profile';
-
+    
     public ?array $data = [];
 
     public function mount(): void
     {
+        $user = Filament::auth()->user();
+        $profile = $this->getResumeProfile();
+        
+        // Initialize with default values
         $this->data = [
-            'Email' => $this->getResumeProfile()->count() === 0 ? Filament::auth()->user()->email : $this->getResumeProfile()->toArray()[0]['Email'],
+            'Email' => $user->email ?? '',
+            'FirstName' => '',
+            'LastName' => '',
+            'Mobile' => '',
+            'ExperienceInYears' => '',
+            'ExpectedSalary' => '',
+            'HighestQualificationHeld' => '',
+            'CurrentEmployer' => '',
+            'CurrentJobTitle' => '',
+            'CurrentSalary' => '',
+            'Street' => '',
+            'City' => '',
+            'Country' => '',
+            'ZipCode' => '',
+            'State' => '',
+            'ExperienceDetails' => [],
+            'SkillSet' => [],
+            'School' => [],
         ];
-        if ($this->getResumeProfile()->count() > 0) {
-            $this->data = [
-                ...$this->getResumeProfile()->toArray()[0],
-            ];
+
+        // Merge with existing profile data if available
+        if ($profile->isNotEmpty()) {
+            $profileData = $profile->first()->toArray();
+            $this->data = array_merge($this->data, $profileData);
         }
 
         $this->form->fill($this->data);
@@ -40,21 +60,38 @@ class MyResumeProfile extends Page
 
     protected function getResumeProfile(): Collection
     {
-        // Key matching using the login email address
-        return Candidates::where('Email', '=', Filament::auth()->user()->email)->get();
+        $user = Filament::auth()->user();
+        
+        if (!$user || !$user->email) {
+            return new Collection();
+        }
+
+        return Candidates::where('Email', $user->email)->get();
     }
 
     public function updateRecord(): void
     {
-        // validate form and its data
-        $this->form->getState();
-        // update or create new record
-        Candidates::updateOrCreate(['Email' => auth()->user()->email], $this->data);
-        Notification::make()
-            ->title('Profile information updated')
-            ->success()
-            ->body('Your profile information has been updated successfully.')
-            ->send();
+        try {
+            $validatedData = $this->form->getState();
+            
+            Candidates::updateOrCreate(
+                ['Email' => Filament::auth()->user()->email],
+                $validatedData
+            );
+            
+            Notification::make()
+                ->title('Profile information updated')
+                ->success()
+                ->body('Your profile information has been updated successfully.')
+                ->send();
+                
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error updating profile')
+                ->danger()
+                ->body($e->getMessage())
+                ->send();
+        }
     }
 
     public function form(Form $form): Form
@@ -140,16 +177,16 @@ class MyResumeProfile extends Page
                                             ->label('Proficiency'),
                                         Forms\Components\Select::make('experience')
                                             ->options([
-                                                '1year' => '1year',
-                                                '2year' => '2 Years',
-                                                '3year' => '3 Years',
-                                                '4year' => '4 Years',
-                                                '5year' => '5 Years',
-                                                '6year' => '6 Years',
-                                                '7year' => '7 Years',
-                                                '8year' => '8 Years',
-                                                '9year' => '9 Years',
-                                                '10year+' => '10 Years & Above',
+                                                '1year' => '1 Year',
+                                                '2years' => '2 Years',
+                                                '3years' => '3 Years',
+                                                '4years' => '4 Years',
+                                                '5years' => '5 Years',
+                                                '6years' => '6 Years',
+                                                '7years' => '7 Years',
+                                                '8years' => '8 Years',
+                                                '9years' => '9 Years',
+                                                '10years+' => '10 Years & Above',
                                             ])
                                             ->label('Experience'),
                                         Forms\Components\Select::make('last_used')
@@ -158,15 +195,12 @@ class MyResumeProfile extends Page
                                                 $counter = 30;
                                                 for ($i = $counter; $i >= 0; $i--) {
                                                     $lastUsedOptions[
-                                                    sprintf('%s', Carbon::now()->subYear($i)->year)
-                                                    ] =
-                                                        sprintf('%s', Carbon::now()->subYear($i)->year);
+                                                        Carbon::now()->subYear($i)->year
+                                                    ] = Carbon::now()->subYear($i)->year;
                                                 }
-
                                                 return $lastUsedOptions;
                                             })
                                             ->label('Last Used'),
-
                                     ]),
                             ]),
                         Tabs\Tab::make('Current Job Information')

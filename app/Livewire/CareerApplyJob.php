@@ -188,7 +188,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             ->label('Current Job Title'),
                         Forms\Components\Select::make('experience')
                             ->options([
-                                '1year' => '1year',
+                                '1year' => '1 Year',
                                 '2year' => '2 Years',
                                 '3year' => '3 Years',
                                 '4year' => '4 Years',
@@ -218,7 +218,13 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                     ])
                                     ->required(),
                                 Forms\Components\Checkbox::make('pursuing')
-                                    ->inline(false),
+                                    ->label('Pursuing')
+                                    ->live()
+                                    ->inline(false)
+                                    ->extraAttributes([
+                                        'style' => 'cursor: pointer;',
+                                        'wire:key' => 'pursuing-checkbox'
+                                    ]),
                             ])
                             ->deletable(true)
                             ->columns(4),
@@ -231,7 +237,12 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             ->schema([
                                 Forms\Components\Checkbox::make('current')
                                     ->label('Current?')
-                                    ->inline(false),
+                                    ->live()
+                                    ->inline(false)
+                                    ->extraAttributes([
+                                        'style' => 'cursor: pointer;',
+                                        'wire:key' => 'current-checkbox'
+                                    ]),
                                 Forms\Components\TextInput::make('company_name'),
                                 Forms\Components\TextInput::make('duration'),
                                 Forms\Components\TextInput::make('role'),

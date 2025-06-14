@@ -37,6 +37,8 @@ class JobOpenings extends Model
         'RequiredSkill',
         'WorkExperience',
         'JobDescription',
+        'JobRequirement',
+        'JobBenefits',
         'AdditionalNotes',
         'City',
         'Country',
@@ -81,13 +83,17 @@ class JobOpenings extends Model
     {
         return [
             'JobOpeningSystemID' => [
-                'format' => 'RLR_?_JOB', // autonumber format. '?' will be replaced with the generated number.
-                'length' => 5, // The number of digits in an autonumber
+                'format' => 'RLR_?_JOB',
+                'length' => 5,
             ],
         ];
     }
 
     protected $casts = [
         'RequiredSkill' => 'array',
+        'TargetDate' => 'datetime',
+        'DateOpened' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }
