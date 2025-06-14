@@ -242,7 +242,36 @@ class CandidatesProfileResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('FirstName')
+                    ->label('First Name')
+                    ->searchable()
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('LastName')
+                    ->label('Last Name')
+                    ->searchable()
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable(),
+                    
+                Tables\Columns\TextColumn::make('Mobile')
+                    ->label('Phone')
+                    ->searchable(),
+                    
+                Tables\Columns\TextColumn::make('CurrentJobTitle')
+                    ->label('Current Position')
+                    ->searchable(),
+                    
+                Tables\Columns\TextColumn::make('ExperienceInYears')
+                    ->label('Experience')
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Added On')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
