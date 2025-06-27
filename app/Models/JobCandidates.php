@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Wildside\Userstamps\Userstamps;
+use App\Filament\Enums\AttachmentCategory;
 
 class JobCandidates extends Model
 {
@@ -67,7 +68,21 @@ class JobCandidates extends Model
 
     public function attachments(): HasMany
     {
-        return $this->hasMany(Attachments::class, 'attachmentOwner', 'id');
+        return $this->hasMany(Attachments::class, 'attachmentOwner', 'id')
+            ->where('moduleName', 'JobCandidates');
+    }
+
+    public function resume(): HasMany
+    {
+        return $this->attachments()
+            ->where('category', AttachmentCategory::Resume->value);
+    }
+
+    public function candidateResume(): HasMany
+    {
+        return $this->hasMany(Attachments::class, 'attachmentOwner', 'candidate')
+            ->where('moduleName', 'Candidates')
+            ->where('category', AttachmentCategory::Resume->value);
     }
 
     /**
