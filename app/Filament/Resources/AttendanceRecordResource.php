@@ -136,13 +136,16 @@ class AttendanceRecordResource extends Resource
                 TextColumn::make('clock_in_time')
                     ->label('Clock In')
                     ->time('H:i')
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('clock_out_time')
                     ->label('Clock Out')
                     ->time('H:i')
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('formattedWorkDuration')
                     ->label('Work Duration')
+                    ->alignCenter()
                     ->placeholder('--:--'),
                 TextColumn::make('locationType.arrangement_type') // Display the 'name' from the WorkArrangement model
                     ->label('Arrangement')
