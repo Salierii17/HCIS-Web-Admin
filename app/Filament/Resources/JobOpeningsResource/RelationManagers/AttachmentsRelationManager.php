@@ -109,10 +109,29 @@ class AttachmentsRelationManager extends RelationManager
                     ->getStateUsing(function ($record) {
                         if ($record->moduleName === 'Candidates') {
                             $candidate = Candidates::find($record->attachmentOwner);
-                            return $candidate->full_name ?? 'Candidate';
+                            return $candidate ? $candidate->full_name : 'Candidate';
                         }
                         return 'Job Opening Document';
-                    }),
+                    })
+                    ->url(function ($record) {
+                        if ($record->moduleName === 'Candidates' && $record->attachmentOwner) {
+                            return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
+                                'record' => $record->attachmentOwner
+                            ]);
+                        }
+                        return null;
+                    })
+                    ->openUrlInNewTab(false)
+                    ->icon(function ($record) {
+                        if ($record->moduleName === 'Candidates') {
+                            return 'heroicon-m-arrow-top-right-on-square';
+                        }
+                        return null;
+                    })
+                    ->iconPosition('after')
+                    ->extraAttributes([
+                        'class' => 'hover:underline'
+                    ]),
                 Tables\Columns\TextColumn::make('attachmentName')
                     ->label('File Name'),
                 Tables\Columns\TextColumn::make('category')

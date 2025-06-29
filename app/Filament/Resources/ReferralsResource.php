@@ -137,7 +137,20 @@ class ReferralsResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('candidates.full_name')
                     ->label('Candidate Name')
-                    ->searchable(['candidates.FirstName', 'candidates.LastName']),
+                    ->searchable(['candidates.FirstName', 'candidates.LastName'])
+                    ->url(function ($record) {
+                        if ($record->candidates) {
+                            return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
+                                'record' => $record->candidates->id
+                            ]);
+                        }
+                        return null;
+                    })
+                    ->openUrlInNewTab(false)
+                    ->icon(function ($state) {
+                        return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
+                    })
+                    ->iconPosition('after'),
                     
                 Tables\Columns\TextColumn::make('jobopenings.JobTitle')
                     ->label('Job Title')
@@ -150,9 +163,6 @@ class ReferralsResource extends Resource
                         return null;
                     })
                     ->openUrlInNewTab(false)
-                    ->formatStateUsing(function ($state) {
-                        return $state ? $state . ' ' . \Filament\Support\Enums\IconPosition::After->value : null;
-                    })
                     ->icon(function ($state) {
                         return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
                     })
@@ -180,9 +190,9 @@ class ReferralsResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('Status')
-                    ->label('Status')  // Changed to just "Status"
+                    ->label('Status')
                     ->icon('heroicon-o-clipboard-document-list')
-                    ->color('success')  // Changed to green (success color)
+                    ->color('success')
                     ->url(function ($record) {
                         return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [
                             'record' => $record->JobCandidate
