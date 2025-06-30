@@ -1,0 +1,35 @@
+# Use an official PHP image with Apache or Nginx
+FROM php:8.2-apache-buster # Or php:8.2-fpm-alpine if using Nginx
+
+# Install PHP extensions required by Laravel and Filament
+RUN docker-php-ext-install pdo_mysql bcmath exif pcntl gd
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy composer.json and composer.lock first to leverage Docker cache
+COPY composer.json composer.lock ./
+
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy the rest of the application code
+COPY . .
+
+# Set proper permissions for storage and bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R ug+rwx storage bootstrap/cache
+
+# Configure Apache if using php-apache image
+# For Nginx/FPM, you'd configure Nginx separately
+COPY .docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+RUN a2enmod rewrite
+
+# Expose port (default for Apache)
+EXPOSE 80
+
+# Start Apache (default for php-apache image)
+CMD ["apache2-foreground"]
