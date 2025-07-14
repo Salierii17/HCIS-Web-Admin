@@ -18,6 +18,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\Action;
 use App\Notifications\SendTrainingNotification;
+use Filament\Forms\Components\DateTimePicker;
 
 class AssignTrainingResource extends Resource
 {
@@ -43,6 +44,11 @@ class AssignTrainingResource extends Resource
             ->label('Package')
             ->relationship('package', 'name')
             ->required(),
+        
+        DateTimePicker::make('deadline')
+                ->label('Deadline')
+                ->required()
+                ->minDate(now()), // agar tidak bisa pilih waktu yang sudah lewat
     ]);
 }
 
@@ -52,7 +58,8 @@ class AssignTrainingResource extends Resource
             ->columns([
                 TextColumn::make('user.name')->label('User'),
                 TextColumn::make('package.name')->label('Package'),
-                TextColumn::make('created_at')->label('Assigned At')->dateTime(),
+                TextColumn::make('created_at')->label('Assigned At')->dateTime('d M Y H:i'),
+                TextColumn::make('deadline')->label('Deadline')->dateTime('d M Y H:i'),
             ])
             ->actions([
             Action::make('sendNotification')
