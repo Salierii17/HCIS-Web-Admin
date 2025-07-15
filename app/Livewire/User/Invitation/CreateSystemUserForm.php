@@ -16,6 +16,7 @@ use Filament\Pages\SimplePage;
 use Filament\Support\Colors\Color;
 use Illuminate\Http\Request;
 use Phpsa\FilamentPasswordReveal\Password;
+use Illuminate\Support\Facades\Hash;
 
 class CreateSystemUserForm extends SimplePage
 {
@@ -57,7 +58,7 @@ class CreateSystemUserForm extends SimplePage
     {
         $this->form->getState();
         $this->user->forceFill([
-            'password' => \Hash::make($this->data['password']),
+            'password' => Hash::make($this->data['password']),
             'email_verified_at' => Carbon::now(),
             'joined_at' => Carbon::now(),
         ])->save();
