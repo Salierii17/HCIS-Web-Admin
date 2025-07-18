@@ -26,7 +26,8 @@ return new class extends Migration
                 'Verified', 
                 'Pending Approval', 
                 'Rejected', 
-                'Incomplete'
+                'Incomplete',
+                'Flagged for Review'
             ])->default('In Progress');
             $table->text('notes')->nullable();
             $table->timestamps();
