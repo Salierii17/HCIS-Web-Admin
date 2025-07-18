@@ -22,6 +22,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use App\Models\AttendanceApproval;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 
 class AttendanceRecordResource extends Resource
 {
@@ -39,34 +42,34 @@ class AttendanceRecordResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make(2)->schema([ // Using Grid for better layout
+                Grid::make(2)->schema([
                     Select::make('employee_id')
                         ->label('Employee')
                         ->relationship('employee', 'name')
-                        ->searchable(['name', 'email']) // Search by multiple employee attributes
+                        ->searchable(['name', 'email'])
                         ->preload()
                         ->required()
-                        ->createOptionForm([ // Allow creating new employees on the fly (optional)
+                        ->createOptionForm([
                             TextInput::make('name')->required(),
                             TextInput::make('email')->email()->required()->unique(table: User::class, column: 'email'),
-                            // Add other necessary fields for User model
+                        
                         ])
                         ->columnSpan(1),
 
-                    DatePicker::make('date') // Changed from DateTimePicker to DatePicker
+                    DatePicker::make('date')
                         ->label('Timestamp')
                         ->required()
-                        ->native(false) // Use Filament's date picker UI
-                        ->default(now()) // Default to today
+                        ->native(false)
+                        ->default(now())
                         ->columnSpan(1),
 
-                    TimePicker::make('clock_in_time') // Changed to TimePicker
+                    TimePicker::make('clock_in_time')
                         ->label('Clock In')
-                        ->seconds(false) // Hide seconds if not needed
+                        ->seconds(false)
                         ->nullable()
                         ->columnSpan(1),
 
-                    TimePicker::make('clock_out_time') // Changed to TimePicker
+                    TimePicker::make('clock_out_time')
                         ->label('Clock Out')
                         ->seconds(false)
                         ->nullable()
@@ -74,23 +77,23 @@ class AttendanceRecordResource extends Resource
 
                     Select::make('location_type_id')
                         ->label('Work Arrangement')
-                        ->relationship(name: 'locationType', titleAttribute: 'arrangement_type') // Ensure 'arrangement_type' is the correct display attribute
+                        ->relationship(name: 'locationType', titleAttribute: 'arrangement_type')
                         ->searchable()
                         ->preload()
-                        ->nullable() // Make it nullable if not always required
-                        ->createOptionForm([ // Allow creating new work arrangements (optional)
+                        ->nullable()
+                        ->createOptionForm([
                             TextInput::make('arrangement_type')->required()->unique(table: WorkArrangement::class, column: 'arrangement_type'),
-                            // Add other fields if any for WorkArrangement
+                        
                         ])
                         ->columnSpan(1),
 
                     Select::make('status_id')
                         ->label('Status')
-                        ->relationship(name: 'status', titleAttribute: 'status') // Ensure 'status' is the correct display attribute on AttendanceStatus model
+                        ->relationship(name: 'status', titleAttribute: 'status')
                         ->searchable()
                         ->preload()
                         ->required()
-                        ->createOptionForm([ // Allow creating new statuses (optional)
+                        ->createOptionForm([
                             TextInput::make('status')->required()->unique(table: AttendanceStatus::class, column: 'status'),
                         ])
                         ->columnSpan(1),
@@ -99,7 +102,7 @@ class AttendanceRecordResource extends Resource
                         ->label('Work Hours (Decimal)')
                         ->numeric()
                         ->nullable()
-                        ->step(0.1) // For decimal input
+                        ->step(0.1)
                         ->placeholder('e.g., 8.5 for 8h 30m')
                         ->helperText('Leave blank to auto-calculate from clock in/out if applicable.')
                         ->columnSpan(1),
@@ -109,7 +112,7 @@ class AttendanceRecordResource extends Resource
                         ->maxLength(255)
                         ->nullable()
                         ->columnSpan(1),
-                ]), // End Grid
+                ]),
 
                 Textarea::make('notes')
                     ->label('Notes')
@@ -147,12 +150,12 @@ class AttendanceRecordResource extends Resource
                     ->label('Work Duration')
                     ->alignCenter()
                     ->placeholder('--:--'),
-                TextColumn::make('locationType.arrangement_type') // Display the 'name' from the WorkArrangement model
+                TextColumn::make('locationType.arrangement_type')
                     ->label('Arrangement')
                     ->searchable()
                     ->badge()
                     ->alignCenter()
-                    ->color(fn(string $state): string => match (strtolower($state)) { // Conditional badge colors
+                    ->color(fn(string $state): string => match (strtolower($state)) {
                         'wfo' => 'success',
                         'wfh' => 'info',
                         default => 'gray',
@@ -174,11 +177,25 @@ class AttendanceRecordResource extends Resource
                         default => 'primary',
                     })
                     ->sortable(),
-                TextColumn::make('updated_at') // More relevant than created_at for edits
+                TextColumn::make('approval_status')
+                    ->label('Approval Status')
+                    ->badge()
+                    ->aligncenter()
+                    ->color(fn (string $state): string => match (strtolower($state)) {
+                        'in progress'     => 'info',
+                        'verified'        => 'success',
+                        'pending approval' => 'warning',
+                        'rejected'        => 'danger',
+                        'incomplete'      => 'gray',
+                        default           => 'secondary',
+                    })
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('updated_at')
                     ->label('Last Updated')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true), // Hidden by default
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -188,12 +205,12 @@ class AttendanceRecordResource extends Resource
                     ->preload()
                     ->label('Employee'),
                 SelectFilter::make('locationType')
-                    ->relationship('locationType', 'arrangement_type') // Use correct attribute
+                    ->relationship('locationType', 'arrangement_type')
                     ->label('Work Arrangement'),
                 SelectFilter::make('status')
-                    ->relationship('status', 'status') // Use correct attribute
+                    ->relationship('status', 'status')
                     ->label('Status'),
-                Filter::make('date') // Custom Date Range Filter
+                Filter::make('date')
                     ->form([
                         DatePicker::make('created_from')->label('Date From')->native(false),
                         DatePicker::make('created_until')->label('Date Until')->native(false)->default(now()),
@@ -226,8 +243,65 @@ class AttendanceRecordResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+
+                Action::make('requestUpdate')
+                ->label('Request Update')
+                ->icon('heroicon-o-plus-circle')
+                ->color('warning')
+                // This button will only be visible for records that need fixing
+                ->visible(fn (Attendance $record): bool => in_array($record->approval_status, ['Incomplete', 'Flagged for Review', 'Rejected']))
+                // This defines the pop-up form fields
+                ->form([
+                    TimePicker::make('requested_clock_out_time')
+                        ->required(),
+                    Textarea::make('reason')
+                        ->label('Reason')
+                        ->required(),
+                ])
+                // This is the logic that runs when the form is submitted
+                ->action(function (Attendance $record, array $data): void {
+                    // 1. Create the approval request
+                    AttendanceApproval::create([
+                        'attendance_id' => $record->id,
+                        'requested_by_id' => auth()->id(), // Logged-in manager is the requester
+                        'requested_clock_out_time' => $data['requested_clock_out_time'],
+                        'employee_reason' => $data['reason'],
+                        'status' => 'pending',
+                    ]);
+        
+                    // 2. Update the original record's status
+                    $record->approval_status = 'Pending Approval';
+                    $record->save();
+        
+                    Notification::make()
+                        ->title('Correction request created successfully')
+                        ->success()
+                        ->send();
+                }),
+                Action::make('approveException')
+
+    ->label('Approve Exception')
+    ->icon('heroicon-o-shield-check')
+    ->color('success')
+    ->visible(fn (Attendance $record): bool => $record->approval_status === 'Flagged for Review')
+    ->requiresConfirmation()
+    ->form([
+        Textarea::make('manager_comment')
+            ->label('Reason for Approval (e.g., Family Emergency)')
+            ->required(),
+    ])
+
+    // Manager approved fucntion
+    ->action(function (Attendance $record, array $data): void {
+        $record->approval_status = 'Verified';
+        $record->notes = $record->notes . "\nException approved by manager: " . $data['manager_comment'];
+        $record->save();
+
+        Notification::make()
+            ->title('Exception approved successfully')
+            ->success()
+            ->send();
+    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -249,7 +323,7 @@ class AttendanceRecordResource extends Resource
         ];
     }
 
-    // Optional: Improve global search results
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['employee.name', 'date', 'locationType.arrangement_type', 'status.status'];
@@ -257,6 +331,6 @@ class AttendanceRecordResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count(); // Show total records in navigation
+        return static::getModel()::count();
     }
 }
