@@ -13,14 +13,6 @@ class ListAttendanceRecords extends ListRecords
 {
     protected static string $resource = AttendanceRecordResource::class;
 
-    // protected function getActions(): array
-    // {
-    //     return [
-    //         CreateAction::make()
-    //             ->icon('heroicon-m-plus-small'),
-    //     ];
-    // }
-
     public function getTabs(): array
     {
         return [

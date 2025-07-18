@@ -22,6 +22,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use App\Models\AttendanceApproval;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 
 class AttendanceRecordResource extends Resource
 {
@@ -240,8 +243,65 @@ class AttendanceRecordResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+
+                Action::make('requestUpdate')
+                ->label('Request Update')
+                ->icon('heroicon-o-plus-circle')
+                ->color('warning')
+                // This button will only be visible for records that need fixing
+                ->visible(fn (Attendance $record): bool => in_array($record->approval_status, ['Incomplete', 'Flagged for Review', 'Rejected']))
+                // This defines the pop-up form fields
+                ->form([
+                    TimePicker::make('requested_clock_out_time')
+                        ->required(),
+                    Textarea::make('reason')
+                        ->label('Reason')
+                        ->required(),
+                ])
+                // This is the logic that runs when the form is submitted
+                ->action(function (Attendance $record, array $data): void {
+                    // 1. Create the approval request
+                    AttendanceApproval::create([
+                        'attendance_id' => $record->id,
+                        'requested_by_id' => auth()->id(), // Logged-in manager is the requester
+                        'requested_clock_out_time' => $data['requested_clock_out_time'],
+                        'employee_reason' => $data['reason'],
+                        'status' => 'pending',
+                    ]);
+        
+                    // 2. Update the original record's status
+                    $record->approval_status = 'Pending Approval';
+                    $record->save();
+        
+                    Notification::make()
+                        ->title('Correction request created successfully')
+                        ->success()
+                        ->send();
+                }),
+                Action::make('approveException')
+
+    ->label('Approve Exception')
+    ->icon('heroicon-o-shield-check')
+    ->color('success')
+    ->visible(fn (Attendance $record): bool => $record->approval_status === 'Flagged for Review')
+    ->requiresConfirmation()
+    ->form([
+        Textarea::make('manager_comment')
+            ->label('Reason for Approval (e.g., Family Emergency)')
+            ->required(),
+    ])
+
+    // Manager approved fucntion
+    ->action(function (Attendance $record, array $data): void {
+        $record->approval_status = 'Verified';
+        $record->notes = $record->notes . "\nException approved by manager: " . $data['manager_comment'];
+        $record->save();
+
+        Notification::make()
+            ->title('Exception approved successfully')
+            ->success()
+            ->send();
+    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
