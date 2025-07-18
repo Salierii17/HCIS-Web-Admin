@@ -12,14 +12,16 @@ class AttendanceApproval extends Model
 
     protected $guarded = [];
 
+    protected $with = ['requester', 'attendance'];
+
+    public function requester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requested_by_id');
+    }
+
     public function attendance(): BelongsTo
     {
         return $this->belongsTo(Attendance::class);
     }
 
-    // Relationship to the employee who made the request
-    public function requester(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'requested_by_id');
-    }
 }

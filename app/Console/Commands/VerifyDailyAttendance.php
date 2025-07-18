@@ -76,7 +76,7 @@ class VerifyDailyAttendance extends Command
             $record->save();
         }
         $this->info("Automatically verified {$verifiedCount} compliant records.");
-        $this->info("Flagged {$flaggedCount} non-compliant records for manager review.");
+        $this->info("Flagged {$flaggedCount} non-compliant records for supervisor review.");
         $this->info('Process finished successfully.');
 
         return self::SUCCESS;

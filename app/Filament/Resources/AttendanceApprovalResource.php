@@ -24,9 +24,11 @@ class AttendanceApprovalResource extends Resource
     protected static ?string $modelLabel = 'Attendance Approval';
 
     public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->where('status', 'pending');
-    }
+{
+    return parent::getEloquentQuery()
+        ->where('status', 'pending')
+        ->with(['requester', 'attendance']); // Add this line
+}
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -39,9 +41,11 @@ class AttendanceApprovalResource extends Resource
             ->schema([
                 TextInput::make('requester.name')
                     ->label('Employee')
+                    ->default(fn (?AttendanceApproval $record): string => $record?->requester?->name ?? '')
                     ->disabled(),
                 TextInput::make('attendance.date')
                     ->label('Date')
+                    ->default(fn (?AttendanceApproval $record): string => $record?->attendance?->date ?? '')
                     ->disabled(),
                 TextInput::make('requested_clock_out_time')
                     ->label('Requested Clock Out')
@@ -124,14 +128,7 @@ class AttendanceApprovalResource extends Resource
                             ->send();
                     }),
 
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                ]);
     }
 
     public static function getRelations(): array
@@ -145,7 +142,6 @@ class AttendanceApprovalResource extends Resource
     {
         return [
             'index' => Pages\ListAttendanceApprovals::route('/'),
-            'view' => Pages\ViewAttendanceApproval::route('/{record}'),
         ];
     }
 }
