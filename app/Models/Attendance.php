@@ -67,11 +67,11 @@ class Attendance extends Model
                         return "{$duration->h}h {$duration->i}m";
                     }
                 }
-                return null; // Or 'N/A', or '0h 0m'
+                return null;
             }
         );
     }
-    protected function GpsCoordinatesArray(): Attribute // Note the naming convention for accessors
+    protected function GpsCoordinatesArray(): Attribute
     {
         return Attribute::make(
             get: function ($value, $attributes) {
