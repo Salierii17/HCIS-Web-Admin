@@ -9,11 +9,4 @@ use Filament\Resources\Pages\ListRecords;
 class ListAttendanceApprovals extends ListRecords
 {
     protected static string $resource = AttendanceApprovalResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
 }

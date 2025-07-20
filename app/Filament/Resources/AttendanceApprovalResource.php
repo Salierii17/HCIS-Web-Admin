@@ -27,7 +27,7 @@ class AttendanceApprovalResource extends Resource
 {
     return parent::getEloquentQuery()
         ->where('status', 'pending')
-        ->with(['requester', 'attendance']); // Add this line
+        ->with(['requester', 'attendance']);
 }
 
     public static function shouldRegisterNavigation(): bool
