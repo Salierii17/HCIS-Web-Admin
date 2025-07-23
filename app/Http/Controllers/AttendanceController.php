@@ -31,7 +31,6 @@ class AttendanceController extends Controller
 
             $attendances = $query->orderBy('date', 'desc')->orderBy('clock_in_time', 'asc')->paginate(15);
 
-            // Transform the data to better match the frontend's AttendanceLogItem
             $transformedAttendances = $attendances->through(function ($attendance) {
                 return $this -> transformAttendance($attendance);
             });
@@ -191,8 +190,8 @@ class AttendanceController extends Controller
         return [
             'id' => (string) $attendance->id,
             'date' => $attendance->date->format('Y-m-d'),
-            'checkInTime' => $attendance->clock_in_time ? $attendance->clock_in_time->format('H:i:s') : null,
-            'checkOutTime' => $attendance->clock_out_time ? $attendance->clock_out_time->format('H:i:s') : null,
+            'clockInTime' => $attendance->clock_in_time ? $attendance->clock_in_time->format('H:i:s') : null,
+            'clockOutTime' => $attendance->clock_out_time ? $attendance->clock_out_time->format('H:i:s') : null,
             'status' => $attendance->status ? $attendance->status->status : null,
             'approvalStatus' => $attendance->approval_status,
             'workArrangement' => $attendance->locationType ? $attendance->locationType->arrangement_type : null,
