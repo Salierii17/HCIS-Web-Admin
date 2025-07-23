@@ -35,4 +35,14 @@ Route::middleware('api')
         // });
         Route::apiResource('attendance', AttendanceController::class);
         Route::post('attendance-requests', [AttendanceRequestController::class, 'store']);
+
+        Route::middleware('auth:api')->group(function () {
+            
+            // This route now requires authentication
+            Route::apiResource('attendance', AttendanceController::class);
+            
+            // **FIX:** This route is now protected, so auth()->id() will work.
+            Route::post('attendance-requests', [AttendanceRequestController::class, 'store']);
+        
+        });
     });

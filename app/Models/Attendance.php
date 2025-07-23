@@ -21,7 +21,8 @@ class Attendance extends Model
         'gps_coordinates',
         'status_id',
         'work_hours',
-        'notes'
+        'notes',
+        'approval_status',
     ];
 
     protected $casts = [
