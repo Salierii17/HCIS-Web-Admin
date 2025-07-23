@@ -33,4 +33,5 @@ Route::middleware('api')
         //     Route::post('attendance', [AttendanceController::class, 'store']);
         // });
         Route::apiResource('attendance', AttendanceController::class);
+        Route::post('attendance-requests', [AttendanceRequestController::class, 'store']);
     });
