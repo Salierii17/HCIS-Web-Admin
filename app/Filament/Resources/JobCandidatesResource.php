@@ -263,7 +263,7 @@ class JobCandidatesResource extends Resource
                         }
                     })
                     ->visible(function (JobCandidates $record) {
-                        return $record->CandidateStatus === 'Hired' && $record->candidateProfile !== null;
+                        return $record->CandidateStatus === 'Joined' && $record->candidateProfile !== null;
                     })
             ])
             ->bulkActions([
