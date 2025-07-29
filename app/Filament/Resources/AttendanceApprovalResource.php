@@ -4,8 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AttendanceApprovalResource\Pages;
 use App\Models\AttendanceApproval;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -24,11 +24,11 @@ class AttendanceApprovalResource extends Resource
     protected static ?string $modelLabel = 'Attendance Approval';
 
     public static function getEloquentQuery(): Builder
-{
-    return parent::getEloquentQuery()
-        ->where('status', 'pending')
-        ->with(['requester', 'attendance']);
-}
+    {
+        return parent::getEloquentQuery()
+            ->where('status', 'pending')
+            ->with(['requester', 'attendance']);
+    }
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -128,7 +128,7 @@ class AttendanceApprovalResource extends Resource
                             ->send();
                     }),
 
-                ]);
+            ]);
     }
 
     public static function getRelations(): array

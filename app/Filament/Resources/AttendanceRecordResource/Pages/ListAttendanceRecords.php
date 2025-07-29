@@ -3,10 +3,8 @@
 namespace App\Filament\Resources\AttendanceRecordResource\Pages;
 
 use App\Filament\Resources\AttendanceRecordResource;
-use Filament\Actions;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
 use App\Models\Attendance;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder; // Make sure to import the Builder
 
 class ListAttendanceRecords extends ListRecords
@@ -17,7 +15,7 @@ class ListAttendanceRecords extends ListRecords
     {
         return [
             'all' => ListRecords\Tab::make(),
-            
+
             'flagged_for_review' => ListRecords\Tab::make('Flagged for Review')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('approval_status', 'Flagged for Review'))
                 ->badge(Attendance::where('approval_status', 'Flagged for Review')->count())
@@ -30,10 +28,9 @@ class ListAttendanceRecords extends ListRecords
 
             'verified' => ListRecords\Tab::make('Verified')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('approval_status', 'Verified')),
-            
+
             'incomplete' => ListRecords\Tab::make('Incomplete')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('approval_status', 'Incomplete')),
         ];
     }
-
 }

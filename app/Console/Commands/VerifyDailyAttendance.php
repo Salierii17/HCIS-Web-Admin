@@ -29,11 +29,11 @@ class VerifyDailyAttendance extends Command
     public function handle(): int
     {
         Log::info('--- Running attendance:daily-verify command ---');
-        Log::info('Timezone from config/app.php: ' . config('app.timezone'));
-        Log::info('Carbon::now() reports current time as: ' . Carbon::now()->toDateTimeString());
+        Log::info('Timezone from config/app.php: '.config('app.timezone'));
+        Log::info('Carbon::now() reports current time as: '.Carbon::now()->toDateTimeString());
 
         $yesterday = Carbon::yesterday()->toDateString();
-        Log::info('Based on the time above, the command is searching for date: ' . $yesterday);
+        Log::info('Based on the time above, the command is searching for date: '.$yesterday);
 
         $this->info('Starting daily attendance processing...');
 
@@ -58,10 +58,10 @@ class VerifyDailyAttendance extends Command
 
         Log::info("Query for completed records found {$recordsToVerify->count()} item(s) to verify.");
 
-
         if ($recordsToVerify->isEmpty()) {
             $this->info('No completed records needed verification. Process finished.');
             Log::info('--- Command finished: No completed records found. ---');
+
             return self::SUCCESS;
         }
 
@@ -94,7 +94,6 @@ class VerifyDailyAttendance extends Command
         $this->info("Flagged {$flaggedCount} non-compliant records for supervisor review.");
         $this->info('Process finished successfully.');
         Log::info('--- Command finished: Processed all records. ---');
-
 
         return self::SUCCESS;
     }

@@ -2,10 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Models\Package;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-use App\Models\Package; // training module
+use Illuminate\Notifications\Notification; // training module
 
 class TrainingAssignedNotification extends Notification
 {
@@ -27,12 +27,12 @@ class TrainingAssignedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Pelatihan Baru Telah Ditugaskan')
-            ->greeting('Halo, ' . $notifiable->name)
+            ->greeting('Halo, '.$notifiable->name)
             ->line('Anda telah ditugaskan pelatihan berikut:')
-            ->line('Judul: ' . $this->package->title)
-            ->line('Deskripsi: ' . $this->package->description)
-            ->action('Mulai Pelatihan', url('/training/packages/' . $this->package->id))
+            ->line('Judul: '.$this->package->title)
+            ->line('Deskripsi: '.$this->package->description)
+            ->action('Mulai Pelatihan', url('/training/packages/'.$this->package->id))
             ->line('Silakan selesaikan pelatihan ini sebelum deadline.')
-            ->salutation('Terima kasih, Tim ' . config('app.name'));
+            ->salutation('Terima kasih, Tim '.config('app.name'));
     }
 }

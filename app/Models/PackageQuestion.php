@@ -15,12 +15,12 @@ class PackageQuestion extends Model
         'package_id',
     ];
 
-     public function packages(): BelongsTo
+    public function packages(): BelongsTo
     {
         return $this->belongsTo(Package::class);
     }
 
-     public function question(): BelongsTo
+    public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
     }

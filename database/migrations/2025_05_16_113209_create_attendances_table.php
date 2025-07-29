@@ -22,12 +22,12 @@ return new class extends Migration
             $table->foreignId('status_id')->constrained('attendance_statuses');
             $table->decimal('work_hours', 5, 2)->nullable();
             $table->enum('approval_status', [
-                'In Progress', 
-                'Verified', 
-                'Pending Approval', 
-                'Rejected', 
+                'In Progress',
+                'Verified',
+                'Pending Approval',
+                'Rejected',
                 'Incomplete',
-                'Flagged for Review'
+                'Flagged for Review',
             ])->default('In Progress');
             $table->text('notes')->nullable();
             $table->timestamps();

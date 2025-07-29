@@ -23,5 +23,4 @@ class AttendanceApproval extends Model
     {
         return $this->belongsTo(Attendance::class);
     }
-
 }

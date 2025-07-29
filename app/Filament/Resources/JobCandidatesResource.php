@@ -9,21 +9,21 @@ use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\JobOpenings;
 use App\Models\User;
+use App\Notifications\User\InviteNewSystemUserNotification;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Notifications\Notification;
-use App\Notifications\User\InviteNewSystemUserNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
-use Filament\Tables\Actions\BulkAction;
-use Illuminate\Database\Eloquent\Collection;
 
 class JobCandidatesResource extends Resource
 {
@@ -149,8 +149,8 @@ class JobCandidatesResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('candidateProfile.full_name')
                     ->label('Candidate Name')
-                    ->searchable(query: function(Builder $query, string $search) {
-                        $query->whereHas('candidateProfile', function($q) use ($search) {
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('candidateProfile', function ($q) use ($search) {
                             $q->where('full_name', 'like', "%{$search}%");
                         });
                     }),
@@ -215,17 +215,18 @@ class JobCandidatesResource extends Resource
                         try {
                             // Check if user already exists with this email
                             $existingUser = User::where('email', $record->Email)->first();
-                            
+
                             if ($existingUser) {
                                 Notification::make()
                                     ->title('User already exists')
                                     ->body('A user with this email already exists in the system.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
-                            if (!$record->candidateProfile) {
+                            if (! $record->candidateProfile) {
                                 throw new \Exception('Candidate profile not found');
                             }
 
@@ -264,7 +265,7 @@ class JobCandidatesResource extends Resource
                     })
                     ->visible(function (JobCandidates $record) {
                         return $record->CandidateStatus === 'Hired' && $record->candidateProfile !== null;
-                    })
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -277,30 +278,32 @@ class JobCandidatesResource extends Resource
                                 'skipped_existing' => 0,
                                 'skipped_non_hired' => 0,
                                 'skipped_no_profile' => 0,
-                                'errors' => []
+                                'errors' => [],
                             ];
 
-                            $hiredCandidates = $records->filter(fn ($record) => 
-                                $record->CandidateStatus === 'Hired'
+                            $hiredCandidates = $records->filter(fn ($record) => $record->CandidateStatus === 'Hired'
                             );
 
                             foreach ($hiredCandidates as $record) {
                                 try {
                                     // Skip if no email or profile
-                                    if (!$record->Email) {
+                                    if (! $record->Email) {
                                         $results['skipped_no_profile']++;
+
                                         continue;
                                     }
 
-                                    if (!$record->candidateProfile) {
+                                    if (! $record->candidateProfile) {
                                         $results['skipped_no_profile']++;
                                         $results['errors'][] = "No profile for: {$record->Email}";
+
                                         continue;
                                     }
 
                                     // Check for existing user
                                     if (User::where('email', $record->Email)->exists()) {
                                         $results['skipped_existing']++;
+
                                         continue;
                                     }
 
@@ -325,7 +328,7 @@ class JobCandidatesResource extends Resource
                                     $results['created']++;
 
                                 } catch (\Exception $e) {
-                                    $results['errors'][] = "Error with {$record->Email}: " . $e->getMessage();
+                                    $results['errors'][] = "Error with {$record->Email}: ".$e->getMessage();
                                 }
                             }
 
@@ -347,7 +350,7 @@ class JobCandidatesResource extends Resource
                                 $messageParts[] = "Skipped {$results['skipped_no_profile']} candidate(s) with missing profile";
                             }
 
-                            $message = implode('. ', $messageParts) . '.';
+                            $message = implode('. ', $messageParts).'.';
 
                             // Show notification
                             $notification = Notification::make()
@@ -356,14 +359,14 @@ class JobCandidatesResource extends Resource
                                 ->success();
 
                             // Add error details if any
-                            if (!empty($results['errors'])) {
+                            if (! empty($results['errors'])) {
                                 $notification->actions([
                                     \Filament\Notifications\Actions\Action::make('viewErrors')
-                                        ->label('View Errors (' . count($results['errors']) . ')')
+                                        ->label('View Errors ('.count($results['errors']).')')
                                         ->color('danger')
                                         ->modalContent(view('filament.user.invitation.bulk-errors', [
-                                            'errors' => $results['errors']
-                                        ]))
+                                            'errors' => $results['errors'],
+                                        ])),
                                 ]);
                             }
 

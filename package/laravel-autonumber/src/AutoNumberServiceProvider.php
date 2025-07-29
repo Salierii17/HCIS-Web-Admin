@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright (c) Marjose Darang. - All Rights Reserved
  *
@@ -37,7 +38,7 @@ class AutoNumberServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(AutoNumberObserver::class, function ($app) {
-            return new AutoNumberObserver(new AutoNumber());
+            return new AutoNumberObserver(new AutoNumber);
         });
     }
 }

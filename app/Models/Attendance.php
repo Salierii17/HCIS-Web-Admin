@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Attendance extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [
@@ -29,9 +28,8 @@ class Attendance extends Model
         'clock_in_time' => 'datetime:H:i',
         'clock_out_time' => 'datetime:H:i',
         'date' => 'date',
-        'work_hours' => 'float'
+        'work_hours' => 'float',
     ];
-
 
     public function employee()
     {
@@ -52,26 +50,30 @@ class Attendance extends Model
     {
         return Attribute::make(
             get: function ($value, $attributes) {
-                if (!is_null($attributes['work_hours'])) {
+                if (! is_null($attributes['work_hours'])) {
                     $workHoursDecimal = $attributes['work_hours'];
                     $hours = floor($workHoursDecimal);
                     $minutes = round(($workHoursDecimal - $hours) * 60);
+
                     return "{$hours}h {$minutes}m";
                 }
 
-                if (!empty($attributes['clock_in_time']) && !empty($attributes['clock_out_time'])) {
+                if (! empty($attributes['clock_in_time']) && ! empty($attributes['clock_out_time'])) {
                     $clockIn = Carbon::parse($attributes['clock_in_time']);
                     $clockOut = Carbon::parse($attributes['clock_out_time']);
 
                     if ($clockOut->gt($clockIn)) {
                         $duration = $clockOut->diff($clockIn);
+
                         return "{$duration->h}h {$duration->i}m";
                     }
                 }
+
                 return null;
             }
         );
     }
+
     protected function GpsCoordinatesArray(): Attribute
     {
         return Attribute::make(
@@ -86,6 +88,7 @@ class Attendance extends Model
                         ];
                     }
                 }
+
                 return null;
             }
         );

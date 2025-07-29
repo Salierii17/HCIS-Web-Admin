@@ -17,7 +17,14 @@ class AttendanceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'employee_id' => 1, // Default to user 1
+            'date' => $this->faker->date(),
+            'clock_in_time' => '09:00:00',
+            'clock_out_time' => '17:00:00',
+            'location_type_id' => 1,
+            'status_id' => 1, // Default to 'Present' before observer runs
+            'approval_status' => 'In Progress',
+            'notes' => 'Seeded record',
         ];
     }
 }

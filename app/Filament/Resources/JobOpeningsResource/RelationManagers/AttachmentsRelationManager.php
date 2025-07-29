@@ -3,15 +3,14 @@
 namespace App\Filament\Resources\JobOpeningsResource\RelationManagers;
 
 use App\Filament\Enums\AttachmentCategory;
-use App\Models\JobCandidates;
 use App\Models\Attachments;
 use App\Models\Candidates;
+use App\Models\JobCandidates;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class AttachmentsRelationManager extends RelationManager
 {
@@ -65,7 +64,7 @@ class AttachmentsRelationManager extends RelationManager
             ->query(function () {
                 // Get all job candidates for this job opening
                 $jobCandidates = JobCandidates::where('JobId', $this->ownerRecord->id)
-                    ->with(['candidateProfile.attachments' => function($query) {
+                    ->with(['candidateProfile.attachments' => function ($query) {
                         $query->where('moduleName', 'Candidates');
                     }])
                     ->get();
@@ -93,14 +92,14 @@ class AttachmentsRelationManager extends RelationManager
                     $jobCandidate = JobCandidates::where('candidate', $record->attachmentOwner)
                         ->where('JobId', $this->ownerRecord->id)
                         ->first();
-                    
+
                     if ($jobCandidate) {
                         return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$jobCandidate->id]);
                     }
-                }
-                elseif ($record->moduleName === 'JobCandidates') {
+                } elseif ($record->moduleName === 'JobCandidates') {
                     return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$record->attachmentOwner]);
                 }
+
                 return null;
             })
             ->columns([
@@ -109,16 +108,19 @@ class AttachmentsRelationManager extends RelationManager
                     ->getStateUsing(function ($record) {
                         if ($record->moduleName === 'Candidates') {
                             $candidate = Candidates::find($record->attachmentOwner);
+
                             return $candidate ? $candidate->full_name : 'Candidate';
                         }
+
                         return 'Job Opening Document';
                     })
                     ->url(function ($record) {
                         if ($record->moduleName === 'Candidates' && $record->attachmentOwner) {
                             return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
-                                'record' => $record->attachmentOwner
+                                'record' => $record->attachmentOwner,
                             ]);
                         }
+
                         return null;
                     })
                     ->openUrlInNewTab(false)
@@ -126,11 +128,12 @@ class AttachmentsRelationManager extends RelationManager
                         if ($record->moduleName === 'Candidates') {
                             return 'heroicon-m-arrow-top-right-on-square';
                         }
+
                         return null;
                     })
                     ->iconPosition('after')
                     ->extraAttributes([
-                        'class' => 'hover:underline'
+                        'class' => 'hover:underline',
                     ]),
                 Tables\Columns\TextColumn::make('attachmentName')
                     ->label('File Name'),
@@ -153,21 +156,23 @@ class AttachmentsRelationManager extends RelationManager
                     ->color('primary')
                     ->url(function ($record) {
                         $filePath = str_replace('public/', '', $record->attachment);
+
                         return asset('storage/'.$filePath);
                     })
                     ->openUrlInNewTab()
-                    ->hidden(fn ($record) => !$record->attachment),
-                    
+                    ->hidden(fn ($record) => ! $record->attachment),
+
                 Tables\Actions\Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function ($record) {
                         $path = storage_path('app/public/'.$record->attachment);
+
                         return response()->download($path, $record->attachmentName);
                     })
-                    ->hidden(fn ($record) => !$record->attachment),
-                    
+                    ->hidden(fn ($record) => ! $record->attachment),
+
                 Tables\Actions\Action::make('status')
                     ->label('Status')
                     ->icon('heroicon-o-clipboard-document-list')
@@ -178,7 +183,7 @@ class AttachmentsRelationManager extends RelationManager
                             $jobCandidate = JobCandidates::where('candidate', $record->attachmentOwner)
                                 ->where('JobId', $this->ownerRecord->id)
                                 ->first();
-                            
+
                             if ($jobCandidate) {
                                 return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$jobCandidate->id]);
                             }
@@ -187,13 +192,14 @@ class AttachmentsRelationManager extends RelationManager
                         elseif ($record->moduleName === 'JobCandidates') {
                             return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$record->attachmentOwner]);
                         }
+
                         return null;
                     })
-                    ->hidden(fn ($record) => !in_array($record->moduleName, ['JobCandidates', 'Candidates'])),
-                    
+                    ->hidden(fn ($record) => ! in_array($record->moduleName, ['JobCandidates', 'Candidates'])),
+
                 Tables\Actions\EditAction::make()
                     ->visible(fn ($record) => $record->moduleName === 'JobOpening'),
-                    
+
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn ($record) => $record->moduleName === 'JobOpening'),
             ])

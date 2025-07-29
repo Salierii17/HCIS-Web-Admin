@@ -4,9 +4,9 @@ namespace App\Livewire;
 
 use AbanoubNassem\FilamentGRecaptchaField\Forms\Components\GRecaptcha;
 use Afatmustafa\FilamentTurnstile\Forms\Components\Turnstile;
+use App\Filament\Enums\AttachmentCategory;
 use App\Filament\Enums\JobCandidateStatus;
 use App\Models\Attachments;
-use App\Filament\Enums\AttachmentCategory;
 use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\JobOpenings;
@@ -143,13 +143,13 @@ class CareerApplyJob extends Component implements HasActions, HasForms
             ->success()
             ->body('Thank you for submitting your application details.')
             ->send();
-        
+
         Notification::make()
             ->title('Reminder!')
             ->success()
             ->body('Please always check your communication for our hiring party response.')
             ->send();
-        
+
         $this->redirectRoute('career.landing_page');
     }
 
@@ -257,7 +257,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                     ->inline(false)
                                     ->extraAttributes([
                                         'style' => 'cursor: pointer;',
-                                        'wire:key' => 'pursuing-checkbox'
+                                        'wire:key' => 'pursuing-checkbox',
                                     ]),
                             ])
                             ->deletable(true)
@@ -275,7 +275,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                     ->inline(false)
                                     ->extraAttributes([
                                         'style' => 'cursor: pointer;',
-                                        'wire:key' => 'current-checkbox'
+                                        'wire:key' => 'current-checkbox',
                                     ]),
                                 Forms\Components\TextInput::make('company_name'),
                                 Forms\Components\TextInput::make('duration'),
@@ -302,8 +302,8 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             // Generate a unique filename with original extension
                             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                             $extension = $file->getClientOriginalExtension();
-                            $uniqueName = $originalName . '_' . uniqid() . '.' . $extension;
-                            
+                            $uniqueName = $originalName.'_'.uniqid().'.'.$extension;
+
                             return $uniqueName;
                         }
                     ),

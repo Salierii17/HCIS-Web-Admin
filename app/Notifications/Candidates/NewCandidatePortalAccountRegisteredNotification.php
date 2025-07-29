@@ -21,7 +21,7 @@ class NewCandidatePortalAccountRegisteredNotification extends Notification
     {
         $this->candidate = $candidates;
         $this->candidate_loginLink = filament()->getPanel('candidate')->getLoginUrl();
-        $this->company_name = (new GeneralSetting())->company_name;
+        $this->company_name = (new GeneralSetting)->company_name;
     }
 
     /**

@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Models;
-use App\Filament\Enums\AttachmentCategory;
 
+use App\Filament\Enums\AttachmentCategory;
 use Illuminate\Database\Eloquent\Model;
 
 class Attachments extends Model

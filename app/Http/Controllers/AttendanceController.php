@@ -32,7 +32,7 @@ class AttendanceController extends Controller
             $attendances = $query->orderBy('date', 'desc')->orderBy('clock_in_time', 'asc')->paginate(15);
 
             $transformedAttendances = $attendances->through(function ($attendance) {
-                return $this -> transformAttendance($attendance);
+                return $this->transformAttendance($attendance);
             });
 
             return response()->json([
@@ -44,15 +44,15 @@ class AttendanceController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to retrieve attendance records', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to retrieve attendance records: ' . $e->getMessage()
+                'message' => 'Failed to retrieve attendance records: '.$e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -61,7 +61,7 @@ class AttendanceController extends Controller
     {
         Log::info('Attendance request received', [
             'headers' => $request->headers->all(),
-            'body' => $request->all()
+            'body' => $request->all(),
         ]);
 
         try {
@@ -92,12 +92,12 @@ class AttendanceController extends Controller
         } catch (\Exception $e) {
             Log::error('Attendance creation failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -119,16 +119,17 @@ class AttendanceController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => "Attendance record not found."
+                'message' => 'Attendance record not found.',
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             Log::error("Failed to retrieve attendance record with ID {$attendance->id}", [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to retrieve attendance record: ' . $e->getMessage()
+                'message' => 'Failed to retrieve attendance record: '.$e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -147,10 +148,8 @@ class AttendanceController extends Controller
 
             Log::info('Validation passed', $validated);
 
-
             $attendance->update($validated);
             $attendance->load(['employee:id,name', 'locationType:id,arrangement_type', 'status:id,status']);
-
 
             return response()->json([
                 'status' => 'success',
@@ -161,26 +160,28 @@ class AttendanceController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error("Attendance update validation failed for ID {$attendance->id}", [
                 'errors' => $e->errors(),
-                'body' => $request->all()
+                'body' => $request->all(),
             ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => "Attendance record with ID {$attendance->id} not found."
+                'message' => "Attendance record with ID {$attendance->id} not found.",
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             Log::error("Attendance update failed for ID {$attendance->id}", [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Attendance update failed: ' . $e->getMessage()
+                'message' => 'Attendance update failed: '.$e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -202,23 +203,23 @@ class AttendanceController extends Controller
         ];
     }
 
-
     private function formatWorkHours($workHoursDecimal)
     {
-        if (is_null($workHoursDecimal) || !is_numeric($workHoursDecimal)) {
+        if (is_null($workHoursDecimal) || ! is_numeric($workHoursDecimal)) {
             return null;
         }
         $hours = floor($workHoursDecimal);
         $minutes = round(($workHoursDecimal - $hours) * 60);
+
         return "{$hours}h {$minutes}m";
     }
 
-     /**
+    /**
      * Helper function to calculate work duration from clock_in_time and clock_out_time.
      */
     private function calculateWorkDuration($clockIn, $clockOut)
     {
-        if (!$clockIn || !$clockOut) {
+        if (! $clockIn || ! $clockOut) {
             return null;
         }
         // Assuming $clockIn and $clockOut are Carbon instances (due to casts in the model)
@@ -227,7 +228,7 @@ class AttendanceController extends Controller
         // $clockOut = \Carbon\Carbon::parse($clockOut);
 
         $duration = $clockOut->diff($clockIn);
+
         return "{$duration->h}h {$duration->i}m";
     }
-
 }

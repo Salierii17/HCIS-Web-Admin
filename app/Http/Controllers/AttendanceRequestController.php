@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\AttendanceApproval;
 use Illuminate\Http\Request;
-use App\Models\Attendance;
-use App\Models\User;
 
 class AttendanceRequestController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Store a newly created resource in storage.
@@ -29,7 +26,6 @@ class AttendanceRequestController extends Controller
 
         $attendance = Attendance::findOrFail($validated['attendance_id']);
         $requestingUser = auth()->user();
-
 
         if ($attendance->employee_id !== $requestingUser->id && $requestingUser->name !== 'Super Admin') {
             return response()->json(['message' => 'You do not have permission to modify this record.'], 403);
@@ -51,7 +47,7 @@ class AttendanceRequestController extends Controller
 
         return response()->json([
             'message' => 'Correction request submitted successfully.',
-            'data' => $approvalRequest
+            'data' => $approvalRequest,
         ], 201);
     }
 
