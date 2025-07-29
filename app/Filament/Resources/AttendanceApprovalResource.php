@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceApprovalResource extends Resource
 {
@@ -69,39 +70,41 @@ class AttendanceApprovalResource extends Resource
                     ->date()
                     ->sortable(),
 
-                   
-                    Tables\Columns\TextColumn::make('requested_clock_in_time')
+                Tables\Columns\TextColumn::make('requested_clock_in_time')
                     ->label('Clock-In Change')
                     ->formatStateUsing(function (?AttendanceApproval $record) {
-                        if (!$record || is_null($record->requested_clock_in_time)) {
+                        if (! $record || is_null($record->requested_clock_in_time)) {
                             return 'No Change';
                         }
                         $original = $record->attendance->clock_in_time ? Carbon::parse($record->attendance->clock_in_time)->format('H:i') : 'N/A';
                         $requested = Carbon::parse($record->requested_clock_in_time)->format('H:i');
+
                         return "{$original} → {$requested}";
                     })
                     ->color(fn ($state) => $state === 'No Change' ? 'gray' : 'primary'),
-    
-                    Tables\Columns\TextColumn::make('requested_clock_out_time')
+
+                Tables\Columns\TextColumn::make('requested_clock_out_time')
                     ->label('Clock-Out Change')
                     ->formatStateUsing(function (?AttendanceApproval $record) {
-                        if (!$record || is_null($record->requested_clock_out_time)) {
+                        if (! $record || is_null($record->requested_clock_out_time)) {
                             return 'No Change'; // Show default text
                         }
                         $original = $record->attendance->clock_out_time ? Carbon::parse($record->attendance->clock_out_time)->format('H:i') : 'N/A';
                         $requested = Carbon::parse($record->requested_clock_out_time)->format('H:i');
+
                         return "{$original} → {$requested}";
                     })
                     ->color(fn ($state) => $state === 'No Change' ? 'gray' : 'primary'),
-    
-                    Tables\Columns\TextColumn::make('requestedLocationType.arrangement_type')
+
+                Tables\Columns\TextColumn::make('requestedLocationType.arrangement_type')
                     ->label('Arrangement Change')
                     ->formatStateUsing(function (?AttendanceApproval $record) {
-                        if (!$record || is_null($record->requested_location_type_id)) {
+                        if (! $record || is_null($record->requested_location_type_id)) {
                             return 'No Change'; // Show default text
                         }
                         $original = $record->attendance->locationType->arrangement_type ?? 'N/A';
                         $requested = $record->requestedLocationType->arrangement_type;
+
                         return "{$original} → {$requested}";
                     })
                     ->badge()

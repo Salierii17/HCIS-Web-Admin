@@ -18,37 +18,56 @@ class AttendanceRequestController extends Controller
      */
     public function store(Request $request)
     {
+        // --- FIX: Updated validation rules ---
         $validated = $request->validate([
             'attendance_id' => 'required|integer|exists:attendances,id',
-            'requested_clock_out_time' => 'required|date_format:H:i',
             'employee_reason' => 'required|string|max:1000',
+
+            // This rule means the field is optional, but if it's present, it must be in H:i format.
+            // It's also required IF AND ONLY IF the other two correction fields are not present.
+            'requested_clock_in_time' => [
+                'nullable',
+                'date_format:H:i',
+                'required_without_all:requested_clock_out_time,requested_location_type_id',
+            ],
+
+            'requested_clock_out_time' => [
+                'nullable',
+                'date_format:H:i',
+                'required_without_all:requested_clock_in_time,requested_location_type_id',
+            ],
+
+            'requested_location_type_id' => [
+                'nullable',
+                'integer',
+                'exists:work_arrangements,id',
+                'required_without_all:requested_clock_in_time,requested_clock_out_time',
+            ],
         ]);
 
         $attendance = Attendance::findOrFail($validated['attendance_id']);
         $requestingUser = auth()->user();
 
+        // Security Check
         if ($attendance->employee_id !== $requestingUser->id && $requestingUser->name !== 'Super Admin') {
-            return response()->json(['message' => 'You do not have permission to modify this record.'], 403);
+            return response()->json(['message' => 'Forbidden'], 403);
         }
 
+        // Business Logic: Prevent duplicate pending requests
         if ($attendance->approval_status === 'Pending Approval') {
             return response()->json(['message' => 'An approval request for this record already exists.'], 409);
         }
 
-        $approvalRequest = AttendanceApproval::create([
-            'attendance_id' => $validated['attendance_id'],
-            'requested_by_id' => auth()->id(),
-            'requested_clock_out_time' => $validated['requested_clock_out_time'],
-            'employee_reason' => $validated['employee_reason'],
+        // Create the approval request record using only the validated data
+        AttendanceApproval::create($validated + [
+            'requested_by_id' => $requestingUser->id,
             'status' => 'pending',
         ]);
 
+        // Update the original attendance record
         $attendance->update(['approval_status' => 'Pending Approval']);
 
-        return response()->json([
-            'message' => 'Correction request submitted successfully.',
-            'data' => $approvalRequest,
-        ], 201);
+        return response()->json(['message' => 'Correction request submitted successfully.'], 201);
     }
 
     /**
