@@ -120,6 +120,7 @@ class DatabaseSeeder extends Seeder
             AttendanceStatusSeeder::class,
             WorkArrangementSeeder::class,
             AttendanceSeeder::class,
+            AttendanceApprovalSeeder::class,
         ]);
         $this->command->info('Attendance data seeded.');
 

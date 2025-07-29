@@ -17,7 +17,7 @@ class AttendanceApprovalResource extends Resource
 {
     protected static ?string $model = AttendanceApproval::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     protected static ?string $navigationGroup = 'Attendance';
 
@@ -26,7 +26,6 @@ class AttendanceApprovalResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('status', 'pending')
             ->with(['requester', 'attendance']);
     }
 
@@ -78,6 +77,14 @@ class AttendanceApprovalResource extends Resource
                     ->label('Reason')
                     ->limit(40)
                     ->tooltip(fn (AttendanceApproval $record): string => $record->employee_reason),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        default => 'gray',
+                    }),
             ])
             ->filters([
                 //
@@ -87,6 +94,12 @@ class AttendanceApprovalResource extends Resource
                     ->color('success')
                     ->icon('heroicon-o-check')
                     ->requiresConfirmation()
+                    ->visible(fn (AttendanceApproval $record) => $record->status === 'pending')
+                    ->form([
+                        Textarea::make('manager_comment')
+                            ->label('Reason for Approval')
+                            ->required(),
+                    ])
                     ->action(function (AttendanceApproval $record) {
                         $attendance = $record->attendance;
                         $attendance->clock_out_time = $record->requested_clock_out_time;
@@ -107,6 +120,7 @@ class AttendanceApprovalResource extends Resource
                     ->color('danger')
                     ->icon('heroicon-o-x-mark')
                     ->requiresConfirmation()
+                    ->visible(fn (AttendanceApproval $record) => $record->status === 'pending')
                     ->form([
                         Textarea::make('manager_comment')
                             ->label('Reason for Rejection')
@@ -143,5 +157,15 @@ class AttendanceApprovalResource extends Resource
         return [
             'index' => Pages\ListAttendanceApprovals::route('/'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'pending')->count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::where('status', 'pending')->count() > 0 ? 'warning' : 'success';
     }
 }

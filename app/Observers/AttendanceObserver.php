@@ -53,7 +53,7 @@ class AttendanceObserver
      */
     public function saving(Attendance $attendance): void
     {
-        // This logic only runs if there is a clock_in and a clock_out time.
+        // This only runs if there is a clock_in and a clock_out time.
         if ($attendance->clock_in_time && $attendance->clock_out_time) {
             $clockIn = Carbon::parse($attendance->clock_in_time);
             $clockOut = Carbon::parse($attendance->clock_out_time);
