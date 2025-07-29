@@ -6,7 +6,6 @@ use App\Models\Attendance;
 use App\Models\AttendanceStatus;
 use Carbon\Carbon;
 
-
 class AttendanceObserver
 {
     /**
@@ -60,8 +59,19 @@ class AttendanceObserver
             $clockOut = Carbon::parse($attendance->clock_out_time);
 
             // Calculate duration in hours
-            $durationInMinutes = $clockOut->diffInMinutes($clockIn);
-            $durationInHours = $durationInMinutes / 60.0;
+            $totalDurationInMinutes = $clockOut->diffInMinutes($clockIn);
+
+            // Formula to deduct break time
+            $breakStartTime = Carbon::parse('12:00:00');
+            $breakEndTime = Carbon::parse('13:00:00');
+            $breakDurationMinutes = 60;
+
+            // Check if the shift spans the entire break period
+            if ($clockIn->lt($breakStartTime) && $clockOut->gt($breakEndTime)) {
+                $totalDurationInMinutes -= $breakDurationMinutes;
+            }
+
+            $durationInHours = $totalDurationInMinutes / 60.0;
 
             // Store the calculated decimal hours
             $attendance->work_hours = round($durationInHours, 2);

@@ -171,10 +171,9 @@ class AttendanceRecordResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match (strtolower($state)) {
                         'present' => 'success',
-                        'late' => 'danger',
-                        'on leave' => 'warning',
-                        'holiday' => 'info',
-                        default => 'primary',
+                        'half day' => 'warning',
+                        'absent' => 'danger',
+                        default => 'gray',
                     })
                     ->sortable(),
                 TextColumn::make('approval_status')
