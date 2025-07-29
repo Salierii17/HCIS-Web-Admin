@@ -247,7 +247,9 @@ class AttendanceRecordResource extends Resource
                         AttendanceApproval::create([
                             'attendance_id' => $record->id,
                             'requested_by_id' => auth()->id(), // Logged-in manager is the requester
+                            'requested_clock_in_time' => $data['requested_clock_in_time'],
                             'requested_clock_out_time' => $data['requested_clock_out_time'],
+                            'requested_location_type_id' => $data['requested_location_type_id'],
                             'employee_reason' => $data['reason'],
                             'status' => 'pending',
                         ]);

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AttendanceApprovalResource\Pages;
 use App\Models\AttendanceApproval;
+use Carbon\Carbon;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -67,12 +68,45 @@ class AttendanceApprovalResource extends Resource
                 Tables\Columns\TextColumn::make('attendance.date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('attendance.clock_in_time')
-                    ->label('Clock In')
-                    ->time('H:i'),
-                Tables\Columns\TextColumn::make('requested_clock_out_time')
-                    ->label('Requested Out')
-                    ->time('H:i'),
+
+                   
+                    Tables\Columns\TextColumn::make('requested_clock_in_time')
+                    ->label('Clock-In Change')
+                    ->formatStateUsing(function (?AttendanceApproval $record) {
+                        if (!$record || is_null($record->requested_clock_in_time)) {
+                            return 'No Change';
+                        }
+                        $original = $record->attendance->clock_in_time ? Carbon::parse($record->attendance->clock_in_time)->format('H:i') : 'N/A';
+                        $requested = Carbon::parse($record->requested_clock_in_time)->format('H:i');
+                        return "{$original} → {$requested}";
+                    })
+                    ->color(fn ($state) => $state === 'No Change' ? 'gray' : 'primary'),
+    
+                    Tables\Columns\TextColumn::make('requested_clock_out_time')
+                    ->label('Clock-Out Change')
+                    ->formatStateUsing(function (?AttendanceApproval $record) {
+                        if (!$record || is_null($record->requested_clock_out_time)) {
+                            return 'No Change'; // Show default text
+                        }
+                        $original = $record->attendance->clock_out_time ? Carbon::parse($record->attendance->clock_out_time)->format('H:i') : 'N/A';
+                        $requested = Carbon::parse($record->requested_clock_out_time)->format('H:i');
+                        return "{$original} → {$requested}";
+                    })
+                    ->color(fn ($state) => $state === 'No Change' ? 'gray' : 'primary'),
+    
+                    Tables\Columns\TextColumn::make('requestedLocationType.arrangement_type')
+                    ->label('Arrangement Change')
+                    ->formatStateUsing(function (?AttendanceApproval $record) {
+                        if (!$record || is_null($record->requested_location_type_id)) {
+                            return 'No Change'; // Show default text
+                        }
+                        $original = $record->attendance->locationType->arrangement_type ?? 'N/A';
+                        $requested = $record->requestedLocationType->arrangement_type;
+                        return "{$original} → {$requested}";
+                    })
+                    ->badge()
+                    ->color(fn ($state) => $state === 'No Change' ? 'gray' : 'primary'),
+
                 Tables\Columns\TextColumn::make('employee_reason')
                     ->label('Reason')
                     ->limit(40)
@@ -100,15 +134,28 @@ class AttendanceApprovalResource extends Resource
                             ->label('Reason for Approval')
                             ->required(),
                     ])
-                    ->action(function (AttendanceApproval $record) {
-                        $attendance = $record->attendance;
-                        $attendance->clock_out_time = $record->requested_clock_out_time;
-                        $attendance->approval_status = 'Verified';
-                        $attendance->save();
+                    ->action(function (AttendanceApproval $record, array $data) {
+                        DB::transaction(function () use ($record, $data) {
+                            $attendance = $record->attendance;
 
-                        $record->status = 'approved';
-                        $record->reviewed_by_id = auth()->id();
-                        $record->save();
+                            if ($record->requested_clock_in_time) {
+                                $attendance->clock_in_time = $record->requested_clock_in_time;
+                            }
+                            if ($record->requested_clock_out_time) {
+                                $attendance->clock_out_time = $record->requested_clock_out_time;
+                            }
+                            if ($record->requested_location_type_id) {
+                                $attendance->location_type_id = $record->requested_location_type_id;
+                            }
+
+                            $attendance->approval_status = 'Verified';
+                            $attendance->save();
+
+                            $record->status = 'approved';
+                            $record->reviewed_by_id = auth()->id();
+                            $record->manager_comment = $data['manager_comment'];
+                            $record->save();
+                        });
 
                         Notification::make()
                             ->title('Approved successfully')
