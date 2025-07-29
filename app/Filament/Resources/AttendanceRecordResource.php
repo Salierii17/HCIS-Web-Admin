@@ -139,8 +139,11 @@ class AttendanceRecordResource extends Resource
                     }),
                 TextColumn::make('gps_coordinates')
                     ->label('GPS')
+                    ->alignCenter()
                     ->limit(20)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->url(fn (Attendance $record): ?string => $record->gps_coordinates ? "https://www.google.com/maps/search/?api=1&query={$record->gps_coordinates}" : null)
+                    ->openUrlInNewTab(),
                 TextColumn::make('status.status')
                     ->label('Status')
                     ->searchable()
@@ -220,12 +223,12 @@ class AttendanceRecordResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
 
-                Action::make('viewOnMap')
-                    ->label('View on Map')
-                    ->icon('heroicon-o-map-pin')
-                    ->color('secondary')
-                    ->visible(fn (Attendance $record): bool => ! empty($record->gps_coordinates))
-                    ->url(fn (Attendance $record): string => "https://www.google.com/maps/search/?api=1&query={$record->gps_coordinates}", true),
+                // Action::make('viewOnMap')
+                //     ->label('View on Map')
+                //     ->icon('heroicon-o-map-pin')
+                //     ->color('secondary')
+                //     ->visible(fn (Attendance $record): bool => ! empty($record->gps_coordinates))
+                //     ->url(fn (Attendance $record): string => "https://www.google.com/maps/search/?api=1&query={$record->gps_coordinates}", true),
 
                 Action::make('requestUpdate')
                     ->label('Request Update')
@@ -240,7 +243,7 @@ class AttendanceRecordResource extends Resource
                     ])
                 // This is the logic that runs when the form is submitted
                     ->action(function (Attendance $record, array $data): void {
-                        // 1. Create the approval request
+                        // Create the new approval request entry
                         AttendanceApproval::create([
                             'attendance_id' => $record->id,
                             'requested_by_id' => auth()->id(), // Logged-in manager is the requester
@@ -249,7 +252,7 @@ class AttendanceRecordResource extends Resource
                             'status' => 'pending',
                         ]);
 
-                        // 2. Update the original record's status
+                        // Update the original record's status
                         $record->approval_status = 'Pending Approval';
                         $record->save();
 

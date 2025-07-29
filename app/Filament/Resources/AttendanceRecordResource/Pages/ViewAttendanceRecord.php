@@ -74,7 +74,7 @@ class ViewAttendanceRecord extends ViewRecord
 
     public function getGpsLocation(): ?array
     {
-        return $this->record->gps_coordinates_array; // Using the accessor
+        return $this->record->gps_coordinates_array;
     }
 
     protected function getViewData(): array

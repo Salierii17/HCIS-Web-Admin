@@ -17,7 +17,8 @@ class AttendanceSeeder extends Seeder
         Attendance::factory()->create([
             'date' => Carbon::yesterday()->subDays(1)->toDateString(),
             'clock_in_time' => '08:30:00',
-            'clock_out_time' => '17:30:00', // 9 hours elapsed -> Observer should calculate 8 work hours.
+            'clock_out_time' => '17:30:00', // 9 hours elapsed -> Observer should calculate 8 work hours
+            'gps_coordinates' => '-6.2383, 106.9924',
         ]);
 
         // Test Case 2: Specific Half-Day Policy (8 AM to < 1 PM)
