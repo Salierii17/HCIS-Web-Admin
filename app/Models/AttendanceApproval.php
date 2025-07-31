@@ -24,4 +24,8 @@ class AttendanceApproval extends Model
         return $this->belongsTo(Attendance::class);
     }
 
+    public function requestedLocationType(): BelongsTo
+    {
+        return $this->belongsTo(WorkArrangement::class, 'requested_location_type_id');
+    }
 }

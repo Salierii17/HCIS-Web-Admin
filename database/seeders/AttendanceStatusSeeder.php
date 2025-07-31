@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceStatusSeeder extends Seeder
 {
@@ -12,9 +13,12 @@ class AttendanceStatusSeeder extends Seeder
      */
     public function run(): void
     {
-        $statuses = ['Present', 'Late',];
-        foreach ($statuses as $status) {
-            \App\Models\AttendanceStatus::create(['status' => $status]);
-        }
+        $now = Carbon::now();
+        $statuses = [
+            ['status' => 'Present', 'created_at' => $now, 'updated_at' => $now],
+            ['status' => 'Absent', 'created_at' => $now, 'updated_at' => $now],
+            ['status' => 'Half Day', 'created_at' => $now, 'updated_at' => $now],
+        ];
+        DB::table('attendance_statuses')->insert($statuses);
     }
 }

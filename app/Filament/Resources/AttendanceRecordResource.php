@@ -4,11 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AttendanceRecordResource\Pages;
 use App\Models\Attendance;
-use App\Models\AttendanceStatus;
-use App\Models\User;
-use App\Models\WorkArrangement;
+use App\Models\AttendanceApproval;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -16,15 +13,15 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use App\Models\AttendanceApproval;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
+use Illuminate\Database\Eloquent\Builder;
 
 class AttendanceRecordResource extends Resource
 {
@@ -48,70 +45,50 @@ class AttendanceRecordResource extends Resource
                         ->relationship('employee', 'name')
                         ->searchable(['name', 'email'])
                         ->preload()
-                        ->required()
-                        ->createOptionForm([
-                            TextInput::make('name')->required(),
-                            TextInput::make('email')->email()->required()->unique(table: User::class, column: 'email'),
-                        
-                        ])
-                        ->columnSpan(1),
+                        ->required(),
 
                     DatePicker::make('date')
                         ->label('Timestamp')
                         ->required()
                         ->native(false)
-                        ->default(now())
-                        ->columnSpan(1),
+                        ->default(now()),
 
                     TimePicker::make('clock_in_time')
                         ->label('Clock In')
                         ->seconds(false)
-                        ->nullable()
-                        ->columnSpan(1),
+                        ->nullable(),
 
                     TimePicker::make('clock_out_time')
                         ->label('Clock Out')
                         ->seconds(false)
-                        ->nullable()
-                        ->columnSpan(1),
+                        ->nullable(),
 
                     Select::make('location_type_id')
                         ->label('Work Arrangement')
                         ->relationship(name: 'locationType', titleAttribute: 'arrangement_type')
                         ->searchable()
                         ->preload()
-                        ->nullable()
-                        ->createOptionForm([
-                            TextInput::make('arrangement_type')->required()->unique(table: WorkArrangement::class, column: 'arrangement_type'),
-                        
-                        ])
-                        ->columnSpan(1),
+                        ->nullable(),
 
                     Select::make('status_id')
                         ->label('Status')
                         ->relationship(name: 'status', titleAttribute: 'status')
                         ->searchable()
                         ->preload()
-                        ->required()
-                        ->createOptionForm([
-                            TextInput::make('status')->required()->unique(table: AttendanceStatus::class, column: 'status'),
-                        ])
-                        ->columnSpan(1),
+                        ->required(),
 
                     TextInput::make('work_hours')
                         ->label('Work Hours (Decimal)')
                         ->numeric()
                         ->nullable()
-                        ->step(0.1)
+                        ->disabled()
                         ->placeholder('e.g., 8.5 for 8h 30m')
-                        ->helperText('Leave blank to auto-calculate from clock in/out if applicable.')
-                        ->columnSpan(1),
+                        ->helperText('Work hours are calculated automatically when clocking out.'),
 
                     TextInput::make('gps_coordinates')
                         ->label('GPS Coordinates')
                         ->maxLength(255)
-                        ->nullable()
-                        ->columnSpan(1),
+                        ->nullable(),
                 ]),
 
                 Textarea::make('notes')
@@ -155,26 +132,27 @@ class AttendanceRecordResource extends Resource
                     ->searchable()
                     ->badge()
                     ->alignCenter()
-                    ->color(fn(string $state): string => match (strtolower($state)) {
+                    ->color(fn (string $state): string => match (strtolower($state)) {
                         'wfo' => 'success',
-                        'wfh' => 'info',
+                        'wfa' => 'info',
                         default => 'gray',
                     }),
-
                 TextColumn::make('gps_coordinates')
                     ->label('GPS')
+                    ->alignCenter()
                     ->limit(20)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->url(fn (Attendance $record): ?string => $record->gps_coordinates ? "https://www.google.com/maps/search/?api=1&query={$record->gps_coordinates}" : null)
+                    ->openUrlInNewTab(),
                 TextColumn::make('status.status')
                     ->label('Status')
                     ->searchable()
                     ->badge()
-                    ->color(fn(string $state): string => match (strtolower($state)) {
+                    ->color(fn (string $state): string => match (strtolower($state)) {
                         'present' => 'success',
-                        'late' => 'danger',
-                        'on leave' => 'warning',
-                        'holiday' => 'info',
-                        default => 'primary',
+                        'half day' => 'warning',
+                        'absent' => 'danger',
+                        default => 'gray',
                     })
                     ->sortable(),
                 TextColumn::make('approval_status')
@@ -182,12 +160,12 @@ class AttendanceRecordResource extends Resource
                     ->badge()
                     ->aligncenter()
                     ->color(fn (string $state): string => match (strtolower($state)) {
-                        'in progress'     => 'info',
-                        'verified'        => 'success',
+                        'in progress' => 'info',
+                        'verified' => 'success',
                         'pending approval' => 'warning',
-                        'rejected'        => 'danger',
-                        'incomplete'      => 'gray',
-                        default           => 'secondary',
+                        'rejected' => 'danger',
+                        'incomplete' => 'gray',
+                        default => 'secondary',
                     })
                     ->searchable()
                     ->sortable(),
@@ -219,24 +197,25 @@ class AttendanceRecordResource extends Resource
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
                             )
                             ->when(
                                 $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (!$data['created_from'] && !$data['created_until']) {
+                        if (! $data['created_from'] && ! $data['created_until']) {
                             return null;
                         }
                         $parts = [];
                         if ($data['created_from']) {
-                            $parts[] = 'From: ' . Carbon::parse($data['created_from'])->toFormattedDateString();
+                            $parts[] = 'From: '.Carbon::parse($data['created_from'])->toFormattedDateString();
                         }
                         if ($data['created_until']) {
-                            $parts[] = 'Until: ' . Carbon::parse($data['created_until'])->toFormattedDateString();
+                            $parts[] = 'Until: '.Carbon::parse($data['created_until'])->toFormattedDateString();
                         }
+
                         return implode(' ', $parts);
                     }),
 
@@ -244,72 +223,51 @@ class AttendanceRecordResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
 
+                // Action::make('viewOnMap')
+                //     ->label('View on Map')
+                //     ->icon('heroicon-o-map-pin')
+                //     ->color('secondary')
+                //     ->visible(fn (Attendance $record): bool => ! empty($record->gps_coordinates))
+                //     ->url(fn (Attendance $record): string => "https://www.google.com/maps/search/?api=1&query={$record->gps_coordinates}", true),
+
                 Action::make('requestUpdate')
-                ->label('Request Update')
-                ->icon('heroicon-o-plus-circle')
-                ->color('warning')
+                    ->label('Request Update')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('warning')
                 // This button will only be visible for records that need fixing
-                ->visible(fn (Attendance $record): bool => in_array($record->approval_status, ['Incomplete', 'Flagged for Review', 'Rejected']))
+                    ->visible(fn (Attendance $record): bool => in_array($record->approval_status, ['Incomplete', 'Flagged for Review', 'Rejected']))
                 // This defines the pop-up form fields
-                ->form([
-                    TimePicker::make('requested_clock_out_time')
-                        ->required(),
-                    Textarea::make('reason')
-                        ->label('Reason')
-                        ->required(),
-                ])
+                    ->form([
+                        TimePicker::make('requested_clock_out_time')->required(),
+                        Textarea::make('reason')->label('Reason')->required(),
+                    ])
                 // This is the logic that runs when the form is submitted
-                ->action(function (Attendance $record, array $data): void {
-                    // 1. Create the approval request
-                    AttendanceApproval::create([
-                        'attendance_id' => $record->id,
-                        'requested_by_id' => auth()->id(), // Logged-in manager is the requester
-                        'requested_clock_out_time' => $data['requested_clock_out_time'],
-                        'employee_reason' => $data['reason'],
-                        'status' => 'pending',
-                    ]);
-        
-                    // 2. Update the original record's status
-                    $record->approval_status = 'Pending Approval';
-                    $record->save();
-        
-                    Notification::make()
-                        ->title('Correction request created successfully')
-                        ->success()
-                        ->send();
-                }),
-                Action::make('approveException')
+                    ->action(function (Attendance $record, array $data): void {
+                        // Create the new approval request entry
+                        AttendanceApproval::create([
+                            'attendance_id' => $record->id,
+                            'requested_by_id' => auth()->id(), // Logged-in manager is the requester
+                            'requested_clock_in_time' => $data['requested_clock_in_time'],
+                            'requested_clock_out_time' => $data['requested_clock_out_time'],
+                            'requested_location_type_id' => $data['requested_location_type_id'],
+                            'employee_reason' => $data['reason'],
+                            'status' => 'pending',
+                        ]);
 
-    ->label('Approve Exception')
-    ->icon('heroicon-o-shield-check')
-    ->color('success')
-    ->visible(fn (Attendance $record): bool => $record->approval_status === 'Flagged for Review')
-    ->requiresConfirmation()
-    ->form([
-        Textarea::make('manager_comment')
-            ->label('Reason for Approval (e.g., Family Emergency)')
-            ->required(),
-    ])
+                        // Update the original record's status
+                        $record->approval_status = 'Pending Approval';
+                        $record->save();
 
-    // Manager approved fucntion
-    ->action(function (Attendance $record, array $data): void {
-        $record->approval_status = 'Verified';
-        $record->notes = $record->notes . "\nException approved by manager: " . $data['manager_comment'];
-        $record->save();
-
-        Notification::make()
-            ->title('Exception approved successfully')
-            ->success()
-            ->send();
-    }),
+                        Notification::make()
+                            ->title('Correction request created successfully')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
     }
 
@@ -317,12 +275,10 @@ class AttendanceRecordResource extends Resource
     {
         return [
             'index' => Pages\ListAttendanceRecords::route('/'),
-            'create' => Pages\CreateAttendanceRecord::route('/create'),
             'view' => Pages\ViewAttendanceRecord::route('/{record}'),
             'edit' => Pages\EditAttendanceRecord::route('/{record}/edit'),
         ];
     }
-
 
     public static function getGloballySearchableAttributes(): array
     {

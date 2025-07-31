@@ -15,8 +15,8 @@ use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Filament\Support\Colors\Color;
 use Illuminate\Http\Request;
-use Phpsa\FilamentPasswordReveal\Password;
 use Illuminate\Support\Facades\Hash;
+use Phpsa\FilamentPasswordReveal\Password;
 
 class CreateSystemUserForm extends SimplePage
 {

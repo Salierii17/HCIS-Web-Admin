@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('attendance_id')->constrained('attendances')->onDelete('cascade');
             $table->foreignId('requested_by_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('reviewed_by_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->time('requested_clock_out_time');
+            $table->time('requested_clock_in_time')->nullable();
+            $table->time('requested_clock_out_time')->nullable();
+            $table->foreignId('requested_location_type_id')->nullable();
             $table->text('employee_reason');
             $table->text('manager_comment')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');

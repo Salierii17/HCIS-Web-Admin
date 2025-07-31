@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Package;
+use App\Models\User;
 use App\Notifications\TrainingAssignedNotification;
+use Illuminate\Http\Request;
 
 class TrainingAssignmentController extends Controller
 {

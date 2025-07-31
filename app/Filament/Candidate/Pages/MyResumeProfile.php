@@ -20,22 +20,28 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class MyResumeProfile extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     protected ?string $subheading = 'This profile will be used once you apply for a job in the portal.';
+
     protected static ?int $navigationSort = 4;
 
     protected static string $view = 'filament.candidate.pages.my-resume-profile';
-    
+
     public ?array $data = [];
+
     public TemporaryUploadedFile|array|null $resumeFile = null;
+
     public ?string $resumeUrl = null;
+
     public ?string $resumeFileName = null;
+
     public ?string $candidateSource = null;
 
     public function mount(): void
     {
         $user = Filament::auth()->user();
         $candidate = Candidates::where('Email', $user->email)->first();
-        
+
         if ($candidate) {
             $this->candidateSource = $candidate->jobCandidates()->first()?->CandidateSource;
             $this->loadResumeUrl();
@@ -48,19 +54,21 @@ class MyResumeProfile extends Page
     {
         $user = Filament::auth()->user();
         $candidate = Candidates::where('Email', $user->email)->first();
-        
-        if (!$candidate) return;
+
+        if (! $candidate) {
+            return;
+        }
 
         if ($this->candidateSource === 'Referral') {
             $referral = $candidate->referral;
             if ($referral && $referral->resume) {
-                $this->resumeUrl = asset('storage/' . $referral->resume);
+                $this->resumeUrl = asset('storage/'.$referral->resume);
                 $this->resumeFileName = basename($referral->resume);
             }
         } else {
             $resume = $candidate->resume()->first();
             if ($resume) {
-                $this->resumeUrl = asset('storage/' . str_replace('public/', '', $resume->attachment));
+                $this->resumeUrl = asset('storage/'.str_replace('public/', '', $resume->attachment));
                 $this->resumeFileName = $resume->attachmentName;
             }
         }
@@ -70,18 +78,18 @@ class MyResumeProfile extends Page
     {
         try {
             $validatedData = $this->form->getState();
-            
+
             Candidates::updateOrCreate(
                 ['Email' => Filament::auth()->user()->email],
                 $validatedData
             );
-            
+
             Notification::make()
                 ->title('Profile information updated')
                 ->success()
                 ->body('Your profile information has been updated successfully.')
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Error updating profile')
@@ -96,15 +104,15 @@ class MyResumeProfile extends Page
         try {
             $user = Filament::auth()->user();
             $candidate = Candidates::where('Email', $user->email)->firstOrFail();
-            
-            if (!$this->resumeFile) {
+
+            if (! $this->resumeFile) {
                 throw new \Exception('Please select a resume file to upload');
             }
 
             // Generate unique filename
             $originalName = pathinfo($this->resumeFile->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $this->resumeFile->getClientOriginalExtension();
-            $uniqueName = $originalName . '_' . uniqid() . '.' . $extension;
+            $uniqueName = $originalName.'_'.uniqid().'.'.$extension;
 
             if ($this->candidateSource === 'Referral') {
                 $this->updateReferralResume($candidate, $uniqueName);
@@ -115,14 +123,14 @@ class MyResumeProfile extends Page
             // Clear the file input after successful upload
             $this->resumeFile = null;
             $this->form->fill(['resumeFile' => null]);
-            
+
             $this->loadResumeUrl();
-            
+
             Notification::make()
                 ->title('Resume Updated Successfully')
                 ->success()
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Error Updating Resume')
@@ -135,10 +143,10 @@ class MyResumeProfile extends Page
     protected function updateReferralResume(Candidates $candidate, string $uniqueName): void
     {
         $path = $this->resumeFile->storeAs('referrals/resumes', $uniqueName, 'public');
-        
+
         // Update existing referral record
         $candidate->referral()->update([
-            'resume' => $path
+            'resume' => $path,
         ]);
     }
 
@@ -153,7 +161,7 @@ class MyResumeProfile extends Page
             [
                 'attachment' => $path,
                 'attachmentName' => $originalName,
-                'category' => 'Resume'
+                'category' => 'Resume',
             ]
         );
 
@@ -162,11 +170,11 @@ class MyResumeProfile extends Page
             $jobCandidate->resume()->updateOrCreate(
                 [
                     'moduleName' => 'JobCandidates',
-                    'category' => 'Resume'
+                    'category' => 'Resume',
                 ],
                 [
                     'attachment' => $path,
-                    'attachmentName' => $originalName
+                    'attachmentName' => $originalName,
                 ]
             );
         }
@@ -177,7 +185,7 @@ class MyResumeProfile extends Page
     //     try {
     //         $user = Filament::auth()->user();
     //         $candidate = Candidates::where('Email', $user->email)->firstOrFail();
-            
+
     //         if (!$this->resumeFile) {
     //             throw new \Exception('Please select a resume file to upload');
     //         }
@@ -201,14 +209,14 @@ class MyResumeProfile extends Page
     //         // Clear the file input after successful upload
     //         $this->resumeFile = null;
     //         $this->form->fill(['resumeFile' => null]);
-            
+
     //         $this->loadResumeUrl();
-            
+
     //         Notification::make()
     //             ->title('Resume Updated Successfully')
     //             ->success()
     //             ->send();
-                
+
     //     } catch (\Exception $e) {
     //         Notification::make()
     //             ->title('Error Updating Resume')
@@ -223,7 +231,7 @@ class MyResumeProfile extends Page
     //     try {
     //         $user = Filament::auth()->user();
     //         $candidate = Candidates::where('Email', $user->email)->firstOrFail();
-            
+
     //         if (!$this->resumeFile) {
     //             throw new \Exception('Please select a resume file to upload');
     //         }
@@ -240,12 +248,12 @@ class MyResumeProfile extends Page
     //         }
 
     //         $this->loadResumeUrl();
-            
+
     //         Notification::make()
     //             ->title('Resume Updated Successfully')
     //             ->success()
     //             ->send();
-                
+
     //     } catch (\Exception $e) {
     //         Notification::make()
     //             ->title('Error Updating Resume')
@@ -258,7 +266,7 @@ class MyResumeProfile extends Page
     // protected function updateReferralResume(Candidates $candidate, string $uniqueName): void
     // {
     //     $path = $this->resumeFile->storeAs('referrals/resumes', $uniqueName, 'public');
-        
+
     //     // Update existing referral record
     //     $candidate->referral()->update([
     //         'resume' => $path
@@ -299,12 +307,13 @@ class MyResumeProfile extends Page
     {
         $user = Filament::auth()->user();
         $candidate = Candidates::where('Email', $user->email)->first();
-        
-        if (!$candidate) {
+
+        if (! $candidate) {
             Notification::make()
                 ->title('No candidate profile found')
                 ->warning()
                 ->send();
+
             return;
         }
 
@@ -312,7 +321,7 @@ class MyResumeProfile extends Page
             $referral = $candidate->referral;
             if ($referral && $referral->resume) {
                 return response()->download(
-                    storage_path('app/public/' . $referral->resume),
+                    storage_path('app/public/'.$referral->resume),
                     $this->resumeFileName
                 );
             }
@@ -320,7 +329,7 @@ class MyResumeProfile extends Page
             $resume = $candidate->resume()->first();
             if ($resume) {
                 return response()->download(
-                    storage_path('app/public/' . $resume->attachment),
+                    storage_path('app/public/'.$resume->attachment),
                     $resume->attachmentName
                 );
             }
@@ -337,7 +346,7 @@ class MyResumeProfile extends Page
     // protected static ?int $navigationSort = 4;
 
     // protected static string $view = 'filament.candidate.pages.my-resume-profile';
-    
+
     // public ?array $data = [];
     // public TemporaryUploadedFile|array|null $resumeFile = null;
     // public ?string $resumeUrl = null;
@@ -347,7 +356,7 @@ class MyResumeProfile extends Page
     // {
     //     $user = Filament::auth()->user();
     //     $profile = $this->getResumeProfile();
-        
+
     //     // Initialize with default values
     //     $this->data = [
     //         'Email' => $user->email ?? '',
@@ -384,12 +393,12 @@ class MyResumeProfile extends Page
     // {
     //     $user = Filament::auth()->user();
     //     $candidate = Candidates::where('Email', $user->email)->first();
-        
+
     //     if (!$candidate) return;
 
     //     // Check if candidate has a referral
     //     if ($candidate->referral) {
-    //         $this->resumeUrl = $candidate->referral->resume 
+    //         $this->resumeUrl = $candidate->referral->resume
     //             ? asset('storage/' . $candidate->referral->resume)
     //             : null;
     //         $this->resumeFileName = $this->resumeUrl ? basename($candidate->referral->resume) : null;
@@ -406,7 +415,7 @@ class MyResumeProfile extends Page
     // protected function getResumeProfile(): Collection
     // {
     //     $user = Filament::auth()->user();
-        
+
     //     if (!$user || !$user->email) {
     //         return new Collection();
     //     }
@@ -418,23 +427,23 @@ class MyResumeProfile extends Page
     // {
     //     try {
     //         $validatedData = $this->form->getState();
-            
+
     //         $candidate = Candidates::updateOrCreate(
     //             ['Email' => Filament::auth()->user()->email],
     //             $validatedData
     //         );
-            
+
     //         // Handle resume upload if present
     //         if ($this->resumeFile) {
     //             $this->handleResumeUpload($candidate);
     //         }
-            
+
     //         Notification::make()
     //             ->title('Profile information updated')
     //             ->success()
     //             ->body('Your profile information has been updated successfully.')
     //             ->send();
-                
+
     //     } catch (\Exception $e) {
     //         Notification::make()
     //             ->title('Error updating profile')
@@ -451,7 +460,7 @@ class MyResumeProfile extends Page
 
     //     // Store new resume
     //     $filename = $this->resumeFile->getClientOriginalName();
-        
+
     //     $attachment = new Attachments([
     //         'attachment' => $this->resumeFile->store('resumes', 'public'),
     //         'attachmentName' => $filename,
@@ -459,7 +468,7 @@ class MyResumeProfile extends Page
     //         'attachmentOwner' => $candidate->id,
     //         'moduleName' => 'Candidates',
     //     ]);
-        
+
     //     $candidate->attachments()->save($attachment);
     // }
 
@@ -467,7 +476,7 @@ class MyResumeProfile extends Page
     // {
     //     $user = Filament::auth()->user();
     //     $candidate = Candidates::where('Email', $user->email)->first();
-        
+
     //     if (!$candidate) {
     //         Notification::make()
     //             ->title('No candidate profile found')
@@ -504,7 +513,7 @@ class MyResumeProfile extends Page
     //     try {
     //         $user = Filament::auth()->user();
     //         $candidate = Candidates::where('Email', $user->email)->firstOrFail();
-            
+
     //         if (!$this->resumeFile) {
     //             throw new \Exception('Please select a resume file to upload');
     //         }
@@ -521,12 +530,12 @@ class MyResumeProfile extends Page
     //         }
 
     //         $this->loadResumeUrl();
-            
+
     //         Notification::make()
     //             ->title('Resume Updated Successfully')
     //             ->success()
     //             ->send();
-                
+
     //     } catch (\Exception $e) {
     //         Notification::make()
     //             ->title('Error Updating Resume')
@@ -541,11 +550,11 @@ class MyResumeProfile extends Page
     // //     try {
     // //         $user = Filament::auth()->user();
     // //         $candidate = Candidates::where('Email', $user->email)->first();
-            
+
     // //         if (!$candidate) {
     // //             throw new \Exception('Candidate profile not found');
     // //         }
-            
+
     // //         if (!$this->resumeFile) {
     // //             throw new \Exception('No resume file selected');
     // //         }
@@ -555,24 +564,24 @@ class MyResumeProfile extends Page
     // //         $extension = $this->resumeFile->getClientOriginalExtension();
     // //         $randomString = substr(md5(uniqid()), 0, 12); // 12 character random string
     // //         $uniqueName = "{$originalName}_{$randomString}.{$extension}";
-            
+
     // //         // Handle referral candidates
     // //         if ($candidate->referral) {
     // //             $this->updateReferralResume($candidate, $uniqueName);
-    // //         } 
+    // //         }
     // //         // Handle regular candidates
     // //         else {
     // //             $this->updateAttachmentResume($candidate, $uniqueName);
     // //         }
-            
+
     // //         $this->loadResumeUrl();
-            
+
     // //         Notification::make()
     // //             ->title('Resume updated')
     // //             ->success()
     // //             ->body('Your resume has been updated successfully.')
     // //             ->send();
-                
+
     // //     } catch (\Exception $e) {
     // //         Notification::make()
     // //             ->title('Error updating resume')
@@ -585,7 +594,7 @@ class MyResumeProfile extends Page
     // protected function updateReferralResume(Candidates $candidate, string $uniqueName): void
     // {
     //     $path = $this->resumeFile->storeAs('referrals/resumes', $uniqueName, 'public');
-        
+
     //     // Update existing referral record
     //     $candidate->referral()->update([
     //         'resume' => $path
@@ -667,12 +676,12 @@ class MyResumeProfile extends Page
     // // protected function updateReferralResume(Candidates $candidate, string $uniqueName): void
     // // {
     // //     $referral = $candidate->referral;
-        
+
     // //     // Delete old file if exists
     // //     if ($referral->resume && Storage::exists('public/' . $referral->resume)) {
     // //         Storage::delete('public/' . $referral->resume);
     // //     }
-        
+
     // //     // Store new file
     // //     $path = $this->resumeFile->storeAs('referrals/resumes', $uniqueName, 'public');
     // //     $referral->update(['resume' => $path]);
@@ -681,7 +690,7 @@ class MyResumeProfile extends Page
     // // protected function updateAttachmentResume(Candidates $candidate, string $uniqueName): void
     // // {
     // //     $jobCandidate = $candidate->jobCandidates()->first();
-        
+
     // //     if (!$jobCandidate) {
     // //         throw new \Exception('Job candidate record not found');
     // //     }
@@ -709,16 +718,16 @@ class MyResumeProfile extends Page
     // //         ->where('moduleName', 'Candidates')
     // //         ->where('category', 'Resume')
     // //         ->delete();
-            
+
     // //     Attachments::where('attachmentOwner', $jobCandidate->id)
     // //         ->where('moduleName', 'JobCandidates')
     // //         ->where('category', 'Resume')
     // //         ->delete();
-            
+
     // //     // Store new file
     // //     $path = $this->resumeFile->storeAs('JobCandidate-attachments', $uniqueName, 'public');
     // //     $originalName = $this->resumeFile->getClientOriginalName();
-        
+
     // //     // Create new records
     // //     Attachments::create([
     // //         'attachment' => $path,
@@ -727,7 +736,7 @@ class MyResumeProfile extends Page
     // //         'attachmentOwner' => $candidate->id,
     // //         'moduleName' => 'Candidates',
     // //     ]);
-        
+
     // //     Attachments::create([
     // //         'attachment' => $path,
     // //         'attachmentName' => $originalName,
@@ -841,6 +850,7 @@ class MyResumeProfile extends Page
                                                         Carbon::now()->subYear($i)->year
                                                     ] = Carbon::now()->subYear($i)->year;
                                                 }
+
                                                 return $lastUsedOptions;
                                             })
                                             ->label('Last Used'),
@@ -906,20 +916,20 @@ class MyResumeProfile extends Page
                                     ->afterStateUpdated(function ($state) {
                                         $this->resumeFile = $state;
                                     }),
-                                    
+
                                 Forms\Components\Actions::make([
                                     Forms\Components\Actions\Action::make('updateResume')
                                         ->label('Update Curriculum Vitae/Resume')
                                         ->color('primary')
                                         ->icon('heroicon-o-arrow-up-tray')
                                         ->action('updateResume')
-                                        ->hidden(fn (): bool => empty($this->resumeFile))
+                                        ->hidden(fn (): bool => empty($this->resumeFile)),
                                 ]),
-                                
+
                                 Forms\Components\View::make('filament.candidate.resume-viewer')
-                                    ->visible(fn (): bool => $this->resumeUrl !== null)
-                            ])
-                    ])
+                                    ->visible(fn (): bool => $this->resumeUrl !== null),
+                            ]),
+                    ]),
             ])
             ->statePath('data');
     }
@@ -928,7 +938,7 @@ class MyResumeProfile extends Page
     {
         $user = Filament::auth()->user();
         $candidate = Candidates::where('Email', $user->email)->first();
-        
+
         return $candidate && $candidate->resume()->exists();
     }
 }

@@ -6,7 +6,6 @@ use App\Filament\Resources\AttendanceApprovalResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 
-
 class ViewAttendanceApproval extends ViewRecord
 {
     protected static string $resource = AttendanceApprovalResource::class;

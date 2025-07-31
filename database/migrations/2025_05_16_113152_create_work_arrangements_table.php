@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('work_arrangements', function (Blueprint $table) {
             $table->id();
-            $table->enum('arrangement_type', ['WFH', 'WFO']);
+            $table->string('arrangement_type');
             $table->timestamps();
         });
     }

@@ -5,6 +5,7 @@ namespace App\Filament\Candidate\Resources\JobOpeningsResource\Pages;
 use App\Filament\Candidate\Pages\MyResumeProfile;
 use App\Filament\Candidate\Resources\JobOpeningsResource;
 use App\Filament\Enums\JobCandidateStatus;
+use App\Models\Attachments;
 use App\Models\Candidates;
 use App\Models\CandidateUser;
 use App\Models\JobCandidates;
@@ -15,7 +16,6 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Colors\Color;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\HtmlString;
-use App\Models\Attachments;
 
 class ViewJobOpenings extends ViewRecord
 {
@@ -90,19 +90,20 @@ class ViewJobOpenings extends ViewRecord
     {
         // Make sure that the applicant didn't applied to the same job using the email address
         $myAppliedJobs = CandidateUser::find(auth()->id())->myAppliedJobs()->whereId($this->record->id)->get()->toArray();
-        
+
         if (count($myAppliedJobs) > 0) {
             Notifications\Notification::make()
                 ->color(Color::Orange)
                 ->icon('heroicon-o-exclamation-circle')
                 ->body('You\'ve already applied this job.')
                 ->send();
+
             return;
         }
 
         $candidateProfile = $this->getMyCandidateProfile()->first();
-        
-        if (!$candidateProfile) {
+
+        if (! $candidateProfile) {
             Notifications\Notification::make()
                 ->color(Color::Orange)
                 ->icon('heroicon-o-exclamation-circle')
@@ -121,6 +122,7 @@ class ViewJobOpenings extends ViewRecord
                 ])
                 ->persistent()
                 ->send();
+
             return;
         }
 
@@ -149,7 +151,7 @@ class ViewJobOpenings extends ViewRecord
 
             // Get the latest resume from candidate
             $latestResume = $candidateProfile->resume()->latest()->first();
-            
+
             if ($latestResume) {
                 // Create attachment for this job candidate
                 Attachments::create([
@@ -157,7 +159,7 @@ class ViewJobOpenings extends ViewRecord
                     'attachmentName' => $latestResume->attachmentName,
                     'category' => 'Resume',
                     'attachmentOwner' => $job->id,
-                    'moduleName' => 'JobCandidates'
+                    'moduleName' => 'JobCandidates',
                 ]);
             }
 
@@ -175,7 +177,7 @@ class ViewJobOpenings extends ViewRecord
                 ->title('Application Failed')
                 ->body('There was an error submitting your application. Please try again.')
                 ->send();
-            
+
             report($e); // Log the error for debugging
         }
     }

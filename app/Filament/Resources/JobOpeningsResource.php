@@ -11,7 +11,6 @@ use App\Models\JobOpenings;
 use App\Models\User;
 use App\Settings\JobOpeningSettings;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
@@ -77,7 +76,7 @@ class JobOpeningsResource extends Resource
                             ->required()
                             ->extraAttributes([
                                 'x-data' => '',
-                                'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                                'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})',
                             ]),
                         Select::make('Status')
                             ->options(JobOpeningStatus::class)
@@ -101,7 +100,7 @@ class JobOpeningsResource extends Resource
                             ->required()
                             ->extraAttributes([
                                 'x-data' => '',
-                                'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                                'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})',
                             ]),
                         Select::make('JobType')
                             ->options(config('recruit.job_opening.job_type_options'))

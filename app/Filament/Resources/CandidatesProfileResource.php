@@ -20,6 +20,7 @@ class CandidatesProfileResource extends Resource
     protected static ?string $model = Candidates::class;
 
     protected static ?int $navigationSort = 3;
+
     protected static ?string $navigationGroup = 'Recruitment';
 
     protected static ?string $recordTitleAttribute = 'full_name';
@@ -64,7 +65,7 @@ class CandidatesProfileResource extends Resource
                                 ->inline(false),
                         ])
                         ->deleteAction(
-                            fn(Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
+                            fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
                         )
                         ->columns(4),
                 ]),
@@ -219,7 +220,7 @@ class CandidatesProfileResource extends Resource
                             Forms\Components\Textarea::make('company_address'),
                         ])
                         ->deleteAction(
-                            fn(Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
+                            fn (Forms\Components\Actions\Action $action) => $action->requiresConfirmation(),
                         )
                         ->columns(5),
                 ]),
@@ -246,28 +247,28 @@ class CandidatesProfileResource extends Resource
                     ->label('First Name')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('LastName')
                     ->label('Last Name')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('Mobile')
                     ->label('Phone')
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('CurrentJobTitle')
                     ->label('Current Position')
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('ExperienceInYears')
                     ->label('Experience')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Added On')
                     ->dateTime()

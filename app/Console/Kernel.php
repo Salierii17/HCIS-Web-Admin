@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('attendance:daily-verify')->dailyAt('01:27')
-        ->appendOutputTo(storage_path('logs/scheduler.log'));
+            ->appendOutputTo(storage_path('logs/scheduler.log'));
     }
 
     /**

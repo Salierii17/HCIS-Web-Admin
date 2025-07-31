@@ -18,9 +18,9 @@ class EditReferrals extends EditRecord
             Actions\ViewAction::make(),
             Action::make('View Resume')
                 ->color('success')
-                ->hidden(fn () => !$this->record->resume)
+                ->hidden(fn () => ! $this->record->resume)
                 ->modalContent(fn () => view('referral-form.referral-component.resume-viewer', [
-                    'url' => Storage::url($this->record->resume)
+                    'url' => Storage::url($this->record->resume),
                 ]))
                 ->modalSubmitAction(false)
                 ->modalCancelAction(false)
@@ -31,9 +31,9 @@ class EditReferrals extends EditRecord
                 ]),
             Action::make('Download Resume')
                 ->color('primary')
-                ->hidden(fn () => !$this->record->resume)
+                ->hidden(fn () => ! $this->record->resume)
                 ->action(function () {
-                    return response()->download(storage_path('app/public/' . $this->record->resume));
+                    return response()->download(storage_path('app/public/'.$this->record->resume));
                 }),
             Actions\DeleteAction::make(),
         ];
