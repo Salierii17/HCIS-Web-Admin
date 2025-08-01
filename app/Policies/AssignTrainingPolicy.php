@@ -2,18 +2,20 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
 use App\Models\AssignTraining;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AssignTrainingPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ viewAnyPermission }}');
+        return $user->can('view_any_assign::training');
     }
 
     /**
@@ -21,7 +23,7 @@ class AssignTrainingPolicy
      */
     public function view(User $user, AssignTraining $assigntraining): bool
     {
-        return $user->checkPermissionTo('{{ viewPermission }}');
+        return $user->can('view_assign::training');
     }
 
     /**
@@ -29,7 +31,7 @@ class AssignTrainingPolicy
      */
     public function create(User $user): bool
     {
-        return $user->checkPermissionTo('{{ createPermission }}');
+        return $user->can('create_assign::training');
     }
 
     /**
@@ -37,7 +39,7 @@ class AssignTrainingPolicy
      */
     public function update(User $user, AssignTraining $assigntraining): bool
     {
-        return $user->checkPermissionTo('{{ updatePermission }}');
+        return $user->can('update_assign::training');
     }
 
     /**
@@ -45,62 +47,62 @@ class AssignTrainingPolicy
      */
     public function delete(User $user, AssignTraining $assigntraining): bool
     {
-        return $user->checkPermissionTo('{{ deletePermission }}');
+        return $user->can('delete_assign::training');
     }
 
     /**
-     * Determine whether the user can delete any models.
+     * Determine whether the user can bulk delete.
      */
     public function deleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ deleteAnyPermission }}');
+        return $user->can('delete_any_assign::training');
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether the user can permanently delete.
      */
     public function restore(User $user, AssignTraining $assigntraining): bool
     {
-        return $user->checkPermissionTo('{{ restorePermission }}');
+        return $user->can('force_delete_assign::training');
     }
 
     /**
-     * Determine whether the user can restore any models.
+     * Determine whether the user can permanently bulk delete.
      */
     public function restoreAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ restoreAnyPermission }}');
+        return $user->can('force_delete_any_assign::training');
     }
 
     /**
-     * Determine whether the user can replicate the model.
+     * Determine whether the user can restore.
      */
     public function replicate(User $user, AssignTraining $assigntraining): bool
     {
-        return $user->checkPermissionTo('{{ replicatePermission }}');
+        return $user->can('restore_assign::training');
     }
 
     /**
-     * Determine whether the user can reorder the models.
+     * Determine whether the user can bulk restore.
      */
     public function reorder(User $user): bool
     {
-        return $user->checkPermissionTo('{{ reorderPermission }}');
+        return $user->can('restore_any_assign::training');
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can replicate.
      */
     public function forceDelete (User $user, AssignTraining $assigntraining): bool
     {
-        return $user->checkPermissionTo('{{ forceDeletePermission }}');
+        return $user->can('replicate_assign::training');
     }
 
     /**
-     * Determine whether the user can permanently delete any models.
+     * Determine whether the user can reorder.
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ forceDeleteAnyPermission }}');
+        return $user->can('reorder_assign::training');
     }
 }

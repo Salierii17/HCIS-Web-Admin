@@ -30,7 +30,7 @@ class AttachmentsRelationManager extends RelationManager
                         'image/jpeg',
                         'image/png',
                     ])
-                    ->disabledOn('edit')
+                    ->disabled(fn ($record) => $record?->category === 'Resume') // Disable for resumes
                     ->required(),
                 Forms\Components\TextInput::make('attachmentName')
                     ->disabledOn('edit')
@@ -56,11 +56,14 @@ class AttachmentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('attachmentName')
             ->columns([
-                Tables\Columns\TextColumn::make('attachmentName'),
-                Tables\Columns\TextColumn::make('category'),
-                Tables\Columns\TextColumn::make('created_at'),
+                Tables\Columns\TextColumn::make('attachmentName')
+                    ->label('File Name'),
+                Tables\Columns\TextColumn::make('category')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -69,8 +72,28 @@ class AttachmentsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('view')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('primary')
+                    ->url(function ($record) {
+                        $filePath = str_replace('public/', '', $record->attachment);
+
+                        return asset('storage/'.$filePath);
+                    })
+                    ->openUrlInNewTab()
+                    ->hidden(fn ($record) => empty($record->attachment)),
+
+                Tables\Actions\Action::make('download')
+                    ->label('Download')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function ($record) {
+                        $path = storage_path('app/public/'.$record->attachment);
+
+                        return response()->download($path, $record->attachmentName);
+                    })
+                    ->hidden(fn ($record) => empty($record->attachment)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

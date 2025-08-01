@@ -17,6 +17,8 @@ return new class extends Migration
             // $table->string('status');
             $table->timestamps();
         });
+
+        DB::table('attendance_statuses')->truncate();
     }
 
     /**

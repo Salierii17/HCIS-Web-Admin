@@ -9,13 +9,21 @@ use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\JobOpenings;
 use App\Models\User;
+use App\Notifications\User\InviteNewSystemUserNotification;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class JobCandidatesResource extends Resource
 {
@@ -140,10 +148,17 @@ class JobCandidatesResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('candidateProfile.full_name')
-                    ->label('Candidate Name'),
-                Tables\Columns\TextColumn::make('Email'),
+                    ->label('Candidate Name')
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('candidateProfile', function ($q) use ($search) {
+                            $q->where('full_name', 'like', "%{$search}%");
+                        });
+                    }),
+                Tables\Columns\TextColumn::make('Email')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('CandidateStatus')
-                    ->label('Candidate Status'),
+                    ->label('Candidate Status')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('CandidateSource')
                     ->label('Candidate Source')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -193,9 +208,176 @@ class JobCandidatesResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('addUser')
+                    ->label('Add User')
+                    ->icon('heroicon-o-user-plus')
+                    ->action(function (JobCandidates $record) {
+                        try {
+                            // Check if user already exists with this email
+                            $existingUser = User::where('email', $record->Email)->first();
+
+                            if ($existingUser) {
+                                Notification::make()
+                                    ->title('User already exists')
+                                    ->body('A user with this email already exists in the system.')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            if (! $record->candidateProfile) {
+                                throw new \Exception('Candidate profile not found');
+                            }
+
+                            // Create new user
+                            $user = User::create([
+                                'name' => $record->candidateProfile->full_name,
+                                'email' => $record->Email,
+                                'password' => Hash::make('password'),
+                                'invitation_id' => Str::uuid(),
+                                'sent_at' => now(),
+                            ]);
+
+                            // Assign Standard role
+                            $standardRole = Role::where('name', 'Standard')->first();
+                            if ($standardRole) {
+                                $user->assignRole($standardRole);
+                            }
+
+                            // Send invitation
+                            $link = URL::signedRoute('system-user.invite', ['id' => $user->invitation_id]);
+                            $user->notify(new InviteNewSystemUserNotification($user, $link));
+
+                            Notification::make()
+                                ->title('User created and invited')
+                                ->body('The user has been created and an invitation has been sent.')
+                                ->success()
+                                ->send();
+
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error creating user')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->visible(function (JobCandidates $record) {
+                        return $record->CandidateStatus === 'Hired' && $record->candidateProfile !== null;
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    BulkAction::make('addUsers')
+                        ->label('Add Selected as Users')
+                        ->icon('heroicon-o-user-plus')
+                        ->action(function (Collection $records) {
+                            $results = [
+                                'created' => 0,
+                                'skipped_existing' => 0,
+                                'skipped_non_hired' => 0,
+                                'skipped_no_profile' => 0,
+                                'errors' => [],
+                            ];
+
+                            $hiredCandidates = $records->filter(fn ($record) => $record->CandidateStatus === 'Hired'
+                            );
+
+                            foreach ($hiredCandidates as $record) {
+                                try {
+                                    // Skip if no email or profile
+                                    if (! $record->Email) {
+                                        $results['skipped_no_profile']++;
+
+                                        continue;
+                                    }
+
+                                    if (! $record->candidateProfile) {
+                                        $results['skipped_no_profile']++;
+                                        $results['errors'][] = "No profile for: {$record->Email}";
+
+                                        continue;
+                                    }
+
+                                    // Check for existing user
+                                    if (User::where('email', $record->Email)->exists()) {
+                                        $results['skipped_existing']++;
+
+                                        continue;
+                                    }
+
+                                    // Create new user
+                                    $user = User::create([
+                                        'name' => $record->candidateProfile->full_name,
+                                        'email' => $record->Email,
+                                        'password' => Hash::make(Str::random(16)),
+                                        'invitation_id' => Str::uuid(),
+                                        'sent_at' => now(),
+                                    ]);
+
+                                    // Assign role
+                                    if ($standardRole = Role::where('name', 'Standard')->first()) {
+                                        $user->assignRole($standardRole);
+                                    }
+
+                                    // Send invitation
+                                    $link = URL::signedRoute('system-user.invite', ['id' => $user->invitation_id]);
+                                    $user->notify(new InviteNewSystemUserNotification($user, $link));
+
+                                    $results['created']++;
+
+                                } catch (\Exception $e) {
+                                    $results['errors'][] = "Error with {$record->Email}: ".$e->getMessage();
+                                }
+                            }
+
+                            // Non-hired candidates count
+                            $results['skipped_non_hired'] = $records->count() - $hiredCandidates->count();
+
+                            // Prepare notification message
+                            $messageParts = [];
+                            if ($results['created'] > 0) {
+                                $messageParts[] = "Created {$results['created']} user(s)";
+                            }
+                            if ($results['skipped_existing'] > 0) {
+                                $messageParts[] = "Skipped {$results['skipped_existing']} existing user(s)";
+                            }
+                            if ($results['skipped_non_hired'] > 0) {
+                                $messageParts[] = "Skipped {$results['skipped_non_hired']} non-hired candidate(s)";
+                            }
+                            if ($results['skipped_no_profile'] > 0) {
+                                $messageParts[] = "Skipped {$results['skipped_no_profile']} candidate(s) with missing profile";
+                            }
+
+                            $message = implode('. ', $messageParts).'.';
+
+                            // Show notification
+                            $notification = Notification::make()
+                                ->title('Bulk User Creation Results')
+                                ->body($message)
+                                ->success();
+
+                            // Add error details if any
+                            if (! empty($results['errors'])) {
+                                $notification->actions([
+                                    \Filament\Notifications\Actions\Action::make('viewErrors')
+                                        ->label('View Errors ('.count($results['errors']).')')
+                                        ->color('danger')
+                                        ->modalContent(view('filament.user.invitation.bulk-errors', [
+                                            'errors' => $results['errors'],
+                                        ])),
+                                ]);
+                            }
+
+                            $notification->send();
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
+                        ->modalHeading('Confirm User Creation')
+                        ->modalDescription('Only "Hired" candidates will be processed. Existing users will be skipped.')
+                        ->modalSubmitActionLabel('Create Users')
+                        ->color('success'),
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),

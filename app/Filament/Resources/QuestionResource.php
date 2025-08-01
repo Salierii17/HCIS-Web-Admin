@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\QuestionResource\Pages;
-use App\Filament\Resources\QuestionResource\RelationManagers;
 use App\Models\Question;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class QuestionResource extends Resource
 {
@@ -24,7 +21,8 @@ class QuestionResource extends Resource
     protected static ?string $navigationGroup = 'Training';
 
     protected static ?int $navigationSort = -3;
-     public static function form(Form $form): Form
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -34,13 +32,13 @@ class QuestionResource extends Resource
                 Forms\Components\RichEditor::make('explanation')
                     ->columnSpanFull(),
                 Forms\Components\Repeater::make('options')
-                        ->relationship('options')
-                        ->schema([
-                            Forms\Components\RichEditor::make('option_text')->required(),
-                            Forms\Components\TextInput::make('score')->required(),
-                            
-                        ])
-                        
+                    ->relationship('options')
+                    ->schema([
+                        Forms\Components\RichEditor::make('option_text')->required(),
+                        Forms\Components\TextInput::make('score')->required(),
+
+                    ]),
+
             ]);
     }
 
@@ -79,7 +77,6 @@ class QuestionResource extends Resource
                 ]),
             ]);
     }
-
 
     public static function getRelations(): array
     {

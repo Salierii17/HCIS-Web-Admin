@@ -29,7 +29,7 @@ class WelcomeSystemUserNotification extends Notification
     {
         $this->user = $user;
         $this->login_link = filament()->getDefaultPanel()->getLoginUrl();
-        $this->company_name = (new GeneralSetting())->company_name;
+        $this->company_name = (new GeneralSetting)->company_name;
     }
 
     /**

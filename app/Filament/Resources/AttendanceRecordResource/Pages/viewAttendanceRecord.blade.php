@@ -39,11 +39,14 @@
                     document.addEventListener('DOMContentLoaded', function () {
                         var lat = {{ $location['latitude'] }};
                         var lon = {{ $location['longitude'] }};
+
                         if (document.getElementById('mapId') && typeof L !== 'undefined') {
                             var map = L.map('mapId').setView([lat, lon], 15); // 15 is zoom level
+
                             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             }).addTo(map);
+
                             L.marker([lat, lon]).addTo(map)
                                 .bindPopup('Attendance Location')
                                 .openPopup();

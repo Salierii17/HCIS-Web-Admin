@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException as ValidationException;
@@ -17,6 +19,7 @@ class AuthenticationController extends Controller
         ]);
 
         if (!Auth::attempt($request->only('email', 'password'))) {
+       
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -48,5 +51,4 @@ class AuthenticationController extends Controller
             'message' => 'Successfully logged out',
         ], Response::HTTP_OK);
     }
-
 }

@@ -4,8 +4,8 @@ namespace App\Filament\Resources\AttendanceRecordResource\Pages;
 
 use App\Filament\Resources\AttendanceRecordResource;
 use Filament\Actions;
-use Filament\Infolists\Infolist;
 use Filament\Infolists\Components;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewAttendanceRecord extends ViewRecord
@@ -45,7 +45,7 @@ class ViewAttendanceRecord extends ViewRecord
                                 Components\TextEntry::make('locationType.arrangement_type')
                                     ->label('Work Arrangement')
                                     ->badge()
-                                    ->color(fn(string $state): string => match (strtolower($state)) {
+                                    ->color(fn (string $state): string => match (strtolower($state)) {
                                         'wfo' => 'success',
                                         'wfh' => 'info',
                                         default => 'gray',
@@ -53,7 +53,7 @@ class ViewAttendanceRecord extends ViewRecord
                                 Components\TextEntry::make('status.status')
                                     ->label('Status')
                                     ->badge()
-                                    ->color(fn(string $state): string => match (strtolower($state)) {
+                                    ->color(fn (string $state): string => match (strtolower($state)) {
                                         'present' => 'success',
                                         'absent' => 'danger',
                                         'on leave' => 'warning',
@@ -71,9 +71,10 @@ class ViewAttendanceRecord extends ViewRecord
                     ]),
             ]);
     }
+
     public function getGpsLocation(): ?array
     {
-        return $this->record->gps_coordinates_array; // Using the accessor
+        return $this->record->gps_coordinates_array;
     }
 
     protected function getViewData(): array
@@ -97,5 +98,4 @@ class ViewAttendanceRecord extends ViewRecord
         // Pre-load GPS data
         $this->getGpsLocation();
     }
-
 }

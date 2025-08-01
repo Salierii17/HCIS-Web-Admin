@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Alfa6661\AutoNumber\AutoNumberTrait;
+use App\Filament\Enums\AttachmentCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,7 +68,21 @@ class JobCandidates extends Model
 
     public function attachments(): HasMany
     {
-        return $this->hasMany(Attachments::class, 'attachmentOwner', 'id');
+        return $this->hasMany(Attachments::class, 'attachmentOwner', 'id')
+            ->where('moduleName', 'JobCandidates');
+    }
+
+    public function resume(): HasMany
+    {
+        return $this->attachments()
+            ->where('category', AttachmentCategory::Resume->value);
+    }
+
+    public function candidateResume(): HasMany
+    {
+        return $this->hasMany(Attachments::class, 'attachmentOwner', 'candidate')
+            ->where('moduleName', 'Candidates')
+            ->where('category', AttachmentCategory::Resume->value);
     }
 
     /**

@@ -89,7 +89,7 @@ class AdminPanelProvider extends PanelProvider
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentAuthenticationLogPlugin::make(),
-                new Lockscreen(),
+                new Lockscreen,
                 ThemesPlugin::make(),
                 QuickCreatePlugin::make()
                     ->excludes([
@@ -97,7 +97,7 @@ class AdminPanelProvider extends PanelProvider
                     ]),
                
             ])
-            
+
             ->spa();
     }
 }

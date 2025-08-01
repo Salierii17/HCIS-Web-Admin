@@ -1,7 +1,6 @@
 <x-filament-panels::page>
-    <form wire:submit="updateRecord">
+    <form wire:submit="updateRecord" enctype="multipart/form-data">
         {{ $this->form }}
-
 
         <div class="mt-3">
             <x-filament::button
@@ -12,9 +11,8 @@
                 type="submit"
                 wire:target="updateRecord"
             >
-                Update
+                Update Profile
             </x-filament::button>
         </div>
-
     </form>
 </x-filament-panels::page>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceRequestController;
 use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,9 +30,19 @@ Route::middleware('api')
                 Route::post('refresh', [AuthenticationController::class, 'refresh'])
                     ->middleware('auth:api');
             });
-
-            // Route::middleware('auth:api')->group(function () {
+        // Route::middleware('auth:api')->group(function () {
         //     Route::post('attendance', [AttendanceController::class, 'store']);
         // });
-        Route::apiResource('attendance', AttendanceController::class);
+        // Route::apiResource('attendance', AttendanceController::class);
+        // Route::post('attendance-requests', [AttendanceRequestController::class, 'store']);
+
+        Route::middleware('auth:api')->group(function () {
+
+            // This route now requires authentication
+            Route::apiResource('attendance', AttendanceController::class);
+
+            // **FIX:** This route is now protected, so auth()->id() will work.
+            Route::post('attendance-requests', [AttendanceRequestController::class, 'store']);
+
+        });
     });

@@ -60,29 +60,35 @@
                     latitude: lat,
                     longitude: lon,
                     mapId: 'mapId',
+
                     initMap() {
                         // Wait for Leaflet to be available
                         if (typeof L === 'undefined') {
                             setTimeout(() => this.initMap(), 100);
                             return;
                         }
+
                         // Wait for container to be ready
                         const container = this.$el;
                         if (!container) {
                             setTimeout(() => this.initMap(), 100);
                             return;
                         }
+
                         // Clear any existing map
                         if (this.map) {
                             this.map.remove();
                         }
+
                         try {
                             // Initialize map
                             this.map = L.map(container).setView([this.latitude, this.longitude], 15);
+
                             // Add tile layer
                             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             }).addTo(this.map);
+
                             // Add marker
                             L.marker([this.latitude, this.longitude])
                                 .addTo(this.map)

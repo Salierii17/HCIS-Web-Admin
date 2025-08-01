@@ -10,7 +10,7 @@ class AssignTraining extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'package_id',
         'deadline',
     ];
@@ -27,5 +27,4 @@ class AssignTraining extends Model
     {
         return $this->belongsTo(Package::class);
     }
-
 }
