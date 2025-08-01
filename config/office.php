@@ -1,5 +1,4 @@
 <?php
-
 return [
     'location' => [
         'latitude' => env('OFFICE_LATITUDE', -6.200000),

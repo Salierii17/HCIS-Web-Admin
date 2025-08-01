@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_statuses', function (Blueprint $table) {
+        Schema::create('materials', function (Blueprint $table) {
             $table->id();
-             $table->enum('status', ['Present', 'Late']);
-            // $table->string('status');
+            $table->string('nama_material');
+            $table->string('file_path'); // untuk menyimpan path file
             $table->timestamps();
         });
-
-        DB::table('attendance_statuses')->truncate();
     }
 
     /**
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_statuses');
+        Schema::dropIfExists('materials');
     }
 };

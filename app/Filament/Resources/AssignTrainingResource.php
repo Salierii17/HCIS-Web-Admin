@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AssignTrainingResource\Pages;
 use App\Models\AssignTraining;
 use App\Notifications\SendTrainingNotification;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -32,20 +33,26 @@ class AssignTrainingResource extends Resource
                 ->relationship('user', 'name')
                 ->required(),
 
-            Select::make('package_id')
-                ->label('Package')
-                ->relationship('package', 'name')
-                ->required(),
-        ]);
-    }
-
+        Select::make('package_id')
+            ->label('Package')
+            ->relationship('package', 'name')
+            ->required(),
+        
+        DateTimePicker::make('deadline')
+                ->label('Deadline')
+                ->required()
+                ->minDate(now()), // agar tidak bisa pilih waktu yang sudah lewat
+    ]);
+}
+  
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('user.name')->label('User'),
                 TextColumn::make('package.name')->label('Package'),
-                TextColumn::make('created_at')->label('Assigned At')->dateTime(),
+                TextColumn::make('created_at')->label('Assigned At')->dateTime('d M Y H:i'),
+                TextColumn::make('deadline')->label('Deadline')->dateTime('d M Y H:i'),
             ])
             ->actions([
                 Action::make('sendNotification')
@@ -71,17 +78,16 @@ class AssignTrainingResource extends Resource
             ]);
     }
 
-    public static function canViewAny(): bool
-    {
-        return true;
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
+        public static function canViewAny(): bool
+        {
+            return optional(auth()->user())->can('viewAny', AssignTraining::class);
+        }
+        public static function getRelations(): array
+        {
+            return [
+                //
+            ];
+        }
 
     public static function getPages(): array
     {

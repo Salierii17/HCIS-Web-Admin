@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_statuses', function (Blueprint $table) {
-            $table->id();
-             $table->enum('status', ['Present', 'Late']);
-            // $table->string('status');
-            $table->timestamps();
+        Schema::table('assign_trainings', function (Blueprint $table) {
+            $table->date('deadline')->nullable()->after('created_at');
         });
-
-        DB::table('attendance_statuses')->truncate();
     }
 
     /**
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_statuses');
+        Schema::table('assign_trainings', function (Blueprint $table) {
+            $table->dropColumn('deadline');
+        });
     }
 };

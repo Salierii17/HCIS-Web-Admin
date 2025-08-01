@@ -94,21 +94,18 @@
                                 .addTo(this.map)
                                 .bindPopup('Attendance Location')
                                 .openPopup();
-
                             // Force resize
                             setTimeout(() => {
                                 if (this.map) {
                                     this.map.invalidateSize();
                                 }
                             }, 100);
-
                             console.log('Map initialized successfully with Alpine.js');
                         } catch (error) {
                             console.error('Error initializing map:', error);
                             setTimeout(() => this.initMap(), 500);
                         }
                     },
-
                     // Cleanup when component is destroyed
                     destroy() {
                         if (this.map) {
