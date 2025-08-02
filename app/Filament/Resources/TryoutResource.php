@@ -16,13 +16,13 @@ class TryoutResource extends Resource
 {
     protected static ?string $model = Tryout::class;
 
-    protected static ?string $navigationIcon = 'heroicon-m-arrow-right-start-on-rectangle';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $modelLabel = 'Records';
 
     protected static ?string $navigationGroup = 'Training';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

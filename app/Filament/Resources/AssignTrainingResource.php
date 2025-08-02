@@ -17,13 +17,13 @@ class AssignTrainingResource extends Resource
 {
     protected static ?string $model = AssignTraining::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $modelLabel = 'Assign Training';
 
     protected static ?string $navigationGroup = 'Training';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
