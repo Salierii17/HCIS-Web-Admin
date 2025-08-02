@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\AssignTraining;
 use App\Notifications\TrainingReminderNotification;
+use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
 class SendTrainingReminders extends Command

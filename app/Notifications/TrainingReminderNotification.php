@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Models\AssignTraining;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -13,9 +12,10 @@ class TrainingReminderNotification extends Notification
     use Queueable;
 
     public $assignTraining;
-       public function __construct(AssignTraining $assignTraining)
+
+    public function __construct(AssignTraining $assignTraining)
     {
-         $this->assignTraining = $assignTraining;
+        $this->assignTraining = $assignTraining;
     }
 
     /**
@@ -33,13 +33,13 @@ class TrainingReminderNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-         return (new MailMessage)
+        return (new MailMessage)
             ->subject('Reminder: Deadline Training Besok')
-            ->greeting('Halo ' . $notifiable->name . ',')
+            ->greeting('Halo '.$notifiable->name.',')
             ->line('Ini pengingat bahwa kamu memiliki training yang akan berakhir BESOK.')
-            ->line('📘 Training: ' . $this->assignTraining->package->name)
-            ->line('⏰ Deadline: ' . \Carbon\Carbon::parse($this->assignTraining->deadline)->format('d M Y'))
-            ->action('Kerjakan Sekarang', url('/training/packages/' . $this->assignTraining->package->id)) 
+            ->line('📘 Training: '.$this->assignTraining->package->name)
+            ->line('⏰ Deadline: '.\Carbon\Carbon::parse($this->assignTraining->deadline)->format('d M Y'))
+            ->action('Kerjakan Sekarang', url('/training/packages/'.$this->assignTraining->package->id))
             ->line('Segera selesaikan sebelum waktu habis!');
     }
 

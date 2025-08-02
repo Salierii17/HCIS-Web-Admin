@@ -93,7 +93,7 @@ class AssignTrainingPolicy
     /**
      * Determine whether the user can replicate.
      */
-    public function forceDelete (User $user, AssignTraining $assigntraining): bool
+    public function forceDelete(User $user, AssignTraining $assigntraining): bool
     {
         return $user->can('replicate_assign::training');
     }

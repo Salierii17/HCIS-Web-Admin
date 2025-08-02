@@ -14,10 +14,11 @@ class AssignTraining extends Model
         'package_id',
         'deadline',
     ];
+
     protected $casts = [
-    'deadline' => 'datetime',
+        'deadline' => 'datetime',
     ];
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
