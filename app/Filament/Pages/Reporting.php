@@ -48,10 +48,8 @@ class Reporting extends Page implements HasForms, HasInfolists
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
-                                        // Place widgets directly into the schema using Livewire::make()
                                         Livewire::make(\App\Filament\Widgets\Reports\AttendanceStatusWidget::class),
                                         Livewire::make(\App\Filament\Widgets\Reports\DailyAttendanceTrendWidget::class),
-                                        // Make the third widget span the full 2 columns
                                         Livewire::make(\App\Filament\Widgets\Reports\ApprovalStatusFunnelWidget::class)
                                             ->columnSpan(2),
                                     ]),
