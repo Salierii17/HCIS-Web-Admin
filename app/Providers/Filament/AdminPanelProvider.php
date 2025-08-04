@@ -56,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
                 Profile::class,
+                \App\Filament\Pages\Reporting::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -96,7 +97,6 @@ class AdminPanelProvider extends PanelProvider
                     ]),
 
             ])
-
             ->spa();
     }
 }
