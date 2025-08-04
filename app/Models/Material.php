@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Material extends Model
 {
@@ -13,4 +14,9 @@ class Material extends Model
         'nama_material',
         'file_path',
     ];
+
+    public function assignedTrainings()
+    {
+        return $this->hasMany(AssignTraining::class);
+    }
 }
