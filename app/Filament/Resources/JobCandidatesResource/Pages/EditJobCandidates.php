@@ -27,6 +27,29 @@ class EditJobCandidates extends EditRecord
         ];
     }
 
+    protected function afterFill(): void
+    {
+        // Check if status was changed in this session
+        if ($this->record->wasChanged('CandidateStatus')) {
+            session()->put('status_changed_' . $this->record->id, true);
+            session()->put('email_sent_' . $this->record->id, false);
+        }
+    }
+
+    protected function beforeSave(): void
+    {
+        // Track status changes
+        if ($this->record->isDirty('CandidateStatus')) {
+            session()->put('status_changed_' . $this->record->id, true);
+            session()->put('email_sent_' . $this->record->id, false);
+        }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('view', ['record' => $this->record]);
+    }
+
     // protected function afterSave(): void
     // {
     //     // Check if status was changed to "Hired"
