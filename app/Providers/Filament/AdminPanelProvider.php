@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\Pages\Profile;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -57,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
                 Profile::class,
+                \App\Filament\Pages\Reporting::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -95,9 +95,8 @@ class AdminPanelProvider extends PanelProvider
                     ->excludes([
                         AuthenticationLogResource::class,
                     ]),
-               
-            ])
 
+            ])
             ->spa();
     }
 }

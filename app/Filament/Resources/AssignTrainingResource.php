@@ -17,13 +17,13 @@ class AssignTrainingResource extends Resource
 {
     protected static ?string $model = AssignTraining::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $modelLabel = 'Assign Training';
 
     protected static ?string $navigationGroup = 'Training';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -33,18 +33,18 @@ class AssignTrainingResource extends Resource
                 ->relationship('user', 'name')
                 ->required(),
 
-        Select::make('package_id')
-            ->label('Package')
-            ->relationship('package', 'name')
-            ->required(),
-        
-        DateTimePicker::make('deadline')
+            Select::make('package_id')
+                ->label('Package')
+                ->relationship('package', 'name')
+                ->required(),
+
+            DateTimePicker::make('deadline')
                 ->label('Deadline')
                 ->required()
                 ->minDate(now()), // agar tidak bisa pilih waktu yang sudah lewat
-    ]);
-}
-  
+        ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -78,16 +78,17 @@ class AssignTrainingResource extends Resource
             ]);
     }
 
-        public static function canViewAny(): bool
-        {
-            return optional(auth()->user())->can('viewAny', AssignTraining::class);
-        }
-        public static function getRelations(): array
-        {
-            return [
-                //
-            ];
-        }
+    public static function canViewAny(): bool
+    {
+        return optional(auth()->user())->can('viewAny', AssignTraining::class);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
 
     public static function getPages(): array
     {
