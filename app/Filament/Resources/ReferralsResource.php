@@ -143,16 +143,10 @@ class ReferralsResource extends Resource
                     ->url(function ($record) {
                         if ($record->candidates) {
                             return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
-<<<<<<< HEAD
-                                'record' => $record->candidates->id
-                            ]);
-                        }
-=======
                                 'record' => $record->candidates->id,
                             ]);
                         }
 
->>>>>>> origin/integration
                         return null;
                     })
                     ->openUrlInNewTab(false)
@@ -160,11 +154,7 @@ class ReferralsResource extends Resource
                         return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
                     })
                     ->iconPosition('after'),
-<<<<<<< HEAD
-                    
-=======
 
->>>>>>> origin/integration
                 Tables\Columns\TextColumn::make('jobopenings.JobTitle')
                     ->label('Job Title')
                     ->url(function ($record) {
