@@ -3,68 +3,64 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PackageResource\Pages;
-use App\Filament\Resources\PackageResource\RelationManagers;
 use App\Models\Package;
+use App\Models\Question;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\FormsComponent;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\Question;
 
 class PackageResource extends Resource
 {
     protected static ?string $model = Package::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
 
-    
     protected static ?string $modelLabel = 'Package';
 
     protected static ?string $navigationGroup = 'Training';
-    
-    protected static ?int $navigationSort = 3;
+
+    protected static ?int $navigationSort = 1;
+
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
+            ->schema([
                 Forms\Components\Group::make()
                     ->schema([
                         Forms\Components\Section::make()
                             ->schema([
-                                    Forms\Components\TextInput::make('name')
-                                        ->required()
-                                        ->maxLength(255),
-                                    Forms\Components\TextInput::make('duration')
-                                        ->label('Durasi (dalam menit)')
-                                        ->required()
-                                           ->numeric(),
-                                ])
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('duration')
+                                    ->label('Durasi (dalam menit)')
+                                    ->required()
+                                    ->numeric(),
                             ]),
-                            
-                            Forms\Components\Group::make()
-                                ->schema([
-                                    Forms\Components\Section::make()
-                                        ->schema([
-                                            Forms\Components\Repeater::make('questions')
-                                            ->relationship('questions')
-                                            ->schema([
-                                                Forms\Components\Select::make('question_id')
-                                                    ->relationship('question', 'question')
-                                                    ->label('Question')
-                                                    ->options(
-                                                            Question::all()->pluck('plain_text', 'id')
-                                                        )
-                                                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                                    ->required(),
-                                                
-                                                ])
-                                    ])
-                            ])
-                    ]);
+                    ]),
+
+                Forms\Components\Group::make()
+                    ->schema([
+                        Forms\Components\Section::make()
+                            ->schema([
+                                Forms\Components\Repeater::make('questions')
+                                    ->relationship('questions')
+                                    ->schema([
+                                        Forms\Components\Select::make('question_id')
+                                            ->relationship('question', 'question')
+                                            ->label('Question')
+                                            ->options(
+                                                Question::all()->pluck('plain_text', 'id')
+                                            )
+                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                            ->required(),
+
+                                    ]),
+                            ]),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -104,7 +100,7 @@ class PackageResource extends Resource
                     ->url(fn (Package $record): string => route('do-tryout', $record))
                     ->color('success')
                     ->openUrlInNewTab()
-                    ->icon('heroicon-o-paper-airplane')
+                    ->icon('heroicon-o-paper-airplane'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

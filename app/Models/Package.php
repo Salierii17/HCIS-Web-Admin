@@ -10,12 +10,12 @@ class Package extends Model
 {
     use HasFactory;
 
-    protected $fillable =[
+    protected $fillable = [
         'name',
         'duration',
     ];
 
-     public function questions(): HasMany
+    public function questions(): HasMany
     {
         return $this->hasMany(PackageQuestion::class, 'package_id');
     }
@@ -24,5 +24,4 @@ class Package extends Model
     {
         return $this->hasMany(AssignTraining::class);
     }
-
 }

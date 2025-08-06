@@ -10,9 +10,15 @@ class AssignTraining extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'package_id',
+        'deadline',
     ];
+
+    protected $casts = [
+        'deadline' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -22,5 +28,4 @@ class AssignTraining extends Model
     {
         return $this->belongsTo(Package::class);
     }
-
 }

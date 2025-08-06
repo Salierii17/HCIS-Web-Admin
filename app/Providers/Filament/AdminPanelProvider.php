@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\Pages\Profile;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -57,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
                 Profile::class,
+                \App\Filament\Pages\Reporting::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -89,15 +89,14 @@ class AdminPanelProvider extends PanelProvider
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentAuthenticationLogPlugin::make(),
-                new Lockscreen(),
+                new Lockscreen,
                 ThemesPlugin::make(),
                 QuickCreatePlugin::make()
                     ->excludes([
                         AuthenticationLogResource::class,
                     ]),
-                // FilamentSpatieRolesPermissionsPlugin::make(),
+
             ])
-            
             ->spa();
     }
 }

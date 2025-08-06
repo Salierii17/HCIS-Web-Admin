@@ -18,7 +18,9 @@ class ReferralsResource extends Resource
     protected static ?string $model = Referrals::class;
 
     protected static ?string $navigationIcon = 'healthicons-o-referral';
+
     protected static ?string $navigationGroup = 'Recruitment';
+
     protected static ?int $navigationSort = 5;
 
     public static function getRecordTitle(?Model $record): ?string
@@ -58,17 +60,17 @@ class ReferralsResource extends Resource
                                 ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
                                 ->url(fn (Forms\Get $get): string => Storage::url($get('resume')))
                                 ->openUrlInNewTab(),
-                                
+
                             Forms\Components\Actions\Action::make('downloadResume')
                                 ->label('Download Resume')
                                 ->color('primary')
                                 ->icon('heroicon-o-arrow-down-tray')
                                 ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
                                 ->action(function (Forms\Get $get) {
-                                    return response()->download(storage_path('app/public/' . $get('resume')));
+                                    return response()->download(storage_path('app/public/'.$get('resume')));
                                 }),
                         ])->hidden(
-                            fn (): bool => !in_array(\Filament\Support\Enums\ActionSize::tryFrom(request()->route()->getName()) ?? '', ['create', 'edit'])
+                            fn (): bool => ! in_array(\Filament\Support\Enums\ActionSize::tryFrom(request()->route()->getName()) ?? '', ['create', 'edit'])
                         ),
 
                         Forms\Components\Section::make('Job Recommendation')
@@ -141,9 +143,16 @@ class ReferralsResource extends Resource
                     ->url(function ($record) {
                         if ($record->candidates) {
                             return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
+<<<<<<< HEAD
                                 'record' => $record->candidates->id
                             ]);
                         }
+=======
+                                'record' => $record->candidates->id,
+                            ]);
+                        }
+
+>>>>>>> origin/integration
                         return null;
                     })
                     ->openUrlInNewTab(false)
@@ -151,15 +160,20 @@ class ReferralsResource extends Resource
                         return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
                     })
                     ->iconPosition('after'),
+<<<<<<< HEAD
                     
+=======
+
+>>>>>>> origin/integration
                 Tables\Columns\TextColumn::make('jobopenings.JobTitle')
                     ->label('Job Title')
                     ->url(function ($record) {
                         if ($record->jobopenings) {
                             return \App\Filament\Resources\JobOpeningsResource::getUrl('view', [
-                                'record' => $record->jobopenings->id
+                                'record' => $record->jobopenings->id,
                             ]);
                         }
+
                         return null;
                     })
                     ->openUrlInNewTab(false)
@@ -167,7 +181,7 @@ class ReferralsResource extends Resource
                         return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
                     })
                     ->iconPosition('after'),
-                    
+
                 Tables\Columns\TextColumn::make('jobcandidates.CandidateStatus')
                     ->label('Status')
                     ->badge()
@@ -178,7 +192,7 @@ class ReferralsResource extends Resource
                         'Rejected' => 'danger',
                         default => 'gray',
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
@@ -195,7 +209,7 @@ class ReferralsResource extends Resource
                     ->color('success')
                     ->url(function ($record) {
                         return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [
-                            'record' => $record->JobCandidate
+                            'record' => $record->JobCandidate,
                         ]);
                     }),
                 Tables\Actions\DeleteAction::make(),

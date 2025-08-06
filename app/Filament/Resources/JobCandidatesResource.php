@@ -10,12 +10,16 @@ use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\JobOpenings;
 use App\Models\User;
+use App\Notifications\User\InviteNewSystemUserNotification;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
 use App\Notifications\User\InviteNewSystemUserNotification;
@@ -28,6 +32,7 @@ use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\DateTimePicker;
+
 
 class JobCandidatesResource extends Resource
 {
@@ -1180,6 +1185,7 @@ class JobCandidatesResource extends Resource
                             // Check if user already exists with this email
                             $existingUser = User::where('email', $record->Email)->first();
                             
+
                             if ($existingUser) {
                                 Notification::make()
                                     ->title('User already exists')
@@ -1246,6 +1252,7 @@ class JobCandidatesResource extends Resource
 
                             $hiredCandidates = $records->filter(fn ($record) => 
                                 $record->CandidateStatus === 'Joined'
+
                             );
 
                             foreach ($hiredCandidates as $record) {
