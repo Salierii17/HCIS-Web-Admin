@@ -247,6 +247,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                     ->required(),
                                 Forms\Components\Select::make('duration')
                                     ->options([
+                                        '3years' => '3 Years',
                                         '4years' => '4 Years',
                                         '5years' => '5 Years',
                                     ])
@@ -278,7 +279,21 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                         'wire:key' => 'current-checkbox',
                                     ]),
                                 Forms\Components\TextInput::make('company_name'),
-                                Forms\Components\TextInput::make('duration'),
+                                Forms\Components\Select::make('duration')
+                                    ->options([
+                                        '1year' => '1 Year',
+                                        '2year' => '2 Years',
+                                        '3year' => '3 Years',
+                                        '4year' => '4 Years',
+                                        '5year' => '5 Years',
+                                        '6year' => '6 Years',
+                                        '7year' => '7 Years',
+                                        '8year' => '8 Years',
+                                        '9year' => '9 Years',
+                                        '10year+' => '10 Years & Above',
+                                    ])
+                                    ->required()
+                                    ->label('Duration'),
                                 Forms\Components\TextInput::make('role'),
                                 Forms\Components\Textarea::make('company_address'),
                             ])

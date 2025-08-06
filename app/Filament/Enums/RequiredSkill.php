@@ -2,8 +2,13 @@
 
 namespace App\Filament\Enums;
 
-enum RequiredSkill: string
+use App\Traits\EnumToArray;
+use Filament\Support\Contracts\HasLabel;
+
+enum RequiredSkill: string implements HasLabel
 {
+    use EnumToArray;
+
     // Technology & IT
     case projectManagement = 'Project Management';
     case webDevelopment = 'Web Development';
@@ -117,8 +122,13 @@ enum RequiredSkill: string
     case computerVision = 'Computer Vision';
     case nlp = 'NLP';
 
-    public static function toArray(): array
+    public function getLabel(): ?string
     {
-        return array_column(self::cases(), 'value', 'value');
+        return $this->value;
     }
+
+    // public static function toArray(): array
+    // {
+    //     return array_column(self::cases(), 'value', 'value');
+    // }
 }

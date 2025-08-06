@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Departments;
-use App\Models\JobOpenings;
 use App\Models\User;
 use Database\Seeders\concerns\ProgressBarConcern;
 use Illuminate\Database\Seeder;
@@ -93,26 +92,13 @@ class DatabaseSeeder extends Seeder
         });
         $this->command->info('Super Admin role assigned.');
 
-        // Departments
-        $this->command->warn(PHP_EOL.'Creating Departments...');
-        $departments = $this->withProgressBar(5, fn () => Departments::factory(1)->create([
-            'ParentDepartment' => null,
-        ]));
-        $this->command->info('Departments created.');
-
-        // Job Openings
-        $this->command->warn(PHP_EOL.'Creating Job Openings...');
-        $this->withProgressBar(15, fn () => JobOpenings::factory(1)->create([
-            'Department' => $departments->random(rand(1, 5))->first()->id,
-            'JobType' => 'Permanent',
-            'RequiredSkill' => 'Management',
-            'WorkExperience' => '0_1year',
-            'HiringManager' => $user_admin->random(1)->first()->id,
-            'ModifiedBy' => $user_admin->random(1)->first()->id,
-            'CreatedBy' => $user_admin->random(1)->first()->id,
-            'Status' => 'Opened',
-        ]));
-        $this->command->info('Job Openings created.');
+        // Departments & Job Openings
+        $this->command->warn(PHP_EOL.'Seeding Departments and Job Openings...');
+        $this->call([
+            DepartmentsSeeder::class,
+            JobOpeningsSeeder::class,
+        ]);
+        $this->command->info('Departments and Job Openings data seeded.');
 
         // / Attendance
         $this->command->warn(PHP_EOL.'Seeding Attendance Status and Attendance Records...');
