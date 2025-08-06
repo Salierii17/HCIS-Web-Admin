@@ -4,11 +4,8 @@ namespace App\Filament\Resources\JobCandidatesResource\Pages;
 
 use App\Filament\Resources\JobCandidatesResource;
 use App\Models\User;
-use App\Models\User;
-use App\Notifications\User\InviteNewSystemUserNotification;
 use App\Notifications\User\InviteNewSystemUserNotification;
 use Filament\Actions;
-use Filament\Notifications\Notification;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Hash;
