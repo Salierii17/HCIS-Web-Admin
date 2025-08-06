@@ -14,7 +14,7 @@ use Wildside\Userstamps\Userstamps;
 
 class JobCandidates extends Model
 {
-    use AutoNumberTrait, HasFactory, SoftDeletes, Userstamps, Notifiable;
+    use AutoNumberTrait, HasFactory, Notifiable, SoftDeletes, Userstamps;
 
     const CREATED_BY = 'CreatedBy';
 
@@ -104,15 +104,15 @@ class JobCandidates extends Model
     {
         static::updating(function ($model) {
             if ($model->isDirty('CandidateStatus')) {
-                session()->put('status_changed_' . $model->id, true);
-                session()->put('email_sent_' . $model->id, false);
+                session()->put('status_changed_'.$model->id, true);
+                session()->put('email_sent_'.$model->id, false);
             }
         });
     }
 
     public function getEmailSentAttribute()
     {
-        return session()->get('email_sent_' . $this->id, false);
+        return session()->get('email_sent_'.$this->id, false);
     }
 
     public function routeNotificationForMail($notification)

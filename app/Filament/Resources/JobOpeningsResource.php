@@ -10,6 +10,8 @@ use App\Models\Departments;
 use App\Models\JobOpenings;
 use App\Models\User;
 use App\Settings\JobOpeningSettings;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
@@ -24,8 +26,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
-use Closure;
 
 class JobOpeningsResource extends Resource
 {
@@ -96,7 +96,7 @@ class JobOpeningsResource extends Resource
                                             $data.currentValue = selectedDates[0].toISOString();
                                         }
                                     });
-                                }'
+                                }',
                             ]),
                         // DateTimePicker::make('TargetDate')
                         //     ->label('Target Date')
@@ -191,7 +191,7 @@ class JobOpeningsResource extends Resource
                                         if ($value) {
                                             $selectedDate = Carbon::parse($value);
                                             $now = Carbon::now();
-                                            
+
                                             if ($selectedDate->isSameDay($now)) {
                                                 if ($selectedDate->lt($now)) {
                                                     $fail('The Date Opened time must be after the current time for today.');
@@ -199,7 +199,7 @@ class JobOpeningsResource extends Resource
                                             }
                                         }
                                     };
-                                }
+                                },
                             ])
                             ->extraAttributes([
                                 'x-data' => '{ currentValue: $wire.entangle("data.DateOpened") }',
@@ -217,7 +217,7 @@ class JobOpeningsResource extends Resource
                                             }
                                         }
                                     });
-                                }'
+                                }',
                             ]),
                         // DateTimePicker::make('DateOpened')
                         //     ->label('Date Opened')

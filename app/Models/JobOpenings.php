@@ -96,7 +96,7 @@ class JobOpenings extends Model
     public function scopeShouldBeClosed(Builder $query): void
     {
         $query->where('TargetDate', '<=', now())
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('Status', '!=', 'Closed')
                     ->orWhere('published_career_site', 1);
             });

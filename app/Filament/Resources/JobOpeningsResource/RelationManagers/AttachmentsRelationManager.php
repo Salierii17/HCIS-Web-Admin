@@ -108,6 +108,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->getStateUsing(function ($record) {
                         if ($record->moduleName === 'Candidates') {
                             $candidate = Candidates::find($record->attachmentOwner);
+
                             return $candidate ? $candidate->full_name : 'Candidate';
                         }
 
@@ -116,9 +117,10 @@ class AttachmentsRelationManager extends RelationManager
                     ->url(function ($record) {
                         if ($record->moduleName === 'Candidates' && $record->attachmentOwner) {
                             return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
-                                'record' => $record->attachmentOwner
+                                'record' => $record->attachmentOwner,
                             ]);
                         }
+
                         return null;
                     })
                     ->openUrlInNewTab(false)
@@ -126,11 +128,12 @@ class AttachmentsRelationManager extends RelationManager
                         if ($record->moduleName === 'Candidates') {
                             return 'heroicon-m-arrow-top-right-on-square';
                         }
+
                         return null;
                     })
                     ->iconPosition('after')
                     ->extraAttributes([
-                        'class' => 'hover:underline'
+                        'class' => 'hover:underline',
                     ]),
                 Tables\Columns\TextColumn::make('attachmentName')
                     ->label('File Name'),
