@@ -20,7 +20,7 @@ class JobOpeningsFactory extends Factory
             'postingTitle' => $jobTitle,
             'JobTitle' => $jobTitle,
             'NumberOfPosition' => $this->faker->numberBetween(1, 5), // A realistic number of openings
-            'JobOpeningSystemID' => 'JOB-' . $this->faker->unique()->randomNumber(6), // A unique, formatted ID
+            'JobOpeningSystemID' => 'JOB-'.$this->faker->unique()->randomNumber(6), // A unique, formatted ID
 
             // --- Dates ---
             // These will typically be overridden by the seeder for specific scenarios

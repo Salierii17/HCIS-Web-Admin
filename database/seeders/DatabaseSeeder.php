@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Departments;
-use App\Models\JobOpenings;
 use App\Models\User;
 use Database\Seeders\concerns\ProgressBarConcern;
 use Illuminate\Database\Seeder;

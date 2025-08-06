@@ -21,6 +21,7 @@ class JobOpeningsSeeder extends Seeder
         $adminUser = User::where('name', 'Super Admin')->first();
         if (! $adminUser) {
             $this->command->error('Super Admin user not found. Please ensure the user seeder runs first.');
+
             return;
         }
 
@@ -28,6 +29,7 @@ class JobOpeningsSeeder extends Seeder
         $departments = Departments::all();
         if ($departments->isEmpty()) {
             $this->command->error('No departments found. Please ensure the DepartmentsSeeder runs first.');
+
             return;
         }
 
@@ -118,7 +120,7 @@ class JobOpeningsSeeder extends Seeder
         }
 
         $progressBar->finish();
-        $this->command->info(PHP_EOL . 'Job Openings created successfully.');
+        $this->command->info(PHP_EOL.'Job Openings created successfully.');
 
     }
 }

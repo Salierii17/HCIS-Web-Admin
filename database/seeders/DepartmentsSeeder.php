@@ -36,6 +36,6 @@ class DepartmentsSeeder extends Seeder
         }
         $progressBar->finish();
 
-        $this->command->info(PHP_EOL . 'Departments created successfully.');
+        $this->command->info(PHP_EOL.'Departments created successfully.');
     }
 }
