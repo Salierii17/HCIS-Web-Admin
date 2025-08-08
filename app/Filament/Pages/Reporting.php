@@ -31,31 +31,26 @@ class Reporting extends Page implements HasForms, HasInfolists
             ->schema([
                 Tabs::make('Modules')
                     ->tabs([
-
                         Tabs\Tab::make('Recruitment')
                             ->icon('heroicon-o-user-plus')
                             ->schema([
                                 View::make('filament.reporting-tabs.recruitment'),
                             ]),
-
+                            
                         Tabs\Tab::make('Training')
                             ->icon('heroicon-o-academic-cap')
                             ->schema([
                                 View::make('filament.reporting-tabs.training'),
                             ]),
+                            
                         Tabs\Tab::make('Attendance')
                             ->icon('heroicon-o-user-group')
                             ->schema([
-                                Grid::make(2)
-                                    ->schema([
-                                        Livewire::make(\App\Filament\Widgets\Reports\AttendanceStatusWidget::class),
-                                        Livewire::make(\App\Filament\Widgets\Reports\DailyAttendanceTrendWidget::class),
-                                        Livewire::make(\App\Filament\Widgets\Reports\ApprovalStatusFunnelWidget::class)
-                                            ->columnSpan(2),
-                                    ]),
+                                View::make('filament.reporting-tabs.attendance'),
                             ]),
-
-                    ])->columnSpanFull(),
+                    ])
+                    ->persistTabInQueryString()
+                    ->columnSpanFull(),
             ]);
     }
 }

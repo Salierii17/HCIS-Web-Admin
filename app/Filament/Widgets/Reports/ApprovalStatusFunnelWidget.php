@@ -3,33 +3,57 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Models\AttendanceApproval;
-use Filament\Widgets\ChartWidget;
+use Filament\Widgets\BarChartWidget;
 
-class ApprovalStatusFunnelWidget extends ChartWidget
+class ApprovalStatusFunnelWidget extends BarChartWidget
 {
-    protected static ?string $heading = 'Approval Requests (Last 30 Days)';
+    protected static ?string $heading = 'Approval Status (Last 30 Days)';
+    protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
     {
-        $statuses = ['pending', 'approved', 'rejected'];
         $data = AttendanceApproval::where('created_at', '>=', now()->subDays(30))
-            ->groupBy('status')
             ->selectRaw('status, count(*) as count')
+            ->groupBy('status')
             ->pluck('count', 'status');
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Request Status',
-                    'data' => collect($statuses)->map(fn ($status) => $data[$status] ?? 0),
+                    'label' => 'Approval Requests',
+                    'data' => [
+                        $data['pending'] ?? 0,
+                        $data['approved'] ?? 0,
+                        $data['rejected'] ?? 0,
+                    ],
+                    'backgroundColor' => ['#F59E0B', '#10B981', '#EF4444'],
+                    'borderRadius' => 4,
                 ],
             ],
-            'labels' => array_map('ucfirst', $statuses),
+            'labels' => ['Pending', 'Approved', 'Rejected'],
         ];
     }
 
-    protected function getType(): string
+    protected function getOptions(): array
     {
-        return 'bar';
+        return [
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => [
+                        'precision' => 0,
+                    ],
+                ],
+            ],
+            'plugins' => [
+                'legend' => [
+                    'display' => false,
+                ],
+                'datalabels' => [
+                    'anchor' => 'end',
+                    'align' => 'top',
+                ],
+            ],
+        ];
     }
 }
