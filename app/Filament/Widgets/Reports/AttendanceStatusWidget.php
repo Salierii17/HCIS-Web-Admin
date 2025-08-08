@@ -4,34 +4,55 @@ namespace App\Filament\Widgets\Reports;
 
 use App\Models\Attendance;
 use App\Models\AttendanceStatus;
-use Filament\Widgets\ChartWidget;
+use Filament\Widgets\PieChartWidget;
 
-class AttendanceStatusWidget extends ChartWidget
+class AttendanceStatusWidget extends PieChartWidget
 {
-    protected static ?string $heading = 'Attendance Status (Last 30 Days)';
+    protected static ?string $heading = 'Attendance Status Distribution';
+    protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
     {
         $statuses = AttendanceStatus::all();
         $data = Attendance::where('date', '>=', now()->subDays(30))
-            ->groupBy('status_id')
             ->selectRaw('status_id, count(*) as count')
+            ->groupBy('status_id')
             ->pluck('count', 'status_id');
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Attendance Status',
                     'data' => $statuses->map(fn ($status) => $data[$status->id] ?? 0),
-                    'backgroundColor' => ['#36A2EB', '#FF6384', '#FFCD56'],
+                    'backgroundColor' => ['#3B82F6', '#EF4444', '#F59E0B'],
+                    'hoverOffset' => 4,
                 ],
             ],
             'labels' => $statuses->pluck('status'),
         ];
     }
 
-    protected function getType(): string
+    protected function getOptions(): array
     {
-        return 'pie';
+        return [
+            'plugins' => [
+                'legend' => [
+                    'position' => 'right',
+                    'labels' => [
+                        'boxWidth' => 12,
+                        'padding' => 20,
+                    ],
+                ],
+                'tooltip' => [
+                    'callbacks' => [
+                        'label' => function($context) {
+                            $total = array_sum($context['chart']->data->datasets[0]->data);
+                            $percentage = round(($context['raw'] / $total) * 100, 2);
+                            return "{$context['label']}: {$context['raw']} ({$percentage}%)";
+                        }
+                    ]
+                ],
+            ],
+            'cutout' => '60%',
+        ];
     }
 }
