@@ -66,7 +66,7 @@ class JobCandidatesResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('JobId')
                                 ->label('Job Associated')
-                                ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
+                                ->options(JobOpenings::all()->pluck('postingTitle', 'id'))
                                 ->required()
                                 ->columnSpan(1),
 
@@ -322,7 +322,7 @@ class JobCandidatesResource extends Resource
                         ->required()
                         ->default(function ($get) {
                             $status = $get('CandidateStatus');
-                            $position = $get('record.job.JobTitle') ?? 'Position';
+                            $position = $get('record.job.postingTitle') ?? 'Position';
 
                             return match ($status) {
                                 'Interview-Scheduled', 'Interview-to-be-Scheduled' => "Interview Invitation: {$position}",
@@ -836,7 +836,7 @@ class JobCandidatesResource extends Resource
                 'subject' => $data['subject'],
                 'candidate_name' => $record->candidateProfile->full_name ?? 'Candidate',
                 'status' => $record->CandidateStatus,
-                'position_name' => $record->job->JobTitle ?? 'the position',
+                'position_name' => $record->job->postingTitle ?? 'the position',
             ];
 
             // Add note if provided
