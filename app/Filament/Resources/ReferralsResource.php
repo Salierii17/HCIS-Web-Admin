@@ -57,21 +57,21 @@ class ReferralsResource extends Resource
                                 ->label('View Resume')
                                 ->color('success')
                                 ->icon('heroicon-o-eye')
-                                ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
-                                ->url(fn (Forms\Get $get): string => Storage::url($get('resume')))
+                                ->hidden(fn(Forms\Get $get): bool => empty($get('resume')))
+                                ->url(fn(Forms\Get $get): string => Storage::url($get('resume')))
                                 ->openUrlInNewTab(),
 
                             Forms\Components\Actions\Action::make('downloadResume')
                                 ->label('Download Resume')
                                 ->color('primary')
                                 ->icon('heroicon-o-arrow-down-tray')
-                                ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
+                                ->hidden(fn(Forms\Get $get): bool => empty($get('resume')))
                                 ->action(function (Forms\Get $get) {
-                                    return response()->download(storage_path('app/public/'.$get('resume')));
+                                    return response()->download(storage_path('app/public/' . $get('resume')));
                                 }),
                         ])->hidden(
-                            fn (): bool => ! in_array(\Filament\Support\Enums\ActionSize::tryFrom(request()->route()->getName()) ?? '', ['create', 'edit'])
-                        ),
+                                fn(): bool => !in_array(\Filament\Support\Enums\ActionSize::tryFrom(request()->route()->getName()) ?? '', ['create', 'edit'])
+                            ),
 
                         Forms\Components\Section::make('Job Recommendation')
                             ->schema([
@@ -175,7 +175,7 @@ class ReferralsResource extends Resource
                 Tables\Columns\TextColumn::make('jobcandidates.CandidateStatus')
                     ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'New' => 'info',
                         'Contacted' => 'primary',
                         'Qualified' => 'success',
@@ -201,7 +201,8 @@ class ReferralsResource extends Resource
                         return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [
                             'record' => $record->JobCandidate,
                         ]);
-                    }),
+                    })
+                    ->hidden(fn($record): bool => is_null($record->JobCandidate)),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
