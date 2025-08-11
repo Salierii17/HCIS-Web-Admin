@@ -8,6 +8,7 @@ use Filament\Widgets\BarChartWidget;
 class ApprovalStatusFunnelWidget extends BarChartWidget
 {
     protected static ?string $heading = 'Approval Status (Last 30 Days)';
+
     protected static ?string $maxHeight = '300px';
 
     protected function getData(): array

@@ -9,6 +9,7 @@ use Filament\Widgets\PieChartWidget;
 class AttendanceStatusWidget extends PieChartWidget
 {
     protected static ?string $heading = 'Attendance Status Distribution';
+
     protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
@@ -44,12 +45,13 @@ class AttendanceStatusWidget extends PieChartWidget
                 ],
                 'tooltip' => [
                     'callbacks' => [
-                        'label' => function($context) {
+                        'label' => function ($context) {
                             $total = array_sum($context['chart']->data->datasets[0]->data);
                             $percentage = round(($context['raw'] / $total) * 100, 2);
+
                             return "{$context['label']}: {$context['raw']} ({$percentage}%)";
-                        }
-                    ]
+                        },
+                    ],
                 ],
             ],
             'cutout' => '60%',

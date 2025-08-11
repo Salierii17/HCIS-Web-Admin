@@ -4,8 +4,6 @@ namespace App\Filament\Pages;
 
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Infolists\Components\Grid;
-use Filament\Infolists\Components\Livewire;
 use Filament\Infolists\Components\Tabs;
 use Filament\Infolists\Components\View;
 use Filament\Infolists\Concerns\InteractsWithInfolists;
@@ -36,13 +34,13 @@ class Reporting extends Page implements HasForms, HasInfolists
                             ->schema([
                                 View::make('filament.reporting-tabs.recruitment'),
                             ]),
-                            
+
                         Tabs\Tab::make('Training')
                             ->icon('heroicon-o-academic-cap')
                             ->schema([
                                 View::make('filament.reporting-tabs.training'),
                             ]),
-                            
+
                         Tabs\Tab::make('Attendance')
                             ->icon('heroicon-o-user-group')
                             ->schema([

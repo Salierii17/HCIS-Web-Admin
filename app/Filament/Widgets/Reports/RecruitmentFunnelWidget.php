@@ -8,6 +8,7 @@ use Filament\Widgets\BarChartWidget;
 class RecruitmentFunnelWidget extends BarChartWidget
 {
     protected static ?string $heading = 'Recruitment Funnel';
+
     protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
@@ -24,7 +25,7 @@ class RecruitmentFunnelWidget extends BarChartWidget
                     'label' => 'Candidates',
                     'data' => collect($stages)->map(fn ($stage) => $data[$stage] ?? 0),
                     'backgroundColor' => [
-                        '#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981'
+                        '#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981',
                     ],
                     'borderRadius' => 4,
                 ],
@@ -48,12 +49,13 @@ class RecruitmentFunnelWidget extends BarChartWidget
                 ],
                 'tooltip' => [
                     'callbacks' => [
-                        'label' => function($context) {
+                        'label' => function ($context) {
                             $total = JobCandidates::count();
                             $percentage = $total > 0 ? round(($context['raw'] / $total) * 100, 2) : 0;
+
                             return "{$context['label']}: {$context['raw']} ({$percentage}%)";
-                        }
-                    ]
+                        },
+                    ],
                 ],
             ],
         ];

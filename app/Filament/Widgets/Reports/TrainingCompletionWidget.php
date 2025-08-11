@@ -8,6 +8,7 @@ use Filament\Widgets\BarChartWidget;
 class TrainingCompletionWidget extends BarChartWidget
 {
     protected static ?string $heading = 'Training Completion Status';
+
     protected static ?string $maxHeight = '300px';
 
     protected function getData(): array

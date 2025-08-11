@@ -31,7 +31,7 @@ class JobCandidatesResource extends Resource
 {
     protected static ?string $model = JobCandidates::class;
 
-    protected static ?string $recordTitleAttribute = 'job.postingTitle';
+    protected static ?string $recordTitleAttribute = 'job.JobTitle';
 
     protected static ?string $navigationGroup = 'Recruitment';
 
@@ -49,12 +49,14 @@ class JobCandidatesResource extends Resource
     {
         return $form
             ->schema(
-                array_merge([],
+                array_merge(
+                    [],
                     self::candidatePipelineFormLayout(),
                     self::candidateBasicInformationFormLayout(),
                     self::candidateCurrentJobInformationFormLayout(),
                     self::candidateAddressInformationFormLayout()
-                ));
+                )
+            );
     }
 
     public static function candidatePipelineFormLayout(): array
@@ -322,7 +324,7 @@ class JobCandidatesResource extends Resource
                         ->required()
                         ->default(function ($get) {
                             $status = $get('CandidateStatus');
-                            $position = $get('record.job.postingTitle') ?? 'Position';
+                            $position = $get('record.job.JobTitle') ?? 'Position';
 
                             return match ($status) {
                                 'Interview-Scheduled', 'Interview-to-be-Scheduled' => "Interview Invitation: {$position}",
@@ -378,10 +380,11 @@ class JobCandidatesResource extends Resource
                         ->label('Meeting Link')
                         ->url()
                         ->required()
-                        ->visible(fn ($get) => in_array($get('CandidateStatus'), [
-                            'Interview-Scheduled',
-                            'Interview-to-be-Scheduled',
-                        ]) &&
+                        ->visible(
+                            fn ($get) => in_array($get('CandidateStatus'), [
+                                'Interview-Scheduled',
+                                'Interview-to-be-Scheduled',
+                            ]) &&
                             $get('interview_type') === 'online'
                         )
                         ->columnSpan(1),
@@ -389,10 +392,11 @@ class JobCandidatesResource extends Resource
                     Forms\Components\TextInput::make('location')
                         ->label('Location')
                         ->required()
-                        ->visible(fn ($get) => in_array($get('CandidateStatus'), [
-                            'Interview-Scheduled',
-                            'Interview-to-be-Scheduled',
-                        ]) &&
+                        ->visible(
+                            fn ($get) => in_array($get('CandidateStatus'), [
+                                'Interview-Scheduled',
+                                'Interview-to-be-Scheduled',
+                            ]) &&
                             $get('interview_type') === 'offline'
                         )
                         ->columnSpan(1),
@@ -1242,7 +1246,8 @@ class JobCandidatesResource extends Resource
                                 'errors' => [],
                             ];
 
-                            $hiredCandidates = $records->filter(fn ($record) => $record->CandidateStatus === 'Joined'
+                            $hiredCandidates = $records->filter(
+                                fn ($record) => $record->CandidateStatus === 'Joined'
 
                             );
 
