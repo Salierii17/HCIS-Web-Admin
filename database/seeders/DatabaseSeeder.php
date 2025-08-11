@@ -90,7 +90,13 @@ class DatabaseSeeder extends Seeder
 
             return [];
         });
-        $this->command->info('Super Admin role assigned.');
+
+        // Create Dummy user
+        $this->command->warn(PHP_EOL.'Creating Users...');
+        $this->call([
+            UserSeeder::class,
+        ]);
+        $this->command->info('Users created successfully.');
 
         // Departments & Job Openings
         $this->command->warn(PHP_EOL.'Seeding Departments and Job Openings...');
@@ -99,6 +105,15 @@ class DatabaseSeeder extends Seeder
             JobOpeningsSeeder::class,
         ]);
         $this->command->info('Departments and Job Openings data seeded.');
+
+        // JobCandidate, Candidate, and Referral
+        $this->command->warn(PHP_EOL.'Seeding JobCandidate, Candidate, and Referral...');
+        $this->call([
+            CandidateSeeder::class,
+            JobCandidateSeeder::class,
+            ReferralSeeder::class,
+        ]);
+        $this->command->info('JobCandidate, Candidate, and Referral data seeded.');
 
         // Training
         $this->command->warn(PHP_EOL.'Seeding Training data...');
