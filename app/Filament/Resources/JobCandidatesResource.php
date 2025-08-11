@@ -68,7 +68,7 @@ class JobCandidatesResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('JobId')
                                 ->label('Job Associated')
-                                ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
+                                ->options(JobOpenings::all()->pluck('postingTitle', 'id'))
                                 ->required()
                                 ->columnSpan(1),
 

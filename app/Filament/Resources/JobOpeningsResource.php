@@ -382,8 +382,8 @@ class JobOpeningsResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('postingTitle')
-                    ->label('Job Title Name'),
+                TextColumn::make('JobTitle')
+                    ->label('Job Title'),
                 TextColumn::make('NumberOfPosition')
                     ->label('# of Vacancy'),
                 TextColumn::make('TargetDate')
