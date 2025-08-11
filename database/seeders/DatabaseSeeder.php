@@ -100,7 +100,17 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->command->info('Departments and Job Openings data seeded.');
 
-        // / Attendance
+        // Training
+        $this->command->warn(PHP_EOL.'Seeding Training data...');
+        $this->call([
+            UserSeeder::class,
+            MaterialSeeder::class,
+            TrainingSeeder::class,
+            AssignTrainingSeeder::class,
+            // TryoutSeeder::class,
+        ]);
+
+        // Attendance
         $this->command->warn(PHP_EOL.'Seeding Attendance Status and Attendance Records...');
         $this->call([
             AttendanceStatusSeeder::class,
