@@ -4,102 +4,103 @@ namespace App\Policies;
 
 use App\Models\Material;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MaterialPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(App\Models\User $user): bool
+    public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ viewAnyPermission }}');
+        return $user->can('view_any_material');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(App\Models\User $user, Material $material): bool
+    public function view(User $user, Material $material): bool
     {
-        return $user->checkPermissionTo('{{ viewPermission }}');
+        return $user->can('view_material');
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(App\Models\User $user): bool
+    public function create(User $user): bool
     {
-        return $user->checkPermissionTo('{{ createPermission }}');
+        return $user->can('create_material');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(App\Models\User $user, Material $material): bool
+    public function update(User $user, Material $material): bool
     {
-        return $user->checkPermissionTo('{{ updatePermission }}');
+        return $user->can('update_material');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(App\Models\User $user, Material $material): bool
+    public function delete(User $user, Material $material): bool
     {
-        return $user->checkPermissionTo('{{ deletePermission }}');
+        return $user->can('delete_material');
     }
 
     /**
      * Determine whether the user can delete any models.
      */
-    public function deleteAny(App\Models\User $user): bool
+    public function deleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ deleteAnyPermission }}');
+        return $user->can('delete_any_material');
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(App\Models\User $user, Material $material): bool
+    public function restore(User $user, Material $material): bool
     {
-        return $user->checkPermissionTo('{{ restorePermission }}');
+        return $user->can('restore_material');
     }
 
     /**
      * Determine whether the user can restore any models.
      */
-    public function restoreAny(App\Models\User $user): bool
+    public function restoreAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ restoreAnyPermission }}');
+        return $user->can('restore_any_material');
     }
 
     /**
      * Determine whether the user can replicate the model.
      */
-    public function replicate(App\Models\User $user, Material $material): bool
+    public function replicate(User $user, Material $material): bool
     {
-        return $user->checkPermissionTo('{{ replicatePermission }}');
+        return $user->can('replicate_material');
     }
 
     /**
      * Determine whether the user can reorder the models.
      */
-    public function reorder(App\Models\User $user): bool
+    public function reorder(User $user): bool
     {
-        return $user->checkPermissionTo('{{ reorderPermission }}');
+        return $user->can('reorder_material');
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(App\Models\User $user, Material $material): bool
+    public function forceDelete(User $user, Material $material): bool
     {
-        return $user->checkPermissionTo('{{ forceDeletePermission }}');
+        return $user->can('force_delete_material');
     }
 
     /**
      * Determine whether the user can permanently delete any models.
      */
-    public function forceDeleteAny(App\Models\User $user): bool
+    public function forceDeleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('{{ forceDeleteAnyPermission }}');
+        return $user->can('force_delete_any_material');
     }
 }

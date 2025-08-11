@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('attendance_statuses', function (Blueprint $table) {
             $table->id();
+<<<<<<< HEAD
             $table->enum('status', ['Present', 'Absent', 'Half Day', 'Late']);
+=======
+            $table->enum('status', ['Present', 'Late']);
+            // $table->string('status');
+>>>>>>> origin/training
             $table->timestamps();
         });
 
