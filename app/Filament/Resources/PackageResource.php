@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class PackageResource extends Resource
 {
@@ -22,6 +24,25 @@ class PackageResource extends Resource
     protected static ?string $navigationGroup = 'Training';
 
     protected static ?int $navigationSort = 1;
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        // If the user is an employee (not a Super Admin)
+        if (! auth()->user()->hasRole('Super Admin')) {
+            // Get the IDs of all packages assigned to this user
+            $assignedPackageIds = DB::table('assign_trainings') 
+                                    ->where('user_id', auth()->id())
+                                    ->pluck('package_id');
+
+            // Only show packages whose IDs are in the assigned list
+            $query->whereIn('id', $assignedPackageIds);
+        }
+
+        // Admins see all packages because the query is not filtered for them
+        return $query;
+    }
 
     public static function form(Form $form): Form
     {
