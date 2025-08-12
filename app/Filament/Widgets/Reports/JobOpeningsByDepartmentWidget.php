@@ -3,10 +3,13 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Models\Departments;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\DoughnutChartWidget;
 
 class JobOpeningsByDepartmentWidget extends DoughnutChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Open Positions by Department';
 
     protected static ?string $maxHeight = '300px';

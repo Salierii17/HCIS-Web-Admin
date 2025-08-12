@@ -3,10 +3,13 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Models\AttendanceApproval;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\BarChartWidget;
 
 class ApprovalStatusFunnelWidget extends BarChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Approval Status (Last 30 Days)';
 
     protected static ?string $maxHeight = '300px';

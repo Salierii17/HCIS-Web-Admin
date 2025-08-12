@@ -4,10 +4,13 @@ namespace App\Filament\Widgets\Reports;
 
 use App\Models\Attendance;
 use App\Models\AttendanceStatus;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\PieChartWidget;
 
 class AttendanceStatusWidget extends PieChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Attendance Status Distribution';
 
     protected static ?string $maxHeight = '300px';

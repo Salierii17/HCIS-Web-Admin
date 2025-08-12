@@ -3,10 +3,13 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Models\AssignTraining;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\BarChartWidget;
 
 class TrainingCompletionWidget extends BarChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Training Completion Status';
 
     protected static ?string $maxHeight = '300px';

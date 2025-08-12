@@ -3,10 +3,13 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Models\JobCandidates;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\BarChartWidget;
 
 class RecruitmentFunnelWidget extends BarChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Recruitment Funnel';
 
     protected static ?string $maxHeight = '300px';
