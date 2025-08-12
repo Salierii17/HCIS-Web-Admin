@@ -83,5 +83,23 @@ return [
     'register_role_policy' => [
         'enabled' => true,
     ],
-
+    'permissions_ui' => [
+        'roles_to_exclude' => [
+            'Standard' => [
+                'pages' => [
+                    'Profile',
+                    'Reporting',
+                    'Company',
+                    'Appearance',
+                ],
+                'widgets' => [
+                    'Approval Status (Last 30 Days)',
+                    'Attendance Status Distribution',
+                    'Daily Attendance Trend (Last 30 Days)',
+                ],
+            ],
+            // You can add other roles here in the future
+            // 'SomeOtherRole' => [ ... ]
+        ],
+    ],
 ];

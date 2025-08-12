@@ -3,12 +3,15 @@
 namespace App\Filament\Pages\Settings;
 
 use App\Settings\GeneralSetting;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Validator;
 
 class Company extends Page
 {
+    use HasPageShield;
+
     protected static ?string $navigationIcon = 'carbon-location-company';
 
     protected static string $view = 'filament.pages.settings.company';

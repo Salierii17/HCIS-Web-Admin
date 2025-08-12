@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Infolists\Components\Tabs;
@@ -13,8 +14,7 @@ use Filament\Pages\Page;
 
 class Reporting extends Page implements HasForms, HasInfolists
 {
-    use InteractsWithForms;
-    use InteractsWithInfolists;
+    use HasPageShield, InteractsWithForms, InteractsWithInfolists;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
 

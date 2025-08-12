@@ -94,7 +94,29 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\CheckboxList::make('pages_tab')
                                     ->label('')
-                                    ->options(fn (): array => static::getPageOptions())
+                                    ->options(function ($livewire): array {
+                                        // Get all available page options
+                                        $options = static::getPageOptions();
+
+                                        // Get the role that is being edited
+                                        /** @var \Spatie\Permission\Models\Role $role */
+                                        $role = $livewire->record;
+
+                                        // Get the list of pages to hide for this specific role from our new config
+                                        $hiddenPages = config("filament-shield.permissions_ui.roles_to_exclude.{$role->name}.pages", []);
+
+                                        // If there are pages to hide, filter them out of the options array
+                                        if (count($hiddenPages) > 0) {
+                                            return array_filter(
+                                                $options,
+                                                fn ($key) => ! in_array($key, $hiddenPages),
+                                                ARRAY_FILTER_USE_KEY
+                                            );
+                                        }
+
+                                        // Otherwise, return all options
+                                        return $options;
+                                    })
                                     ->searchable()
                                     ->live()
                                     ->afterStateHydrated(function (Component $component, $livewire, string $operation, ?Model $record, Forms\Set $set) {
@@ -132,7 +154,29 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\CheckboxList::make('widgets_tab')
                                     ->label('')
-                                    ->options(fn (): array => static::getWidgetOptions())
+                                    ->options(function ($livewire): array {
+                                        // Get all available widget options
+                                        $options = static::getWidgetOptions();
+
+                                        // Get the role that is being edited
+                                        /** @var \Spatie\Permission\Models\Role $role */
+                                        $role = $livewire->record;
+
+                                        // Get the list of widgets to hide for this specific role from our new config
+                                        $hiddenWidgets = config("filament-shield.permissions_ui.roles_to_exclude.{$role->name}.widgets", []);
+
+                                        // If there are widgets to hide, filter them out of the options array
+                                        if (count($hiddenWidgets) > 0) {
+                                            return array_filter(
+                                                $options,
+                                                fn ($key) => ! in_array($key, $hiddenWidgets),
+                                                ARRAY_FILTER_USE_KEY
+                                            );
+                                        }
+
+                                        // Otherwise, return all options
+                                        return $options;
+                                    })
                                     ->searchable()
                                     ->live()
                                     ->afterStateHydrated(function (Component $component, $livewire, string $operation, ?Model $record, Forms\Set $set) {
