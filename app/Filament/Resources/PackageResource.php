@@ -30,11 +30,11 @@ class PackageResource extends Resource
         $query = parent::getEloquentQuery();
 
         // If the user is an employee (not a Super Admin)
-        if (! auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->user()->hasRole('super_admin')) {
             // Get the IDs of all packages assigned to this user
-            $assignedPackageIds = DB::table('assign_trainings')
-                ->where('user_id', auth()->id())
-                ->pluck('package_id');
+            $assignedPackageIds = DB::table('assign_trainings') 
+                                    ->where('user_id', auth()->id())
+                                    ->pluck('package_id');
 
             // Only show packages whose IDs are in the assigned list
             $query->whereIn('id', $assignedPackageIds);

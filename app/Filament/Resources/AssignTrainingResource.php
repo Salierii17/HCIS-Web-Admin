@@ -30,7 +30,8 @@ class AssignTrainingResource extends Resource
     {
         return $form->schema([
             Select::make('user_id')
-                ->relationship('user', 'email')
+                ->label('Employee Name')
+                ->relationship('user', 'name')
                 ->required(),
 
             Select::make('package_id')
