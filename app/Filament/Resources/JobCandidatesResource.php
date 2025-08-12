@@ -840,7 +840,7 @@ class JobCandidatesResource extends Resource
                 'subject' => $data['subject'],
                 'candidate_name' => $record->candidateProfile->full_name ?? 'Candidate',
                 'status' => $record->CandidateStatus,
-                'position_name' => $record->job->postingTitle ?? 'the position',
+                'position_name' => $record->job->JobTitle ?? 'the position',
             ];
 
             // Add note if provided
