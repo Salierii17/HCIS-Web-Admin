@@ -46,7 +46,7 @@ class TryoutResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $is_super_admin = Auth::user()->hasRole('Super Admin');
+                $is_super_admin = Auth::user()->hasRole('super_admin');
 
                 if (! $is_super_admin) {
                     $query->where('user_id', Auth::user()->id);
