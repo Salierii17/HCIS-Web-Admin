@@ -9,10 +9,10 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables;
 
 class AssignTrainingResource extends Resource
 {
@@ -78,29 +78,29 @@ class AssignTrainingResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('sendNotification')
-                ->label('Send Notification')
-                ->icon('heroicon-o-paper-airplane')
-                ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Send Notifications?')
-                ->modalSubheading(function (\Illuminate\Database\Eloquent\Collection $records) {
-                return 'Are you sure you want to send notifications to ' . $records->count() . ' selected users?';
-                })
-                ->modalButton('Send')
-                ->successNotificationTitle('Done!')
-                ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                // We loop through each selected record.
-                foreach ($records as $record) {
-                    $user = $record->user;
-                    $package = $record->package;
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('sendNotification')
+                        ->label('Send Notification')
+                        ->icon('heroicon-o-paper-airplane')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Send Notifications?')
+                        ->modalSubheading(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            return 'Are you sure you want to send notifications to '.$records->count().' selected users?';
+                        })
+                        ->modalButton('Send')
+                        ->successNotificationTitle('Done!')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            // We loop through each selected record.
+                            foreach ($records as $record) {
+                                $user = $record->user;
+                                $package = $record->package;
 
-                    if ($user && $package) {
-                        $user->notify(new \App\Notifications\SendTrainingNotification($package->name));
-                    }
-                }
-                    }),
+                                if ($user && $package) {
+                                    $user->notify(new \App\Notifications\SendTrainingNotification($package->name));
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

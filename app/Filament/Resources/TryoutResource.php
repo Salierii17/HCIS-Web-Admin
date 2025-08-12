@@ -12,7 +12,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-
 class TryoutResource extends Resource
 {
     protected static ?string $model = Tryout::class;

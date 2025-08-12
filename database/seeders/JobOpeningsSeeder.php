@@ -73,7 +73,7 @@ class JobOpeningsSeeder extends Seeder
             // Scenario 4: An OPEN job that has expired and should be CLOSED by the scheduler
             [
                 'JobTitle' => 'Lead Cybersecurity Engineer',
-                'Department' => 'Technology',
+                'Department' => 'Information Technology',
                 'JobType' => 'Permanent',
                 'RequiredSkill' => 'Network Security',
                 'WorkExperience' => '5_7years',
