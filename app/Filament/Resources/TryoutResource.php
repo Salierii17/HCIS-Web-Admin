@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+
 class TryoutResource extends Resource
 {
     protected static ?string $model = Tryout::class;
@@ -46,7 +47,7 @@ class TryoutResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $is_super_admin = Auth::user()->hasRole('super_admin');
+                $is_super_admin = Auth::user()->hasRole('Super Admin');
 
                 if (! $is_super_admin) {
                     $query->where('user_id', Auth::user()->id);
@@ -54,6 +55,7 @@ class TryoutResource extends Resource
             })
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Employee Name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('package.name')
