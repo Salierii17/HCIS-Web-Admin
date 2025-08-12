@@ -29,8 +29,7 @@ class AssignTrainingResource extends Resource
     {
         return $form->schema([
             Select::make('user_id')
-                ->label('User')
-                ->relationship('user', 'name')
+                ->relationship('user', 'email')
                 ->required(),
 
             Select::make('package_id')
@@ -49,7 +48,7 @@ class AssignTrainingResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')->label('User'),
+                TextColumn::make('user.name')->label('Employee Name'),
                 TextColumn::make('package.name')->label('Package'),
                 TextColumn::make('created_at')->label('Assigned At')->dateTime('d M Y H:i'),
                 TextColumn::make('deadline')->label('Deadline')->dateTime('d M Y H:i'),
