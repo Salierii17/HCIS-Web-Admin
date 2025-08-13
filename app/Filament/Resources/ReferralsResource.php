@@ -67,10 +67,21 @@ class ReferralsResource extends Resource
                                 ->icon('heroicon-o-arrow-down-tray')
                                 ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
                                 ->action(function (Forms\Get $get) {
-                                    return response()->download(storage_path('app/public/'.$get('resume')));
+                                    $resumePath = $get('resume');
+                                    if ($resumePath && Storage::disk('public')->exists($resumePath)) {
+                                        return response()->download(storage_path('app/public/'.$resumePath));
+                                    }
+                                    
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Resume not found')
+                                        ->danger()
+                                        ->send();
                                 }),
                         ])->hidden(
-                            fn (): bool => ! in_array(\Filament\Support\Enums\ActionSize::tryFrom(request()->route()->getName()) ?? '', ['create', 'edit'])
+                            fn (): bool => ! in_array(request()->route()->getName(), [
+                                'filament.recruit.resources.referrals.create',
+                                'filament.recruit.resources.referrals.edit'
+                            ])
                         ),
 
                         Forms\Components\Section::make('Job Recommendation')

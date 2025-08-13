@@ -19,21 +19,23 @@ class ViewReferrals extends ViewRecord
             Action::make('View Resume')
                 ->color('success')
                 ->hidden(fn () => ! $this->record->resume)
-                ->modalContent(fn () => view('referral-form.referral-component.resume-viewer', [
-                    'url' => Storage::url($this->record->resume),
-                ]))
-                ->modalSubmitAction(false)
-                ->modalCancelAction(false)
-                ->modalWidth('7xl')
-                ->modalHeading('Resume Viewer')
-                ->extraModalWindowAttributes([
-                    'class' => 'max-h-screen',
-                ]),
+                ->url(fn () => Storage::url($this->record->resume))
+                ->openUrlInNewTab()
+                ->icon('heroicon-o-eye'),
             Action::make('Download Resume')
                 ->color('primary')
+                ->icon('heroicon-o-arrow-down-tray')
                 ->hidden(fn () => ! $this->record->resume)
                 ->action(function () {
-                    return response()->download(storage_path('app/public/'.$this->record->resume));
+                    $resumePath = $this->record->resume;
+                    if ($resumePath && Storage::disk('public')->exists($resumePath)) {
+                        return response()->download(storage_path('app/public/'.$resumePath));
+                    }
+                    
+                    \Filament\Notifications\Notification::make()
+                        ->title('Resume not found')
+                        ->danger()
+                        ->send();
                 }),
         ];
     }
