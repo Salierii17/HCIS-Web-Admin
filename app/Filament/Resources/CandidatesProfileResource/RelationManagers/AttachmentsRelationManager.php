@@ -20,8 +20,8 @@ class AttachmentsRelationManager extends RelationManager
                 Forms\Components\FileUpload::make('attachment')
                     ->preserveFilenames()
                     ->storeFileNamesIn('attachmentName')
-                    ->directory('JobOpening-attachments')
-                    ->visibility('private')
+                    ->directory('candidate_attachments')
+                    ->visibility('public')
                     ->openable()
                     ->downloadable()
                     ->previewable()
@@ -47,7 +47,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->maxLength(255),
                 Forms\Components\TextInput::make('moduleName')
                     ->readOnly()
-                    ->default('CandidatesProfile')
+                    ->default('Candidates')
                     ->hidden()
                     ->maxLength(255),
             ]);

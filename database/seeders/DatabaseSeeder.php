@@ -118,19 +118,26 @@ class DatabaseSeeder extends Seeder
         // Departments & Job Openings
         $this->command->warn(PHP_EOL . 'Seeding Departments and Job Openings...');
         $this->call([
-            // DepartmentsSeeder::class,
-            // JobOpeningsSeeder::class,
+            DepartmentsSeeder::class,
+            JobOpeningsSeeder::class,
         ]);
         $this->command->info('Departments and Job Openings data seeded.');
 
         // JobCandidate, Candidate, and Referral
         $this->command->warn(PHP_EOL . 'Seeding JobCandidate, Candidate, and Referral...');
         $this->call([
-            // CandidateSeeder::class,
-            // JobCandidateSeeder::class,
-            // ReferralSeeder::class,
+            CandidateSeeder::class,
+            JobCandidateSeeder::class,
+            ReferralSeeder::class,
         ]);
         $this->command->info('JobCandidate, Candidate, and Referral data seeded.');
+
+        // Attachments
+        $this->command->warn(PHP_EOL . 'Seeding Attachments...');
+        $this->call([
+            AttachmentsSeeder::class,
+        ]);
+        $this->command->info('Attachments data seeded.');
 
         // --- TRAINING ---
         $this->command->warn(PHP_EOL . 'Seeding Training data...');

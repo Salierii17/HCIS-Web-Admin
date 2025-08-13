@@ -13,10 +13,33 @@ use Illuminate\Database\Eloquent\Model;
 class ViewJobOpenings extends ViewRecord
 {
     protected static string $resource = JobOpeningsResource::class;
+    
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return false;
+    }
+    
+    public function getRelationManagers(): array
+    {
+        return $this->getResource()::getRelations();
+    }
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
         return [
+            Action::make('debug_relations')
+                ->label('Debug Relations')
+                ->color('info')
+                ->action(function () {
+                    $relations = static::getResource()::getRelations();
+                    $attachmentCount = $this->record->attachments()->count();
+                    
+                    Notification::make()
+                        ->title('Debug Info')
+                        ->body('Relations: ' . count($relations) . ' found<br>Attachment count: ' . $attachmentCount)
+                        ->info()
+                        ->send();
+                }),
             Action::make('publish')
                 ->color('warning')
                 ->icon('heroicon-o-arrow-uturn-up')
