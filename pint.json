@@ -1,5 +1,5 @@
 {
-    "preset": "laravel"
+    "preset": "laravel",
     "exclude": [
         "app/Policies"
     ]

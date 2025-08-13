@@ -9,8 +9,13 @@ require_once __DIR__.'/vendor/autoload.php';
 
 use App\Models\JobCandidates;
 use App\Models\User;
+use App\Models\Candidates;
+use App\Models\candidatePortalInvitation;
 use App\Notifications\Candidates\CandidateStatusUpdateNotification;
+use App\Notifications\Candidates\CandidatePortalInvitation as CandidatePortalInvitationNotification;
 use App\Notifications\SendTrainingNotification;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
 
 // Bootstrap Laravel
 $app = require_once __DIR__.'/bootstrap/app.php';
@@ -66,8 +71,39 @@ try {
 
 echo "\n";
 
-// Test 3: Simple Mail Test
-// echo "3. Testing Simple Mail...\n";
+// Test 3: Candidate Profile Resource - Portal Invitation
+echo "3. Testing Candidate Profile Portal Invitation...\n";
+try {
+    $candidate = Candidates::first();
+    if ($candidate) {
+        // Create a test portal invitation
+        $invite = candidatePortalInvitation::create([
+            'name' => "{$candidate->FirstName} {$candidate->LastName}",
+            'email' => $candidate->email,
+            'sent_at' => Carbon::now(),
+        ]);
+        
+        // Generate the invitation link
+        $invite_link = URL::signedRoute('portal.invite', ['id' => $invite->id]);
+        
+        // Send the portal invitation notification
+        $candidate->notifyNow(new CandidatePortalInvitationNotification($candidate, $invite_link));
+        
+        echo "✅ Candidate portal invitation sent to: {$candidate->email}\n";
+        echo "   Candidate: {$candidate->FirstName} {$candidate->LastName}\n";
+        echo "   Candidate ID: {$candidate->CandidateId}\n";
+        echo "   Invitation ID: {$invite->id}\n";
+    } else {
+        echo "❌ No candidates found in database\n";
+    }
+} catch (Exception $e) {
+    echo '❌ Candidate portal invitation failed: '.$e->getMessage()."\n";
+}
+
+echo "\n";
+
+// Test 4: Simple Mail Test
+// echo "4. Testing Simple Mail...\n";
 // try {
 //     \Illuminate\Support\Facades\Mail::raw('This is a test email from Laravel Tinker', function ($message) {
 //         $message->to('test@example.com')
@@ -78,4 +114,4 @@ echo "\n";
 //     echo "❌ Simple test email failed: " . $e->getMessage() . "\n";
 // }
 
-// echo "\n=== EMAIL TESTING COMPLETED ===\n";
+echo "\n=== EMAIL TESTING COMPLETED ===\n";
