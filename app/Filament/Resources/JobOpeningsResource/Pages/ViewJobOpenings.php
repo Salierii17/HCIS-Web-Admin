@@ -27,16 +27,28 @@ class ViewJobOpenings extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('debug_relations')
-                ->label('Debug Relations')
+            Action::make('debug_attachments')
+                ->label('Debug Attachments')
                 ->color('info')
                 ->action(function () {
-                    $relations = static::getResource()::getRelations();
-                    $attachmentCount = $this->record->attachments()->count();
+                    $jobOpeningId = $this->record->id;
+                    
+                    $jobCandidates = \App\Models\JobCandidates::where('JobId', $jobOpeningId)->get();
+                    $jobCandidateAttachments = \App\Models\Attachments::where('moduleName', 'JobCandidates')
+                        ->whereIn('attachmentOwner', $jobCandidates->pluck('id'))->count();
+                    $jobOpeningAttachments = $this->record->attachments()->where('moduleName', 'JobOpening')->count();
+                    $candidateAttachments = \App\Models\Attachments::where('moduleName', 'Candidates')
+                        ->whereIn('attachmentOwner', $jobCandidates->pluck('candidate'))->count();
                     
                     Notification::make()
-                        ->title('Debug Info')
-                        ->body('Relations: ' . count($relations) . ' found<br>Attachment count: ' . $attachmentCount)
+                        ->title('Attachment Debug')
+                        ->body(
+                            'Job Opening ID: ' . $jobOpeningId . '<br>' .
+                            'Job Candidates: ' . $jobCandidates->count() . '<br>' .
+                            'Job Opening Attachments: ' . $jobOpeningAttachments . '<br>' .
+                            'Job Candidate Attachments: ' . $jobCandidateAttachments . '<br>' .
+                            'Candidate Profile Attachments: ' . $candidateAttachments
+                        )
                         ->info()
                         ->send();
                 }),
