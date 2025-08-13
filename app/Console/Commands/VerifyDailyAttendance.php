@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class VerifyDailyAttendance extends Command
 {
     protected $signature = 'attendance:daily-verify';
+
     protected $description = 'Verifies all of yesterday\'s and today\'s attendance records, flagging incomplete or non-compliant ones.';
 
     public function handle(): int
@@ -32,7 +33,6 @@ class VerifyDailyAttendance extends Command
     /**
      * Processes all "In Progress" attendance records for a given date.
      *
-     * @param  \Carbon\Carbon  $dateToProcess
      * @return void
      */
     private function processAttendanceForDate(Carbon $dateToProcess)
@@ -61,6 +61,7 @@ class VerifyDailyAttendance extends Command
 
         if ($recordsToVerify->isEmpty()) {
             $this->info("No completed records on {$dateString} needed verification.");
+
             return; // Exit this function for this date
         }
 
@@ -89,7 +90,7 @@ class VerifyDailyAttendance extends Command
             }
             $record->save();
         }
-        
+
         $this->info("For {$dateString}: Automatically verified {$verifiedCount} records and flagged {$flaggedCount} for review.");
         Log::info("For {$dateString}: Verified {$verifiedCount}, Flagged {$flaggedCount}.");
     }
