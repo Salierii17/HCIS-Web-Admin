@@ -62,7 +62,8 @@ class AssignTrainingResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Send Notifications?')
-                    ->modalSubheading(fn (AssignTraining $record) => 'Email Notifications will send to: '.$record->user->email
+                    ->modalSubheading(
+                        fn(AssignTraining $record) => 'Email Notifications will send to: ' . $record->user->email
                     )
                     ->modalButton('Send')
                     ->successNotificationTitle('Done!')
@@ -87,7 +88,7 @@ class AssignTrainingResource extends Resource
                         ->requiresConfirmation()
                         ->modalHeading('Send Notifications?')
                         ->modalSubheading(function (\Illuminate\Database\Eloquent\Collection $records) {
-                            return 'Are you sure you want to send notifications to '.$records->count().' selected users?';
+                            return 'Are you sure you want to send notifications to ' . $records->count() . ' selected users?';
                         })
                         ->modalButton('Send')
                         ->successNotificationTitle('Done!')

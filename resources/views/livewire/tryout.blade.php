@@ -63,7 +63,6 @@
                                 @endphp
                                <div class="col-2 mb-2">
                                     <button 
-                                        type="button" 
                                         @if($timeLeft <= 0)
                                             disabled
                                         @endif
@@ -73,7 +72,7 @@
                                 
                             @endforeach
                         </div>
-                        <button type="button" wire:click="submit" onclick="return confirm('Apakah anda yakin ingin mengirim jawaban ini?')" class="btn btn-primary mt-3 w-100">Submit</button>
+                        <button wire:click="submit" onclick="return confirm('Apakah anda yakin ingin mengirim jawaban ini?')" class="btn btn-primary mt-3 w-100">Submit</button>
                     </div>
 
                 </div>

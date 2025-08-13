@@ -128,7 +128,7 @@
                                                         <div class="c8c54 cqho4 c1ls3 c4nmh cfzi6 cvz5l cxdqm">
                                                             <div>
                                                                 <div class="cknhg font-bold">
-                                                                    <a class="cbde7 c89yv c8tys" href="{{route('career.job_details', [$jobs['JobOpeningSystemID']])}}">{{$jobs['JobTitle']}}</a>
+                                                                    <a class="cbde7 c89yv c8tys" href="{{route('career.job_details', [$jobs['JobOpeningSystemID']])}}">{{$jobs['postingTitle']}}</a>
                                                                 </div>
                                                                 <div class="italic font-thin ">
                                                                     <p class="clvg0 text-xs mb-5">{{ \Illuminate\Support\Str::limit(strip_tags($jobs['JobDescription']), 200) }}</p>

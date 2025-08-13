@@ -144,7 +144,7 @@
                                     <div class="cnog5">
                                         <a class="cvqf0 crqt4" href="{{route('career.landing_page')}}"><span class="c8b8n">&lt;-</span> All Jobs</a>
                                     </div>
-                                    <h1 class="c5zpx c9gkl c8hbn cn95v">{{$jobDetails->JobTitle}}</h1>
+                                    <h1 class="c5zpx c9gkl c8hbn cn95v">{{$jobDetails->postingTitle}}</h1>
                                     <!-- Job description -->
                                     <div class="c5rk9 coxki">
                                         {{--<div>

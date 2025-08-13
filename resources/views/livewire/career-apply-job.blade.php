@@ -15,7 +15,7 @@
                                             <span class="c8b8n">&lt;-</span> All Jobs
                                         </a>
                                     </div>
-                                    <h5 class="c5zpx c9gkl cn95v">Applying for {{$jobDetail?->JobTitle}}</h5>
+                                    <h5 class="c5zpx c9gkl cn95v">Applying for {{$jobDetail?->postingTitle}}</h5>
                                     <div class="c5rk9 coxki">
                                         <form wire:submit.prevent="create" id="career-form">
                                             @csrf

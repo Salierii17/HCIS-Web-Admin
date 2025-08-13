@@ -9,67 +9,66 @@ use Illuminate\Support\Facades\Log;
 
 class VerifyDailyAttendance extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'attendance:daily-verify';
+    protected $description = 'Verifies all of yesterday\'s and today\'s attendance records, flagging incomplete or non-compliant ones.';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Verifies all of yesterday\'s attendance records, flagging incomplete or non-compliant ones.';
-
-    /**
-     * Execute the console command.
-     */
     public function handle(): int
     {
-        Log::info('--- Running attendance:daily-verify command ---');
-        Log::info('Timezone from config/app.php: '.config('app.timezone'));
-        Log::info('Carbon::now() reports current time as: '.Carbon::now()->toDateTimeString());
+        Log::info('===== Running Daily Attendance Verification =====');
+        $this->info('Starting daily attendance processing for YESTERDAY and TODAY...');
 
-        $yesterday = Carbon::yesterday()->toDateString();
-        Log::info('Based on the time above, the command is searching for date: '.$yesterday);
+        // Process yesterday's records
+        $this->processAttendanceForDate(Carbon::yesterday());
 
-        $this->info('Starting daily attendance processing...');
+        // Process today's records
+        $this->processAttendanceForDate(Carbon::today());
+
+        $this->info('Process finished successfully.');
+        Log::info('===== Command Finished =====');
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Processes all "In Progress" attendance records for a given date.
+     *
+     * @param  \Carbon\Carbon  $dateToProcess
+     * @return void
+     */
+    private function processAttendanceForDate(Carbon $dateToProcess)
+    {
+        $dateString = $dateToProcess->toDateString();
+        Log::info("--- Processing records for date: {$dateString} ---");
 
         // Handle Incomplete Records (records with no clock-out)
-        $incompleteQuery = Attendance::where('date', $yesterday)
+        $incompleteQuery = Attendance::where('date', $dateString)
             ->where('approval_status', 'In Progress')
             ->whereNull('clock_out_time');
 
-        $incompleteCount = $incompleteQuery->count();
-        Log::info("Query for incomplete records found {$incompleteCount} item(s).");
-
+        // Use clone() so the count() doesn't affect the update() query builder state
+        $incompleteCount = $incompleteQuery->clone()->count();
         if ($incompleteCount > 0) {
             $incompleteQuery->update(['approval_status' => 'Incomplete']);
-            $this->info("Flagged {$incompleteCount} incomplete attendance records.");
+            $this->info("Flagged {$incompleteCount} incomplete attendance records for {$dateString}.");
+            Log::info("Flagged {$incompleteCount} incomplete records for {$dateString}.");
         }
 
         // Handle and Verify Complete Records
-        $recordsToVerify = Attendance::where('date', $yesterday)
+        $recordsToVerify = Attendance::where('date', $dateString)
             ->where('approval_status', 'In Progress')
             ->whereNotNull('clock_out_time')
             ->get();
 
-        Log::info("Query for completed records found {$recordsToVerify->count()} item(s) to verify.");
-
         if ($recordsToVerify->isEmpty()) {
-            $this->info('No completed records needed verification. Process finished.');
-            Log::info('--- Command finished: No completed records found. ---');
-
-            return self::SUCCESS;
+            $this->info("No completed records on {$dateString} needed verification.");
+            return; // Exit this function for this date
         }
 
         $verifiedCount = 0;
         $flaggedCount = 0;
 
         foreach ($recordsToVerify as $record) {
-            Log::info("Processing record ID: {$record->id}");
+            Log::info("Processing record ID: {$record->id} for date {$dateString}");
             // Calculate and save work hours
             $clockIn = Carbon::parse($record->clock_in_time);
             $clockOut = Carbon::parse($record->clock_out_time);
@@ -90,11 +89,8 @@ class VerifyDailyAttendance extends Command
             }
             $record->save();
         }
-        $this->info("Automatically verified {$verifiedCount} compliant records.");
-        $this->info("Flagged {$flaggedCount} non-compliant records for supervisor review.");
-        $this->info('Process finished successfully.');
-        Log::info('--- Command finished: Processed all records. ---');
-
-        return self::SUCCESS;
+        
+        $this->info("For {$dateString}: Automatically verified {$verifiedCount} records and flagged {$flaggedCount} for review.");
+        Log::info("For {$dateString}: Verified {$verifiedCount}, Flagged {$flaggedCount}.");
     }
 }
