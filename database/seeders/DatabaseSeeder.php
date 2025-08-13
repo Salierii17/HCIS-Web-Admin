@@ -8,6 +8,7 @@ use App\Models\User;
 use Database\Seeders\concerns\ProgressBarConcern;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -20,78 +21,100 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        Artisan::call('permission:cache-reset');
 
-        // Permissions
-        $this->command->warn(PHP_EOL.'Creating set of permission for roles...');
-        $this->withProgressBar(1, function () {
-            Artisan::call('permissions:sync -C -Y');
+        // Generate all permissions from your code
+        $this->command->warn(PHP_EOL.'Generating permissions...');
+        Artisan::call('shield:generate --all');
+        $this->command->info('Permissions generated.');
 
-            return [];
-        });
-        $this->command->info('Sets of permissions has been created.');
+        // Define roles and their specific permissions
+        $rolePermissions = $this->defineRolePermissions();
 
-        // Roles
-        /* Super Administrator Role */
-        $this->command->warn(PHP_EOL.'Creating super admin role...');
-        $this->withProgressBar(1, function () {
-            $role = Role::create(['name' => 'Super Admin']);
-            $role->givePermissionTo(Permission::all());
+        // Create roles and sync permissions
+        $this->command->warn(PHP_EOL.'Creating roles and assigning permissions...');
+        foreach ($rolePermissions as $roleName => $permissions) {
+            // Use updateOrCreate to make the seeder re-runnable
+            $role = Role::updateOrCreate(
+                ['name' => $roleName],
+                ['guard_name' => 'web']
+            );
 
-            return [];
-        });
-        $this->command->info('Super admin role has been created.');
+            // Use syncPermissions to assign ONLY the permissions in the array
+            $role->syncPermissions($permissions);
+            $this->command->info("Role '{$roleName}' created/updated.");
+        }
+        $this->command->info('Roles and permissions synced.');
 
-        /* Administrator Role */
-        $this->command->warn(PHP_EOL.'Creating admin role...');
-        $this->withProgressBar(1, function () {
-            $role = Role::create(['name' => 'Administrator']);
-            $permissions = Permission::query();
-            $excludedPermission = ['impersonate'];
-            foreach ($excludedPermission as $value) {
-                $permissions = $permissions->where('name', 'not like', '%'.$value);
-            }
+        // Create Users and Assign Roles
+        $this->createUsers();
 
-            $role->givePermissionTo($permissions->get('name')->toArray());
+        // Seed other application data
+        $this->seedApplicationData();
 
-            return [];
-        });
-        $this->command->info('Admin role has been created.');
+        $this->command->info(PHP_EOL.'Database seeding completed successfully.');
 
-        /* Standard Role */
-        $this->command->warn(PHP_EOL.'Creating standard role...');
-        $this->withProgressBar(1, function () {
-            $role = Role::create(['name' => 'Standard']);
-            $permissions = Permission::query();
-            $excludedPermission = ['delete', 'impersonate', 'restore'];
-            foreach ($excludedPermission as $value) {
-                $permissions = $permissions->where('name', 'not like', '%'.$value);
-            }
+    }
 
-            $role->givePermissionTo($permissions->get('name')->toArray());
+    /**
+     * Defines the permission map for each role.
+     * This is the new "source of truth".
+     */
+    private function defineRolePermissions(): array
+    {
+        $standardViewResources = [
+            'Material',
+            'Package',
+            'Tryout',
+        ];
+        $standardPermissions = [];
+        foreach ($standardViewResources as $resource) {
+            $resourceName = Str::snake($resource);
+            $standardPermissions[] = 'view_'.$resourceName;
+            $standardPermissions[] = 'view_any_'.$resourceName;
+        }
 
-            return [];
-        });
-        $this->command->info('Standard role has been created.');
+        return [
+            'super_admin' => Permission::pluck('name')->all(),
 
-        // Admin
-        $this->command->warn(PHP_EOL.'Creating admin user...');
-        $user_admin = $this->withProgressBar(1, fn () => User::factory(1)->create([
+            'Administrator' => Permission::where('name', 'not like', '%impersonate%')
+                ->pluck('name')
+                ->all(),
+
+            'Standard' => $standardPermissions,
+        ];
+    }
+
+    /**
+     * Creates the admin user and standard users.
+     */
+    private function createUsers(): void
+    {
+        $this->command->warn(PHP_EOL.'Creating users...');
+
+        // Super Admin User
+        $superAdmin = User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'superadmin.user@gmail.com',
             'password' => 'password',
-        ]));
-        $this->command->info('Admin user created.');
+        ]);
+        $superAdmin->assignRole('super_admin');
+        $this->command->info('Super Admin user created.');
 
-        // Assigning Role to Admin
-        $this->command->warn(PHP_EOL.'Assigning super admin role to user...');
-        $this->withProgressBar(1, function () use ($user_admin) {
-            $user_admin->random(1)
-                ->first()->assignRole('Super Admin');
-
-            return [];
+        // Standard Users
+        $this->call([UserSeeder::class]);
+        User::where('email', '!=', 'superadmin.user@gmail.com')->get()->each(function ($user) {
+            $user->assignRole('Standard');
         });
-        $this->command->info('Super Admin role assigned.');
+        $this->command->info('Standard users created and role assigned.');
+    }
 
+    /**
+     * Calls all other application-specific seeders.
+     */
+    private function seedApplicationData(): void
+    {
+        // --- RECRUITMENT ---
         // Departments & Job Openings
         $this->command->warn(PHP_EOL.'Seeding Departments and Job Openings...');
         $this->call([
@@ -100,7 +123,25 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->command->info('Departments and Job Openings data seeded.');
 
-        // / Attendance
+        // JobCandidate, Candidate, and Referral
+        $this->command->warn(PHP_EOL.'Seeding JobCandidate, Candidate, and Referral...');
+        $this->call([
+            CandidateSeeder::class,
+            JobCandidateSeeder::class,
+            ReferralSeeder::class,
+        ]);
+        $this->command->info('JobCandidate, Candidate, and Referral data seeded.');
+
+        // --- TRAINING ---
+        $this->command->warn(PHP_EOL.'Seeding Training data...');
+        $this->call([
+            MaterialSeeder::class,
+            TrainingSeeder::class,
+            AssignTrainingSeeder::class,
+            // TryoutSeeder::class,
+        ]);
+
+        // --- Attendance ---
         $this->command->warn(PHP_EOL.'Seeding Attendance Status and Attendance Records...');
         $this->call([
             AttendanceStatusSeeder::class,
@@ -109,6 +150,5 @@ class DatabaseSeeder extends Seeder
             AttendanceApprovalSeeder::class,
         ]);
         $this->command->info('Attendance data seeded.');
-
     }
 }

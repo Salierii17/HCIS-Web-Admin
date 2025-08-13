@@ -34,7 +34,8 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
     public function toMail($notifiable)
     {
         $mailMessage = (new MailMessage)
-            ->from(env('MAIL_FROM_ADDRESS'), $this->companyName)
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            // ->from(env('MAIL_FROM_ADDRESS'), $this->companyName)
             ->greeting("Dear {$this->content['candidate_name']},");
 
         // Status-specific content

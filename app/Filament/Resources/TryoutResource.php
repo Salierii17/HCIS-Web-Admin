@@ -54,6 +54,7 @@ class TryoutResource extends Resource
             })
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Employee Name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('package.name')

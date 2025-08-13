@@ -36,7 +36,7 @@ class ViewCandidatesProfile extends ViewRecord
 
     protected function portalInvite(): void
     {
-        $candidate = Candidates::find($this->record->id)->first();
+        $candidate = Candidates::find($this->record->id);
 
         if ($this->candidateUserModel()->count() > 0) {
             Notification::make('invitation_error')
@@ -49,7 +49,7 @@ class ViewCandidatesProfile extends ViewRecord
         }
 
         if ($this->isAlreadyInvited()) {
-            $existing_invite = $this->portalInvitationModel()->first();
+            $existing_invite = $this->portalInvitationModel();
             $id = $existing_invite->id;
             $invite_link = URL::signedRoute('portal.invite', ['id' => $id]);
             $candidate->notifyNow(new \App\Notifications\Candidates\CandidatePortalInvitation($candidate, $invite_link));

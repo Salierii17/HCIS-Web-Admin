@@ -3,13 +3,17 @@
 namespace App\Filament\Widgets\Reports;
 
 use App\Models\AssignTraining;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-use Filament\Widgets\ChartWidget;
 
 class TrainingDeadlineWidget extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Upcoming Training Deadlines';
+
     protected static ?int $sort = 4;
 
     protected function getData(): array

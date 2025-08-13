@@ -20,7 +20,7 @@ class DepartmentsSeeder extends Seeder
             'Sales & Trading',
             'Risk Management',
             'Compliance',
-            'Technology',
+            'Information Technology',
             'Wealth Management',
         ];
 

@@ -13,4 +13,9 @@ class Material extends Model
         'nama_material',
         'file_path',
     ];
+
+    public function assignedTrainings()
+    {
+        return $this->hasMany(AssignTraining::class);
+    }
 }

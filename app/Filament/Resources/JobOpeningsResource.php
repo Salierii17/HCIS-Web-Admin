@@ -63,7 +63,7 @@ class JobOpeningsResource extends Resource
                         TextInput::make('NumberOfPosition')
                             ->numeric()
                             ->required(),
-                        TextInput::make('JobTitle')
+                        TextInput::make('postingTitle')
                             ->maxLength(225)
                             ->required(),
                         TextInput::make('JobOpeningSystemID')
@@ -383,7 +383,7 @@ class JobOpeningsResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('postingTitle')
-                    ->label('Job Title Name'),
+                    ->label('Job Title'),
                 TextColumn::make('NumberOfPosition')
                     ->label('# of Vacancy'),
                 TextColumn::make('TargetDate')

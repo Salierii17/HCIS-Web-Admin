@@ -19,6 +19,9 @@ class AssignTraining extends Model
         'deadline' => 'datetime',
     ];
 
+    // Always load these relationships
+    protected $with = ['user', 'package'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -27,5 +30,17 @@ class AssignTraining extends Model
     public function package()
     {
         return $this->belongsTo(Package::class);
+    }
+
+    // Helper method to get user email safely
+    public function getUserEmailAttribute()
+    {
+        return $this->user?->email ?? 'N/A';
+    }
+
+    // Helper method to get package name safely
+    public function getPackageNameAttribute()
+    {
+        return $this->package?->name ?? 'N/A';
     }
 }
