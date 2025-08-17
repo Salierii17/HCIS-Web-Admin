@@ -15,7 +15,7 @@ class NotificationController extends Controller
         $notifications = $request->user()->notifications()->latest()->limit(50)->get();
 
         return response()->json([
-            'data' => $notifications
+            'data' => $notifications,
         ]);
     }
 
@@ -30,4 +30,3 @@ class NotificationController extends Controller
         return response()->noContent();
     }
 }
-

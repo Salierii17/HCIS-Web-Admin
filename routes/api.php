@@ -3,8 +3,8 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRequestController;
 use App\Http\Controllers\AuthenticationController;
-use App\Http\Controllers\NotificationController; 
-use App\Http\Controllers\ProfileController; 
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*

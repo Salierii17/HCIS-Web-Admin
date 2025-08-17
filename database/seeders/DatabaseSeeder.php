@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         Artisan::call('permission:cache-reset');
 
         // Generate all permissions from your code
-        $this->command->warn(PHP_EOL . 'Generating permissions...');
+        $this->command->warn(PHP_EOL.'Generating permissions...');
         Artisan::call('shield:generate --all');
         $this->command->info('Permissions generated.');
 
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
         $rolePermissions = $this->defineRolePermissions();
 
         // Create roles and sync permissions
-        $this->command->warn(PHP_EOL . 'Creating roles and assigning permissions...');
+        $this->command->warn(PHP_EOL.'Creating roles and assigning permissions...');
         foreach ($rolePermissions as $roleName => $permissions) {
             // Use updateOrCreate to make the seeder re-runnable
             $role = Role::updateOrCreate(
@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
         // Seed other application data
         $this->seedApplicationData();
 
-        $this->command->info(PHP_EOL . 'Database seeding completed successfully.');
+        $this->command->info(PHP_EOL.'Database seeding completed successfully.');
 
     }
 
@@ -70,8 +70,8 @@ class DatabaseSeeder extends Seeder
         $standardPermissions = [];
         foreach ($standardViewResources as $resource) {
             $resourceName = Str::snake($resource);
-            $standardPermissions[] = 'view_' . $resourceName;
-            $standardPermissions[] = 'view_any_' . $resourceName;
+            $standardPermissions[] = 'view_'.$resourceName;
+            $standardPermissions[] = 'view_any_'.$resourceName;
         }
 
         return [
@@ -90,7 +90,7 @@ class DatabaseSeeder extends Seeder
      */
     private function createUsers(): void
     {
-        $this->command->warn(PHP_EOL . 'Creating users...');
+        $this->command->warn(PHP_EOL.'Creating users...');
 
         // Super Admin User
         $superAdmin = User::factory()->create([
@@ -116,7 +116,7 @@ class DatabaseSeeder extends Seeder
     {
         // --- RECRUITMENT ---
         // Departments & Job Openings
-        $this->command->warn(PHP_EOL . 'Seeding Departments and Job Openings...');
+        $this->command->warn(PHP_EOL.'Seeding Departments and Job Openings...');
         $this->call([
             DepartmentsSeeder::class,
             JobOpeningsSeeder::class,
@@ -124,7 +124,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Departments and Job Openings data seeded.');
 
         // JobCandidate, Candidate, and Referral
-        $this->command->warn(PHP_EOL . 'Seeding JobCandidate, Candidate, and Referral...');
+        $this->command->warn(PHP_EOL.'Seeding JobCandidate, Candidate, and Referral...');
         $this->call([
             CandidateSeeder::class,
             JobCandidateSeeder::class,
@@ -133,14 +133,14 @@ class DatabaseSeeder extends Seeder
         $this->command->info('JobCandidate, Candidate, and Referral data seeded.');
 
         // Attachments
-        $this->command->warn(PHP_EOL . 'Seeding Attachments...');
+        $this->command->warn(PHP_EOL.'Seeding Attachments...');
         $this->call([
             AttachmentsSeeder::class,
         ]);
         $this->command->info('Attachments data seeded.');
 
         // --- TRAINING ---
-        $this->command->warn(PHP_EOL . 'Seeding Training data...');
+        $this->command->warn(PHP_EOL.'Seeding Training data...');
         $this->call([
             MaterialSeeder::class,
             TrainingSeeder::class,
@@ -149,7 +149,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // --- Attendance ---
-        $this->command->warn(PHP_EOL . 'Seeding Attendance Status and Attendance Records...');
+        $this->command->warn(PHP_EOL.'Seeding Attendance Status and Attendance Records...');
         $this->call([
             AttendanceStatusSeeder::class,
             WorkArrangementSeeder::class,

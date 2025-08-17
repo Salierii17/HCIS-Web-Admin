@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 class ViewJobOpenings extends ViewRecord
 {
     protected static string $resource = JobOpeningsResource::class;
-    
+
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return false;
     }
-    
+
     public function getRelationManagers(): array
     {
         return $this->getResource()::getRelations();
@@ -32,22 +32,22 @@ class ViewJobOpenings extends ViewRecord
                 ->color('info')
                 ->action(function () {
                     $jobOpeningId = $this->record->id;
-                    
+
                     $jobCandidates = \App\Models\JobCandidates::where('JobId', $jobOpeningId)->get();
                     $jobCandidateAttachments = \App\Models\Attachments::where('moduleName', 'JobCandidates')
                         ->whereIn('attachmentOwner', $jobCandidates->pluck('id'))->count();
                     $jobOpeningAttachments = $this->record->attachments()->where('moduleName', 'JobOpening')->count();
                     $candidateAttachments = \App\Models\Attachments::where('moduleName', 'Candidates')
                         ->whereIn('attachmentOwner', $jobCandidates->pluck('candidate'))->count();
-                    
+
                     Notification::make()
                         ->title('Attachment Debug')
                         ->body(
-                            'Job Opening ID: ' . $jobOpeningId . '<br>' .
-                            'Job Candidates: ' . $jobCandidates->count() . '<br>' .
-                            'Job Opening Attachments: ' . $jobOpeningAttachments . '<br>' .
-                            'Job Candidate Attachments: ' . $jobCandidateAttachments . '<br>' .
-                            'Candidate Profile Attachments: ' . $candidateAttachments
+                            'Job Opening ID: '.$jobOpeningId.'<br>'.
+                            'Job Candidates: '.$jobCandidates->count().'<br>'.
+                            'Job Opening Attachments: '.$jobOpeningAttachments.'<br>'.
+                            'Job Candidate Attachments: '.$jobCandidateAttachments.'<br>'.
+                            'Candidate Profile Attachments: '.$candidateAttachments
                         )
                         ->info()
                         ->send();

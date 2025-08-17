@@ -102,7 +102,7 @@ describe('Candidates Profile Resource Create Page', function () {
                     'SchoolDegree' => 'Bachelor',
                     'SchoolDuration' => '4 years',
                     'SchoolCurrentlyPursuing' => false,
-                ]
+                ],
             ],
             'ExperienceDetails' => [
                 [
@@ -110,7 +110,7 @@ describe('Candidates Profile Resource Create Page', function () {
                     'JobTitle' => 'Junior Developer',
                     'Duration' => '2 years',
                     'Description' => 'Worked on web applications',
-                ]
+                ],
             ],
         ];
 
@@ -150,7 +150,7 @@ describe('Candidates Profile Resource Create Page', function () {
 
     it('validates unique email', function () {
         $existingCandidate = Candidates::factory()->create([
-            'email' => 'existing@example.com'
+            'email' => 'existing@example.com',
         ]);
 
         Livewire::test(CandidatesProfileResource\Pages\CreateCandidatesProfile::class)
@@ -275,11 +275,11 @@ describe('Candidates Profile Resource Edit Page', function () {
 
     it('validates unique email on update', function () {
         $existingCandidate = Candidates::factory()->create([
-            'email' => 'existing@example.com'
+            'email' => 'existing@example.com',
         ]);
 
         $candidate = Candidates::factory()->create([
-            'email' => 'original@example.com'
+            'email' => 'original@example.com',
         ]);
 
         Livewire::test(CandidatesProfileResource\Pages\EditCandidatesProfile::class, [
@@ -301,7 +301,7 @@ describe('Candidates Profile Resource Delete Action', function () {
             ->callTableAction(DeleteAction::class, $candidate);
 
         $this->assertSoftDeleted('candidates', [
-            'id' => $candidate->id
+            'id' => $candidate->id,
         ]);
     });
 });
@@ -309,7 +309,7 @@ describe('Candidates Profile Resource Delete Action', function () {
 describe('Candidates Profile Resource Skills Handling', function () {
     it('can handle skill set as array', function () {
         $skills = ['PHP', 'Laravel', 'Vue.js', 'MySQL', 'JavaScript'];
-        
+
         $newData = [
             'FirstName' => 'Skilled',
             'LastName' => 'Developer',
@@ -343,9 +343,9 @@ describe('Candidates Profile Resource School Information', function () {
                 'SchoolDegree' => 'Master',
                 'SchoolDuration' => '2 years',
                 'SchoolCurrentlyPursuing' => true,
-            ]
+            ],
         ];
-        
+
         $newData = [
             'FirstName' => 'Educated',
             'LastName' => 'Candidate',
@@ -377,9 +377,9 @@ describe('Candidates Profile Resource Experience Details', function () {
                 'JobTitle' => 'Mid-level Developer',
                 'Duration' => '3 years',
                 'Description' => 'Led development of mobile applications',
-            ]
+            ],
         ];
-        
+
         $newData = [
             'FirstName' => 'Experienced',
             'LastName' => 'Developer',

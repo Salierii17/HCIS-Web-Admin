@@ -33,12 +33,12 @@ class SendTrainingNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-        ->subject('New Training Assigned: ' . $this->packageName)
-        ->greeting('Hello ' . $notifiable->name . ',')
-        ->line('You have been assigned to a training package: ' . $this->packageName)
-        ->action('View Training', url('/')) // You can change this URL to the specific training page
-        ->line('Thank you for your participation.')
-        ->salutation(new HtmlString("Regards,<br/>{$this->company_name}"));
+            ->subject('New Training Assigned: '.$this->packageName)
+            ->greeting('Hello '.$notifiable->name.',')
+            ->line('You have been assigned to a training package: '.$this->packageName)
+            ->action('View Training', url('/')) // You can change this URL to the specific training page
+            ->line('Thank you for your participation.')
+            ->salutation(new HtmlString("Regards,<br/>{$this->company_name}"));
     }
 
     /**
@@ -50,7 +50,7 @@ class SendTrainingNotification extends Notification
         // This remains concise for the in-app notification card.
         return [
             'title' => 'New Training Assigned',
-            'message' => 'Package: ' . $this->packageName,
+            'message' => 'Package: '.$this->packageName,
         ];
     }
 }

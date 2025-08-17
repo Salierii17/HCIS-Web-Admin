@@ -74,7 +74,7 @@ describe('Departments Resource Create Page', function () {
 
     it('can create a department with parent department', function () {
         $parentDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Information Technology'
+            'DepartmentName' => 'Information Technology',
         ]);
 
         $newData = [
@@ -104,7 +104,7 @@ describe('Departments Resource Create Page', function () {
 
     it('validates department name uniqueness', function () {
         $existingDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Existing Department'
+            'DepartmentName' => 'Existing Department',
         ]);
 
         Livewire::test(DepartmentsResource\Pages\CreateDepartments::class)
@@ -139,9 +139,9 @@ describe('Departments Resource View Page', function () {
 
     it('can view department with parent', function () {
         $parentDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Parent Department'
+            'DepartmentName' => 'Parent Department',
         ]);
-        
+
         $department = Departments::factory()->create([
             'DepartmentName' => 'Child Department',
             'ParentDepartment' => $parentDepartment->id,
@@ -200,7 +200,7 @@ describe('Departments Resource Edit Page', function () {
 
     it('can update parent department', function () {
         $parentDepartment = Departments::factory()->create([
-            'DepartmentName' => 'New Parent Department'
+            'DepartmentName' => 'New Parent Department',
         ]);
 
         $department = Departments::factory()->create([
@@ -238,11 +238,11 @@ describe('Departments Resource Edit Page', function () {
 
     it('validates unique department name on update', function () {
         $existingDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Existing Department'
+            'DepartmentName' => 'Existing Department',
         ]);
 
         $department = Departments::factory()->create([
-            'DepartmentName' => 'Original Department'
+            'DepartmentName' => 'Original Department',
         ]);
 
         Livewire::test(DepartmentsResource\Pages\EditDepartments::class, [
@@ -257,7 +257,7 @@ describe('Departments Resource Edit Page', function () {
 
     it('allows updating department with same name', function () {
         $department = Departments::factory()->create([
-            'DepartmentName' => 'Original Department'
+            'DepartmentName' => 'Original Department',
         ]);
 
         Livewire::test(DepartmentsResource\Pages\EditDepartments::class, [
@@ -279,7 +279,7 @@ describe('Departments Resource Delete Action', function () {
             ->callTableAction(DeleteAction::class, $department);
 
         $this->assertSoftDeleted('departments', [
-            'id' => $department->id
+            'id' => $department->id,
         ]);
     });
 
@@ -290,7 +290,7 @@ describe('Departments Resource Delete Action', function () {
             ->callTableBulkAction('force-delete', [$department]);
 
         $this->assertDatabaseMissing('departments', [
-            'id' => $department->id
+            'id' => $department->id,
         ]);
     });
 
@@ -310,7 +310,7 @@ describe('Departments Resource Relationships', function () {
     it('can view job openings for department', function () {
         $department = Departments::factory()->create();
         $jobOpenings = JobOpenings::factory()->count(2)->create([
-            'Department' => $department->id
+            'Department' => $department->id,
         ]);
 
         // Test that the relationship is working
@@ -330,7 +330,7 @@ describe('Departments Resource Relationships', function () {
 describe('Departments Resource Hierarchical Structure', function () {
     it('can create department hierarchy', function () {
         $rootDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Corporate'
+            'DepartmentName' => 'Corporate',
         ]);
 
         $childDepartment = Departments::factory()->create([
@@ -349,7 +349,7 @@ describe('Departments Resource Hierarchical Structure', function () {
 
     it('prevents circular department hierarchy', function () {
         $department1 = Departments::factory()->create([
-            'DepartmentName' => 'Department 1'
+            'DepartmentName' => 'Department 1',
         ]);
 
         $department2 = Departments::factory()->create([
@@ -380,14 +380,14 @@ describe('Departments Resource Bulk Actions', function () {
 
         foreach ($departments as $department) {
             $this->assertSoftDeleted('departments', [
-                'id' => $department->id
+                'id' => $department->id,
             ]);
         }
     });
 
     it('can bulk restore departments', function () {
         $departments = Departments::factory()->count(3)->create();
-        
+
         // Soft delete all departments
         foreach ($departments as $department) {
             $department->delete();
@@ -410,7 +410,7 @@ describe('Departments Resource Bulk Actions', function () {
 
         foreach ($departments as $department) {
             $this->assertDatabaseMissing('departments', [
-                'id' => $department->id
+                'id' => $department->id,
             ]);
         }
     });
@@ -436,7 +436,7 @@ describe('Departments Resource System Information', function () {
     it('hides system information on create page', function () {
         // System information section should be hidden on create page
         $response = $this->get(DepartmentsResource::getUrl('create'));
-        
+
         // The form should not display system information fields on create
         $response->assertDontSee('System Information');
     });
@@ -445,11 +445,11 @@ describe('Departments Resource System Information', function () {
 describe('Departments Resource Filtering', function () {
     it('can filter by trashed departments', function () {
         $activeDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Active Department'
+            'DepartmentName' => 'Active Department',
         ]);
 
         $trashedDepartment = Departments::factory()->create([
-            'DepartmentName' => 'Trashed Department'
+            'DepartmentName' => 'Trashed Department',
         ]);
         $trashedDepartment->delete();
 

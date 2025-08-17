@@ -20,7 +20,7 @@ beforeEach(function () {
     $this->department = Departments::factory()->create(['DepartmentName' => 'Test Department']);
     $this->jobOpening = JobOpenings::factory()->create(['Department' => $this->department->id]);
     $this->candidate = Candidates::factory()->create(['email' => 'candidate@example.com']);
-    
+
     // Set up fake storage for file uploads
     Storage::fake('public');
 });
@@ -363,7 +363,7 @@ describe('Referrals Resource Delete Action', function () {
             ->callTableAction(DeleteAction::class, $referral);
 
         $this->assertDatabaseMissing('referrals', [
-            'id' => $referral->id
+            'id' => $referral->id,
         ]);
     });
 
@@ -522,7 +522,7 @@ describe('Referrals Resource File Handling', function () {
 
         // Test that the file is accessible
         Storage::disk('public')->assertExists($path);
-        
+
         // Test file preview URL generation
         $previewUrl = Storage::url($path);
         expect($previewUrl)->toBeString();
@@ -547,7 +547,7 @@ describe('Referrals Resource File Handling', function () {
 describe('Referrals Resource Bulk Actions', function () {
     it('can bulk delete referrals', function () {
         $referrals = collect();
-        
+
         for ($i = 0; $i < 3; $i++) {
             $referrals->push(Referrals::factory()->create([
                 'ReferringJob' => $this->jobOpening->id,
@@ -560,7 +560,7 @@ describe('Referrals Resource Bulk Actions', function () {
 
         foreach ($referrals as $referral) {
             $this->assertDatabaseMissing('referrals', [
-                'id' => $referral->id
+                'id' => $referral->id,
             ]);
         }
     });

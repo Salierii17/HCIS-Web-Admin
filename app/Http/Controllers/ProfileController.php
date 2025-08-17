@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
@@ -21,8 +19,8 @@ class ProfileController extends Controller
             'code' => 200,
             'message' => 'Profile retrieved successfully',
             'data' => [
-                'user' => auth()->user()
-            ]
+                'user' => auth()->user(),
+            ],
         ]);
     }
 

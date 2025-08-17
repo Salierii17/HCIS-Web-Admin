@@ -63,7 +63,7 @@ class JobOpeningsResource extends Resource
                         TextInput::make('NumberOfPosition')
                             ->numeric()
                             ->required(),
-                        TextInput::make('JobTitle')
+                        TextInput::make('postingTitle')
                             ->maxLength(225)
                             ->required(),
                         TextInput::make('JobOpeningSystemID')
@@ -362,9 +362,9 @@ class JobOpeningsResource extends Resource
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge'),
             ])->emptyStateActions([
-                    Tables\Actions\CreateAction::make()
-                        ->icon('heroicon-m-plus-small'),
-                ])
+                Tables\Actions\CreateAction::make()
+                    ->icon('heroicon-m-plus-small'),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

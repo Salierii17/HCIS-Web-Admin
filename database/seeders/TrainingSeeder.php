@@ -149,7 +149,7 @@ class TrainingSeeder extends Seeder
                         'options' => [['option_text' => 'Tupperware', 'score' => 0], ['option_text' => 'Spam', 'score' => 0], ['option_text' => 'Phishing', 'score' => 0], ['option_text' => 'Ransomware', 'score' => 10]],
                     ],
                     [
-                        'details' => ['question' => 'If we are worried about forgetting the password, then here are the right steps to take', 'explanation' => 'Stored in a password manager application with fairly good protection' ],
+                        'details' => ['question' => 'If we are worried about forgetting the password, then here are the right steps to take', 'explanation' => 'Stored in a password manager application with fairly good protection'],
                         'options' => [['option_text' => 'Stored in a password manager application with fairly good protection', 'score' => 10], ['option_text' => 'Saved in the Notepad application and placed in the My Documents folder', 'score' => 0], ['option_text' => 'Written on a sticky note and then stuck on the work desk area', 'score' => 0], ['option_text' => 'Save it in the Excel application then give the file a name that is not related to the password', 'score' => 0]],
                     ],
                     [

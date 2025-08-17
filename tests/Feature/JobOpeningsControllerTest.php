@@ -16,7 +16,7 @@ class JobOpeningsControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test user for authenticated requests
         $this->user = User::factory()->create();
     }
@@ -28,32 +28,32 @@ class JobOpeningsControllerTest extends TestCase
         $activePublishedJob = JobOpenings::factory()->create([
             'Status' => 'Opened',
             'TargetDate' => now()->addDays(30),
-            'published_career_site' => true
+            'published_career_site' => true,
         ]);
 
         $activeUnpublishedJob = JobOpenings::factory()->create([
-            'Status' => 'Opened', 
+            'Status' => 'Opened',
             'TargetDate' => now()->addDays(30),
-            'published_career_site' => false
+            'published_career_site' => false,
         ]);
 
         $closedJob = JobOpenings::factory()->create([
             'Status' => 'Closed',
             'TargetDate' => now()->addDays(30),
-            'published_career_site' => true
+            'published_career_site' => true,
         ]);
 
         $expiredJob = JobOpenings::factory()->create([
             'Status' => 'Opened',
             'TargetDate' => now()->subDays(5),
-            'published_career_site' => true
+            'published_career_site' => true,
         ]);
 
         $response = $this->actingAs($this->user)
             ->getJson('/api/job-openings');
 
         $response->assertStatus(200);
-        
+
         // Should only return active and published jobs
         $responseData = $response->json();
         $this->assertCount(1, $responseData);
@@ -93,7 +93,7 @@ class JobOpeningsControllerTest extends TestCase
             ->postJson('/api/job-openings', $jobData);
 
         $response->assertStatus(201);
-        
+
         $this->assertDatabaseHas('job_openings', [
             'postingTitle' => 'Senior Software Developer',
             'JobTitle' => 'Senior Software Developer',
@@ -111,7 +111,7 @@ class JobOpeningsControllerTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors([
             'postingTitle',
-            'NumberOfPosition', 
+            'NumberOfPosition',
             'JobTitle',
             'TargetDate',
             'Status',
@@ -127,7 +127,7 @@ class JobOpeningsControllerTest extends TestCase
             'ZipCode',
             'RemoteJob',
             'CreatedBy',
-            'ModifiedBy'
+            'ModifiedBy',
         ]);
     }
 
@@ -136,7 +136,7 @@ class JobOpeningsControllerTest extends TestCase
     {
         $dateOpened = now()->addDay();
         $targetDate = now(); // Before DateOpened
-        
+
         $jobData = [
             'postingTitle' => 'Test Job',
             'NumberOfPosition' => '1',
@@ -170,7 +170,7 @@ class JobOpeningsControllerTest extends TestCase
     {
         $jobOpening = JobOpenings::factory()->create([
             'postingTitle' => 'Test Job Position',
-            'JobTitle' => 'Test Job Position'
+            'JobTitle' => 'Test Job Position',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -180,7 +180,7 @@ class JobOpeningsControllerTest extends TestCase
         $response->assertJson([
             'id' => $jobOpening->id,
             'postingTitle' => 'Test Job Position',
-            'JobTitle' => 'Test Job Position'
+            'JobTitle' => 'Test Job Position',
         ]);
     }
 
@@ -199,7 +199,7 @@ class JobOpeningsControllerTest extends TestCase
         $jobOpening = JobOpenings::factory()->create([
             'postingTitle' => 'Original Title',
             'JobTitle' => 'Original Title',
-            'Status' => 'New'
+            'Status' => 'New',
         ]);
 
         $updateData = [
@@ -227,19 +227,19 @@ class JobOpeningsControllerTest extends TestCase
             ->putJson("/api/job-openings/{$jobOpening->id}", $updateData);
 
         $response->assertStatus(200);
-        
+
         $this->assertDatabaseHas('job_openings', [
             'id' => $jobOpening->id,
             'postingTitle' => 'Updated Title',
             'JobTitle' => 'Updated Title',
             'Status' => 'Opened',
-            'JobType' => 'Contract'
+            'JobType' => 'Contract',
         ]);
 
         $response->assertJson([
             'id' => $jobOpening->id,
             'postingTitle' => 'Updated Title',
-            'Status' => 'Opened'
+            'Status' => 'Opened',
         ]);
     }
 
@@ -251,7 +251,7 @@ class JobOpeningsControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->putJson("/api/job-openings/{$jobOpening->id}", [
                 'postingTitle' => '', // Invalid - required
-                'TargetDate' => 'invalid-date' // Invalid date format
+                'TargetDate' => 'invalid-date', // Invalid date format
             ]);
 
         $response->assertStatus(422);
@@ -262,17 +262,17 @@ class JobOpeningsControllerTest extends TestCase
     public function it_can_delete_a_job_opening()
     {
         $jobOpening = JobOpenings::factory()->create([
-            'postingTitle' => 'Job to Delete'
+            'postingTitle' => 'Job to Delete',
         ]);
 
         $response = $this->actingAs($this->user)
             ->deleteJson("/api/job-openings/{$jobOpening->id}");
 
         $response->assertStatus(200);
-        
+
         // Check that the job opening is soft deleted
         $this->assertSoftDeleted('job_openings', [
-            'id' => $jobOpening->id
+            'id' => $jobOpening->id,
         ]);
     }
 
@@ -323,7 +323,7 @@ class JobOpeningsControllerTest extends TestCase
 
         $response->assertStatus(200);
         $data = $response->json();
-        
+
         // Only active and published jobs should be returned by default
         // This test may need adjustment based on actual filtering implementation
         $this->assertGreaterThanOrEqual(1, count($data));
@@ -345,7 +345,7 @@ class JobOpeningsControllerTest extends TestCase
             'WorkExperience' => '2_3years',
             'JobDescription' => 'Looking for a skilled developer...',
             'City' => 'Jakarta',
-            'Country' => 'Indonesia', 
+            'Country' => 'Indonesia',
             'State' => 'DKI Jakarta',
             'ZipCode' => '12345',
             'RemoteJob' => false,
@@ -357,7 +357,7 @@ class JobOpeningsControllerTest extends TestCase
             ->postJson('/api/job-openings', $jobData);
 
         $response->assertStatus(201);
-        
+
         $jobOpening = JobOpenings::latest()->first();
         $this->assertEquals(['PHP', 'Laravel', 'Vue.js', 'MySQL'], $jobOpening->RequiredSkill);
     }

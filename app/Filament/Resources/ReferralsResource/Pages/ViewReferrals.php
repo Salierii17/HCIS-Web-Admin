@@ -31,7 +31,7 @@ class ViewReferrals extends ViewRecord
                     if ($resumePath && Storage::disk('public')->exists($resumePath)) {
                         return response()->download(storage_path('app/public/'.$resumePath));
                     }
-                    
+
                     \Filament\Notifications\Notification::make()
                         ->title('Resume not found')
                         ->danger()

@@ -50,7 +50,7 @@ class MyResumeProfile extends Page
         // Prepare form data with user email always populated
         $formData = $candidate?->toArray() ?? [];
         $formData['Email'] = $user->email; // Ensure email is always populated
-        
+
         $this->form->fill($formData);
     }
 
@@ -126,7 +126,7 @@ class MyResumeProfile extends Page
 
             // Clear the file input after successful upload
             $this->resumeFile = null;
-            
+
             // Preserve existing form data while clearing only the resume file
             $currentFormData = $this->form->getState();
             $currentFormData['resumeFile'] = null;

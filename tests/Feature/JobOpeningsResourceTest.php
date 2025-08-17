@@ -5,18 +5,15 @@ use App\Models\Departments;
 use App\Models\JobOpenings;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
-    
+
     // Create a department for testing
     $this->department = Departments::factory()->create([
-        'DepartmentName' => 'Test Department'
+        'DepartmentName' => 'Test Department',
     ]);
 });
 
@@ -218,7 +215,7 @@ describe('JobOpenings Resource Edit Page', function () {
             'postingTitle' => 'Original Title',
             'JobTitle' => 'Original Title',
             'Department' => $this->department->id,
-            'Status' => 'New'
+            'Status' => 'New',
         ]);
 
         $newData = [
@@ -252,7 +249,7 @@ describe('JobOpenings Resource Edit Page', function () {
         ])
             ->fillForm([
                 'postingTitle' => '', // Invalid - required
-                'TargetDate' => 'invalid-date' // Invalid date format
+                'TargetDate' => 'invalid-date', // Invalid date format
             ])
             ->call('save')
             ->assertHasFormErrors(['postingTitle', 'TargetDate']);
@@ -269,7 +266,7 @@ describe('JobOpenings Resource Delete Action', function () {
             ->callTableAction(DeleteAction::class, $jobOpening);
 
         $this->assertSoftDeleted('job_openings', [
-            'id' => $jobOpening->id
+            'id' => $jobOpening->id,
         ]);
     });
 });
@@ -311,7 +308,7 @@ describe('JobOpenings Resource Bulk Actions', function () {
 
         Livewire::test(JobOpeningsResource\Pages\ListJobOpenings::class)
             ->callTableBulkAction('change_status', $jobOpenings, data: [
-                'Status' => 'Opened'
+                'Status' => 'Opened',
             ]);
 
         foreach ($jobOpenings as $jobOpening) {
@@ -323,7 +320,7 @@ describe('JobOpenings Resource Bulk Actions', function () {
 describe('JobOpenings Resource Skills Handling', function () {
     it('can handle array skills correctly', function () {
         $skills = ['PHP', 'Laravel', 'Vue.js', 'MySQL'];
-        
+
         $newData = [
             'postingTitle' => 'Developer Position',
             'NumberOfPosition' => '1',

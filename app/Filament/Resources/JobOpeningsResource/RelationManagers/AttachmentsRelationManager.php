@@ -64,7 +64,7 @@ class AttachmentsRelationManager extends RelationManager
             ->query(function () {
                 // Debug: Let's see what we're working with
                 $jobOpeningId = $this->ownerRecord->id;
-                
+
                 // Get all job candidates for this job opening
                 $jobCandidates = JobCandidates::where('JobId', $jobOpeningId)
                     ->with(['candidateProfile.attachments' => function ($query) {
@@ -105,7 +105,7 @@ class AttachmentsRelationManager extends RelationManager
                         'job_candidate_attachments_count' => $jobCandidateAttachments->count(),
                         'job_opening_attachments_count' => $jobOpeningAttachments->count(),
                         'total_attachment_ids' => count($allAttachmentIds),
-                        'attachment_ids' => $allAttachmentIds
+                        'attachment_ids' => $allAttachmentIds,
                     ]);
                 }
 
@@ -136,14 +136,17 @@ class AttachmentsRelationManager extends RelationManager
                     ->getStateUsing(function ($record) {
                         if ($record->moduleName === 'Candidates') {
                             $candidate = Candidates::find($record->attachmentOwner);
+
                             return $candidate ? $candidate->full_name : 'Unknown Candidate';
                         } elseif ($record->moduleName === 'JobCandidates') {
                             $jobCandidate = JobCandidates::find($record->attachmentOwner);
                             if ($jobCandidate && $jobCandidate->candidateProfile) {
                                 return $jobCandidate->candidateProfile->full_name;
                             }
+
                             return 'Job Candidate';
                         }
+
                         return 'Job Opening Document';
                     })
                     ->url(function ($record) {
@@ -154,6 +157,7 @@ class AttachmentsRelationManager extends RelationManager
                         } elseif ($record->moduleName === 'JobCandidates' && $record->attachmentOwner) {
                             return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$record->attachmentOwner]);
                         }
+
                         return null;
                     })
                     ->openUrlInNewTab(false)
@@ -161,6 +165,7 @@ class AttachmentsRelationManager extends RelationManager
                         if (in_array($record->moduleName, ['Candidates', 'JobCandidates'])) {
                             return 'heroicon-m-arrow-top-right-on-square';
                         }
+
                         return null;
                     })
                     ->iconPosition('after')
@@ -176,7 +181,7 @@ class AttachmentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('moduleName')
                     ->label('Source')
                     ->badge()
-                    ->color(fn ($state) => match($state) {
+                    ->color(fn ($state) => match ($state) {
                         'JobOpening' => 'primary',
                         'JobCandidates' => 'success',
                         'Candidates' => 'warning',
@@ -207,6 +212,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->color('primary')
                     ->url(function ($record) {
                         $filePath = str_replace('public/', '', $record->attachment);
+
                         return asset('storage/'.$filePath);
                     })
                     ->openUrlInNewTab()
@@ -218,6 +224,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->color('success')
                     ->action(function ($record) {
                         $path = storage_path('app/public/'.$record->attachment);
+
                         return response()->download($path, $record->attachmentName);
                     })
                     ->hidden(fn ($record) => ! $record->attachment),
@@ -237,6 +244,7 @@ class AttachmentsRelationManager extends RelationManager
                         } elseif ($record->moduleName === 'JobCandidates') {
                             return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$record->attachmentOwner]);
                         }
+
                         return null;
                     })
                     ->hidden(fn ($record) => ! in_array($record->moduleName, ['JobCandidates', 'Candidates'])),

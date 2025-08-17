@@ -9,12 +9,12 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewJobCandidates extends ViewRecord
 {
     protected static string $resource = JobCandidatesResource::class;
-    
+
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return false;
     }
-    
+
     public function getRelationManagers(): array
     {
         return $this->getResource()::getRelations();

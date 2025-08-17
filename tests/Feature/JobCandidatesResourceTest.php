@@ -12,7 +12,7 @@ use Livewire\Livewire;
 beforeEach(function () {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
-    
+
     // Create test data
     $this->department = Departments::factory()->create(['DepartmentName' => 'Test Department']);
     $this->jobOpening = JobOpenings::factory()->create(['Department' => $this->department->id]);
@@ -253,7 +253,7 @@ describe('JobCandidates Resource Delete Action', function () {
             ->callTableAction(DeleteAction::class, $jobCandidate);
 
         $this->assertSoftDeleted('job_candidates', [
-            'id' => $jobCandidate->id
+            'id' => $jobCandidate->id,
         ]);
     });
 });
@@ -287,7 +287,7 @@ describe('JobCandidates Resource Status Management', function () {
             'Hired',
             'Joined',
             'Rejected',
-            'Rejected-by-Hiring-Manager'
+            'Rejected-by-Hiring-Manager',
         ];
 
         foreach ($statuses as $status) {
@@ -312,7 +312,7 @@ describe('JobCandidates Resource Status Management', function () {
 describe('JobCandidates Resource Skill Set Handling', function () {
     it('can handle skill set as array', function () {
         $skills = ['PHP', 'Laravel', 'JavaScript', 'Vue.js'];
-        
+
         $newData = [
             'JobId' => $this->jobOpening->id,
             'candidate' => $this->candidate->id,
@@ -389,13 +389,13 @@ describe('JobCandidates Resource Add User Action', function () {
 describe('JobCandidates Resource Bulk Actions', function () {
     it('can bulk create users for hired candidates', function () {
         $jobCandidates = collect();
-        
+
         for ($i = 0; $i < 3; $i++) {
             $candidate = Candidates::factory()->create([
                 'email' => "candidate{$i}@example.com",
-                'full_name' => "Candidate {$i}"
+                'full_name' => "Candidate {$i}",
             ]);
-            
+
             $jobCandidates->push(JobCandidates::factory()->create([
                 'JobId' => $this->jobOpening->id,
                 'candidate' => $candidate->id,
