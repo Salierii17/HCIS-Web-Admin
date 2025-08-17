@@ -140,29 +140,49 @@ class TrainingSeeder extends Seeder
                 ],
             ],
             [
-                'department' => 'Technology',
+                'department' => 'Information Technology',
                 'jobTitle' => 'Lead Cybersecurity Engineer',
-                'package' => ['name' => 'Financial Technology & Security', 'duration' => 90],
+                'package' => ['name' => 'Financial Technology & Security', 'duration' => 60],
                 'questions' => [
                     [
-                        'details' => ['question' => 'What is the FIX protocol used for?', 'explanation' => 'The Financial Information eXchange (FIX) protocol is an electronic communications protocol for international real-time exchange of securities transaction information.'],
-                        'options' => [['option_text' => 'Sending corporate emails', 'score' => 0], ['option_text' => 'Real-time exchange of securities transaction data', 'score' => 10], ['option_text' => 'Video conferencing with clients', 'score' => 0], ['option_text' => 'Securing the office Wi-Fi', 'score' => 0]],
+                        'details' => ['question' => 'What is a form of malware designed to encrypt files, rendering them unusable. The malicious actor then demands a ransom in exchange for the encryption key?', 'explanation' => 'Ransomware'],
+                        'options' => [['option_text' => 'Tupperware', 'score' => 0], ['option_text' => 'Spam', 'score' => 0], ['option_text' => 'Phishing', 'score' => 0], ['option_text' => 'Ransomware', 'score' => 10]],
                     ],
                     [
-                        'details' => ['question' => 'What is a key concern for High-Frequency Trading (HFT) systems?', 'explanation' => 'Latency, the time delay in data communication, is a critical concern for HFT systems, where trades are executed in fractions of a second.'],
-                        'options' => [['option_text' => 'User interface design', 'score' => 0], ['option_text' => 'Latency', 'score' => 10], ['option_text' => 'CPU brand', 'score' => 0], ['option_text' => 'Office location', 'score' => 0]],
+                        'details' => ['question' => 'If we are worried about forgetting the password, then here are the right steps to take', 'explanation' => 'Stored in a password manager application with fairly good protection' ],
+                        'options' => [['option_text' => 'Stored in a password manager application with fairly good protection', 'score' => 10], ['option_text' => 'Saved in the Notepad application and placed in the My Documents folder', 'score' => 0], ['option_text' => 'Written on a sticky note and then stuck on the work desk area', 'score' => 0], ['option_text' => 'Save it in the Excel application then give the file a name that is not related to the password', 'score' => 0]],
                     ],
                     [
-                        'details' => ['question' => 'What is a Distributed Denial of Service (DDoS) attack?', 'explanation' => 'A DDoS attack is a malicious attempt to disrupt the normal traffic of a targeted server or network by overwhelming the target with a flood of Internet traffic.'],
-                        'options' => [['option_text' => 'An attempt to steal user passwords', 'score' => 0], ['option_text' => 'An attempt to make an online service unavailable by overwhelming it with traffic', 'score' => 10], ['option_text' => 'An attempt to modify data on a server', 'score' => 0], ['option_text' => 'An attempt to install malware', 'score' => 0]],
+                        'details' => ['question' => 'If we receive an e-mail from someone we do not know and it contains an attachment, what we should do is', 'explanation' => 'Delete the email'],
+                        'options' => [['option_text' => 'Open the attachment to confirm its contents', 'score' => 0], ['option_text' => 'Forward the email to other colleagues so they can open the attachment first so they can it is guaranteed safe when we open it ourselves', 'score' => 0], ['option_text' => 'Forward the email to our personal email account so we can open the attachment at home', 'score' => 0], ['option_text' => 'Delete the email', 'score' => 10]],
                     ],
                     [
-                        'details' => ['question' => 'In cybersecurity, what is "phishing"?', 'explanation' => 'Phishing is a type of social engineering attack often used to steal user data, including login credentials and credit card numbers, by masquerading as a trustworthy entity in an electronic communication.'],
-                        'options' => [['option_text' => 'A method for cooling servers', 'score' => 0], ['option_text' => 'A fraudulent attempt to obtain sensitive information by disguising as a trustworthy entity', 'score' => 10], ['option_text' => 'A type of network hardware', 'score' => 0], ['option_text' => 'A secure coding practice', 'score' => 0]],
+                        'details' => ['question' => 'Which of the following is a strong password?', 'explanation' => 'Ind0N3$!@@'],
+                        'options' => [['option_text' => 'Password123', 'score' => 0], ['option_text' => 'Ind0N3$!@@', 'score' => 10], ['option_text' => 'XnmnX', 'score' => 0], ['option_text' => 'Password', 'score' => 0]],
                     ],
                     [
-                        'details' => ['question' => 'What is the role of a firewall?', 'explanation' => 'A firewall is a network security device that monitors incoming and outgoing network traffic and decides whether to allow or block specific traffic based on a defined set of security rules.'],
-                        'options' => [['option_text' => 'To speed up the internet connection', 'score' => 0], ['option_text' => 'To monitor and control network traffic based on security rules', 'score' => 10], ['option_text' => 'To store user login credentials', 'score' => 0], ['option_text' => 'To create backup copies of data', 'score' => 0]],
+                        'details' => ['question' => 'Protecting data and information from unauthorized persons is the definition of?', 'explanation' => 'Confidentiality'],
+                        'options' => [['option_text' => 'Confidentiality', 'score' => 10], ['option_text' => 'Compatibility', 'score' => 0], ['option_text' => 'Integrity', 'score' => 0], ['option_text' => 'Availability', 'score' => 0]],
+                    ],
+                    [
+                        'details' => ['question' => 'Protecting the availability of organizational data and information, so that data is available when needed, is the meaning of?', 'explanation' => 'Availability'],
+                        'options' => [['option_text' => 'Confidentiality', 'score' => 0], ['option_text' => 'Availability', 'score' => 10], ['option_text' => 'Integrity', 'score' => 0], ['option_text' => 'Compatibility', 'score' => 0]],
+                    ],
+                    [
+                        'details' => ['question' => 'Protecting the integrity of organizational data and information from unauthorized modification is the meaning of?', 'explanation' => 'Integrity'],
+                        'options' => [['option_text' => 'Confidentiality', 'score' => 0], ['option_text' => 'Availability', 'score' => 0], ['option_text' => 'Integrity', 'score' => 10], ['option_text' => 'Compatibility', 'score' => 0]],
+                    ],
+                    [
+                        'details' => ['question' => 'What is the illegal act of stealing account credentials and access to devices by sending messages designed to trick recipients into clicking on a link or downloading an attached file called?', 'explanation' => 'Phishing'],
+                        'options' => [['option_text' => 'System', 'score' => 0], ['option_text' => 'Ransomware', 'score' => 0], ['option_text' => 'Phishing', 'score' => 10], ['option_text' => 'Virus', 'score' => 0]],
+                    ],
+                    [
+                        'details' => ['question' => 'What are the three main elements of system security?', 'explanation' => 'Confidentiality, Integrity and Availability'],
+                        'options' => [['option_text' => 'Integrity, Possibility and Availability', 'score' => 0], ['option_text' => 'Association, Integrity and Availability', 'score' => 0], ['option_text' => 'Association, Integrity and Possibility', 'score' => 0], ['option_text' => 'Confidentiality, Integrity and Availability', 'score' => 10]],
+                    ],
+                    [
+                        'details' => ['question' => 'The purpose of Security Awareness training is', 'explanation' => 'So that all individuals at BNIS understand the importance of information security and their responsibilities regarding that information security.'],
+                        'options' => [['option_text' => 'To be proud', 'score' => 0], ['option_text' => 'So that all individuals at BNIS understand the importance of information security and their responsibilities regarding that information security.', 'score' => 10], ['option_text' => 'To Show Off', 'score' => 0], ['option_text' => 'Because information security is only the responsibility of the IT Team', 'score' => 0]],
                     ],
                 ],
             ],
