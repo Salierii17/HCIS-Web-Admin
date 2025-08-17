@@ -26,7 +26,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->preserveFilenames()
                     ->storeFileNamesIn('attachmentName')
                     ->directory('JobOpening-attachments')
-                    ->visibility('private')
+                    ->visibility('public')
                     ->openable()
                     ->downloadable()
                     ->previewable()
@@ -62,28 +62,56 @@ class AttachmentsRelationManager extends RelationManager
     {
         return $table
             ->query(function () {
+                // Debug: Let's see what we're working with
+                $jobOpeningId = $this->ownerRecord->id;
+
                 // Get all job candidates for this job opening
-                $jobCandidates = JobCandidates::where('JobId', $this->ownerRecord->id)
+                $jobCandidates = JobCandidates::where('JobId', $jobOpeningId)
                     ->with(['candidateProfile.attachments' => function ($query) {
                         $query->where('moduleName', 'Candidates');
                     }])
                     ->get();
 
-                // Get only Candidates attachments from these candidates
+                // Get Candidates attachments from these candidates
                 $candidateAttachments = $jobCandidates->flatMap(function ($jobCandidate) {
-                    return $jobCandidate->candidateProfile->attachments ?? collect();
+                    return $jobCandidate->candidateProfile?->attachments ?? collect();
                 });
 
-                // Also get direct job opening attachments
+                // Get direct JobCandidates attachments (resumes submitted for this specific job)
+                $jobCandidateAttachments = Attachments::where('moduleName', 'JobCandidates')
+                    ->whereIn('attachmentOwner', $jobCandidates->pluck('id'))
+                    ->get();
+
+                // Get direct job opening attachments
                 $jobOpeningAttachments = $this->ownerRecord->attachments()
                     ->where('moduleName', 'JobOpening')
                     ->get();
 
-                // Combine and return as query
-                $allAttachmentIds = $candidateAttachments->pluck('id')
+                // Combine all attachment IDs
+                $allAttachmentIds = collect()
+                    ->merge($candidateAttachments->pluck('id'))
+                    ->merge($jobCandidateAttachments->pluck('id'))
                     ->merge($jobOpeningAttachments->pluck('id'))
                     ->unique()
+                    ->filter()
                     ->toArray();
+
+                // Debug info (you can remove this later)
+                if (app()->environment('local')) {
+                    \Log::info('JobOpening Attachments Debug', [
+                        'job_opening_id' => $jobOpeningId,
+                        'job_candidates_count' => $jobCandidates->count(),
+                        'candidate_attachments_count' => $candidateAttachments->count(),
+                        'job_candidate_attachments_count' => $jobCandidateAttachments->count(),
+                        'job_opening_attachments_count' => $jobOpeningAttachments->count(),
+                        'total_attachment_ids' => count($allAttachmentIds),
+                        'attachment_ids' => $allAttachmentIds,
+                    ]);
+                }
+
+                if (empty($allAttachmentIds)) {
+                    return Attachments::whereRaw('1 = 0'); // Return empty query
+                }
 
                 return Attachments::whereIn('id', $allAttachmentIds);
             })
@@ -109,7 +137,14 @@ class AttachmentsRelationManager extends RelationManager
                         if ($record->moduleName === 'Candidates') {
                             $candidate = Candidates::find($record->attachmentOwner);
 
-                            return $candidate ? $candidate->full_name : 'Candidate';
+                            return $candidate ? $candidate->full_name : 'Unknown Candidate';
+                        } elseif ($record->moduleName === 'JobCandidates') {
+                            $jobCandidate = JobCandidates::find($record->attachmentOwner);
+                            if ($jobCandidate && $jobCandidate->candidateProfile) {
+                                return $jobCandidate->candidateProfile->full_name;
+                            }
+
+                            return 'Job Candidate';
                         }
 
                         return 'Job Opening Document';
@@ -119,13 +154,15 @@ class AttachmentsRelationManager extends RelationManager
                             return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
                                 'record' => $record->attachmentOwner,
                             ]);
+                        } elseif ($record->moduleName === 'JobCandidates' && $record->attachmentOwner) {
+                            return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$record->attachmentOwner]);
                         }
 
                         return null;
                     })
                     ->openUrlInNewTab(false)
                     ->icon(function ($record) {
-                        if ($record->moduleName === 'Candidates') {
+                        if (in_array($record->moduleName, ['Candidates', 'JobCandidates'])) {
                             return 'heroicon-m-arrow-top-right-on-square';
                         }
 
@@ -136,15 +173,34 @@ class AttachmentsRelationManager extends RelationManager
                         'class' => 'hover:underline',
                     ]),
                 Tables\Columns\TextColumn::make('attachmentName')
-                    ->label('File Name'),
+                    ->label('File Name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('category')
-                    ->badge(),
+                    ->badge()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('moduleName')
+                    ->label('Source')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'JobOpening' => 'primary',
+                        'JobCandidates' => 'success',
+                        'Candidates' => 'warning',
+                        default => 'gray'
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('moduleName')
+                    ->label('Source')
+                    ->options([
+                        'JobOpening' => 'Job Opening Documents',
+                        'JobCandidates' => 'Job Application Files',
+                        'Candidates' => 'Candidate Profile Files',
+                    ]),
+                Tables\Filters\SelectFilter::make('category')
+                    ->options(AttachmentCategory::class),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
@@ -174,22 +230,18 @@ class AttachmentsRelationManager extends RelationManager
                     ->hidden(fn ($record) => ! $record->attachment),
 
                 Tables\Actions\Action::make('status')
-                    ->label('Status')
+                    ->label('View Application')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->color('warning')
                     ->url(function ($record) {
                         if ($record->moduleName === 'Candidates') {
-                            // Find the JobCandidate record that connects this candidate to the current job opening
                             $jobCandidate = JobCandidates::where('candidate', $record->attachmentOwner)
                                 ->where('JobId', $this->ownerRecord->id)
                                 ->first();
-
                             if ($jobCandidate) {
                                 return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$jobCandidate->id]);
                             }
-                        }
-                        // For JobCandidates attachments, use the attachmentOwner directly
-                        elseif ($record->moduleName === 'JobCandidates') {
+                        } elseif ($record->moduleName === 'JobCandidates') {
                             return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [$record->attachmentOwner]);
                         }
 

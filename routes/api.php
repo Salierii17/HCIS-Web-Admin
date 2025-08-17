@@ -3,6 +3,8 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRequestController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,9 +42,22 @@ Route::middleware('api')
 
             // This route now requires authentication
             Route::apiResource('attendance', AttendanceController::class);
-
-            // **FIX:** This route is now protected, so auth()->id() will work.
             Route::post('attendance-requests', [AttendanceRequestController::class, 'store']);
+
+            Route::prefix('profile')->group(function () {
+                Route::get('/', [ProfileController::class, 'show']);
+                Route::put('/', [ProfileController::class, 'update']);
+                Route::post('photo', [ProfileController::class, 'uploadPhoto']);
+                Route::delete('photo', [ProfileController::class, 'deletePhoto']);
+                Route::put('password', [ProfileController::class, 'changePassword']);
+                Route::delete('account', [ProfileController::class, 'deleteAccount']);
+            });
+
+            // Notification Routes
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [NotificationController::class, 'index']);
+                Route::post('{notificationId}/read', [NotificationController::class, 'markAsRead']);
+            });
 
         });
     });

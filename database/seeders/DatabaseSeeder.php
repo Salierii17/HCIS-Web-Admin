@@ -132,6 +132,13 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->command->info('JobCandidate, Candidate, and Referral data seeded.');
 
+        // Attachments
+        $this->command->warn(PHP_EOL.'Seeding Attachments...');
+        $this->call([
+            AttachmentsSeeder::class,
+        ]);
+        $this->command->info('Attachments data seeded.');
+
         // --- TRAINING ---
         $this->command->warn(PHP_EOL.'Seeding Training data...');
         $this->call([

@@ -20,7 +20,7 @@ class JobCandidateSeeder extends Seeder
         $candidates = Candidates::all();
         $jobOpenings = JobOpenings::where('Status', 'Opened')->get();
         $sources = ['Online Portal', 'LinkedIn', 'Employee Referral', 'Campus Recruitment'];
-        $stages = ['New', 'Screening', 'Interviewing', 'Offered', 'Hired'];
+        $stages = ['New', 'Contacted', 'Interview-to-be-Scheduled', 'To-be-Offered', 'Hired'];
 
         if ($candidates->isEmpty() || $jobOpenings->isEmpty()) {
             $this->command->error('Cannot create job applications. No candidates or open jobs found.');

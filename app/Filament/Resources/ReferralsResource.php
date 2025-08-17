@@ -67,68 +67,79 @@ class ReferralsResource extends Resource
                                 ->icon('heroicon-o-arrow-down-tray')
                                 ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
                                 ->action(function (Forms\Get $get) {
-                                    return response()->download(storage_path('app/public/'.$get('resume')));
+                                    $resumePath = $get('resume');
+                                    if ($resumePath && Storage::disk('public')->exists($resumePath)) {
+                                        return response()->download(storage_path('app/public/'.$resumePath));
+                                    }
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Resume not found')
+                                        ->danger()
+                                        ->send();
                                 }),
                         ])->hidden(
-                            fn (): bool => ! in_array(\Filament\Support\Enums\ActionSize::tryFrom(request()->route()->getName()) ?? '', ['create', 'edit'])
+                            fn (): bool => ! in_array(request()->route()->getName(), [
+                                'filament.recruit.resources.referrals.create',
+                                'filament.recruit.resources.referrals.edit',
+                            ])
                         ),
 
                         Forms\Components\Section::make('Job Recommendation')
                             ->schema([
-                            Forms\Components\Select::make('ReferringJob')
-                                ->prefixIcon('heroicon-s-briefcase')
-                                ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
-                                ->required(),
-                        ]),
+                                Forms\Components\Select::make('ReferringJob')
+                                    ->prefixIcon('heroicon-s-briefcase')
+                                    ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
+                                    ->required(),
+                            ]),
                         Forms\Components\Section::make('Candidate Information')
                             ->schema([
-                            Forms\Components\Select::make('Candidate')
-                                ->prefixIcon('heroicon-s-briefcase')
-                                ->relationship(name: 'candidates', titleAttribute: 'full_name')
-                                ->searchable(['email', 'LastName', 'FirstName'])
-                                ->preload()
-                                ->required()
-                                ->createOptionForm([
-                                    Forms\Components\TextInput::make('FirstName')
-                                        ->label('First Name')
-                                        ->required(),
-                                    Forms\Components\TextInput::make('LastName')
-                                        ->label('Last Name')
-                                        ->required(),
-                                    Forms\Components\TextInput::make('Mobile')
-                                        ->label('Mobile')
-                                        ->tel(),
-                                    Forms\Components\TextInput::make('email')
-                                        ->email()
-                                        ->required(),
-                                    Forms\Components\TextInput::make('CurrentEmployer')
-                                        ->label('Current Employer (Company Name)'),
-                                    Forms\Components\TextInput::make('CurrentJobTitle')
-                                        ->label('Current Job Title'),
-                                ]),
-                        ]),
+                                Forms\Components\Select::make('Candidate')
+                                    ->prefixIcon('heroicon-s-briefcase')
+                                    ->relationship(name: 'candidates', titleAttribute: 'full_name')
+                                    ->searchable(['email', 'LastName', 'FirstName'])
+                                    ->preload()
+                                    ->required()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('FirstName')
+                                            ->label('First Name')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('LastName')
+                                            ->label('Last Name')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('Mobile')
+                                            ->label('Mobile')
+                                            ->tel(),
+                                        Forms\Components\TextInput::make('email')
+                                            ->email()
+                                            ->required(),
+                                        Forms\Components\TextInput::make('CurrentEmployer')
+                                            ->label('Current Employer (Company Name)'),
+                                        Forms\Components\TextInput::make('CurrentJobTitle')
+                                            ->label('Current Job Title'),
+                                    ]),
+                            ]),
                         Forms\Components\Section::make('Additional Information')
                             ->schema([
-                            Forms\Components\Select::make('Relationship')
-                                ->options([
-                                    'None' => 'None',
-                                    'Personally Known' => 'Personally Known',
-                                    'Former Colleague' => 'Former Colleague',
-                                    'Socially Connected' => 'Socially Connected',
-                                    'Got the resume through a common fried' => 'Got the resume through a common fried',
-                                    'Others' => 'Others',
-                                ]),
-                            Forms\Components\Select::make('KnownPeriod')
-                                ->options([
-                                    'None' => 'None',
-                                    'Less than a year',
-                                    '1-2 years' => '1-2 years',
-                                    '3-5 years' => '3-5 years',
-                                    '5+ years' => '5+ years',
-                                ]),
-                            Forms\Components\Textarea::make('Notes')
-                                ->nullable(),
-                        ]),
+                                Forms\Components\Select::make('Relationship')
+                                    ->options([
+                                        'None' => 'None',
+                                        'Personally Known' => 'Personally Known',
+                                        'Former Colleague' => 'Former Colleague',
+                                        'Socially Connected' => 'Socially Connected',
+                                        'Got the resume through a common fried' => 'Got the resume through a common fried',
+                                        'Others' => 'Others',
+                                    ]),
+                                Forms\Components\Select::make('KnownPeriod')
+                                    ->options([
+                                        'None' => 'None',
+                                        'Less than a year',
+                                        '1-2 years' => '1-2 years',
+                                        '3-5 years' => '3-5 years',
+                                        '5+ years' => '5+ years',
+                                    ]),
+                                Forms\Components\Textarea::make('Notes')
+                                    ->nullable(),
+                            ]),
                     ]),
             ]);
     }
@@ -215,7 +226,7 @@ class ReferralsResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // '
         ];
     }
 

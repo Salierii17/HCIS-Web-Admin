@@ -18,6 +18,16 @@ class ViewCandidatesProfile extends ViewRecord
 {
     protected static string $resource = CandidatesProfileResource::class;
 
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return false;
+    }
+
+    public function getRelationManagers(): array
+    {
+        return $this->getResource()::getRelations();
+    }
+
     protected function getHeaderActions(): array
     {
         return [

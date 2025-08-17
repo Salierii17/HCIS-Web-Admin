@@ -47,7 +47,11 @@ class MyResumeProfile extends Page
             $this->loadResumeUrl();
         }
 
-        $this->form->fill($candidate?->toArray() ?? []);
+        // Prepare form data with user email always populated
+        $formData = $candidate?->toArray() ?? [];
+        $formData['Email'] = $user->email; // Ensure email is always populated
+
+        $this->form->fill($formData);
     }
 
     protected function loadResumeUrl(): void
@@ -122,7 +126,12 @@ class MyResumeProfile extends Page
 
             // Clear the file input after successful upload
             $this->resumeFile = null;
-            $this->form->fill(['resumeFile' => null]);
+
+            // Preserve existing form data while clearing only the resume file
+            $currentFormData = $this->form->getState();
+            $currentFormData['resumeFile'] = null;
+            $currentFormData['Email'] = Filament::auth()->user()->email; // Ensure email remains
+            $this->form->fill($currentFormData);
 
             $this->loadResumeUrl();
 

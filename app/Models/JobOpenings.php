@@ -58,7 +58,8 @@ class JobOpenings extends Model
 
     public function attachments(): HasMany
     {
-        return $this->hasMany(Attachments::class, 'attachmentOwner', 'id');
+        return $this->hasMany(Attachments::class, 'attachmentOwner', 'id')
+            ->where('moduleName', 'JobOpening');
     }
 
     public function scopeJobStillOpen(Builder $query): void

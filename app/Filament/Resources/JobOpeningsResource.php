@@ -77,27 +77,7 @@ class JobOpeningsResource extends Resource
                             ->native(false)
                             ->required()
                             ->rules(['after:DateOpened'])
-                            ->extraAttributes([
-                                'x-data' => '{ currentValue: $wire.entangle("data.TargetDate") }',
-                                'x-init' => '() => {
-                                    flatpickr($el, {
-                                        enableTime: true,
-                                        time_24hr: true,
-                                        enableSeconds: true,
-                                        dateFormat: "Y-m-d H:i:S",
-                                        defaultDate: new Date($data.currentValue),
-                                        minDate: new Date(),
-                                        onReady: function(selectedDates, dateStr, instance) {
-                                            if ($data.currentValue) {
-                                                instance.setDate(new Date($data.currentValue), false);
-                                            }
-                                        },
-                                        onChange: function(selectedDates) {
-                                            $data.currentValue = selectedDates[0].toISOString();
-                                        }
-                                    });
-                                }',
-                            ]),
+                            ->minDate(now()),
                         // DateTimePicker::make('TargetDate')
                         //     ->label('Target Date')
                         //     ->displayFormat('Y-m-d H:i:s')
@@ -185,6 +165,7 @@ class JobOpeningsResource extends Resource
                             ->seconds(true)
                             ->native(false)
                             ->required()
+                            ->minDate(now())
                             ->rules([
                                 function () {
                                     return function (string $attribute, $value, Closure $fail) {
@@ -200,24 +181,6 @@ class JobOpeningsResource extends Resource
                                         }
                                     };
                                 },
-                            ])
-                            ->extraAttributes([
-                                'x-data' => '{ currentValue: $wire.entangle("data.DateOpened") }',
-                                'x-init' => '() => {
-                                    flatpickr($el, {
-                                        enableTime: true,
-                                        time_24hr: true,
-                                        enableSeconds: true,
-                                        dateFormat: "Y-m-d H:i:S",
-                                        defaultDate: $data.currentValue ? new Date($data.currentValue) : new Date(),
-                                        minDate: "today",
-                                        onClose: function(selectedDates) {
-                                            if (selectedDates.length > 0) {
-                                                $data.currentValue = selectedDates[0].toISOString();
-                                            }
-                                        }
-                                    });
-                                }',
                             ]),
                         // DateTimePicker::make('DateOpened')
                         //     ->label('Date Opened')
