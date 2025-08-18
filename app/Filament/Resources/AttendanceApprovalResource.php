@@ -191,7 +191,73 @@ class AttendanceApprovalResource extends Resource
                             ->success()
                             ->send();
                     }),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('approve')
+                        ->label('Approve Selected')
+                        ->color('success')
+                        ->icon('heroicon-o-check-circle')
+                        ->requiresConfirmation()
+                        ->form([
+                            Textarea::make('manager_comment')
+                                ->label('Reason for Approval (Optional)'),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            DB::transaction(function () use ($records, $data) {
+                                foreach ($records as $record) {
+                                    $attendance = $record->attendance;
+                                    if ($record->requested_clock_in_time) {
+                                        $attendance->clock_in_time = $record->requested_clock_in_time;
+                                    }
+                                    if ($record->requested_clock_out_time) {
+                                        $attendance->clock_out_time = $record->requested_clock_out_time;
+                                    }
+                                    if ($record->requested_location_type_id) {
+                                        $attendance->location_type_id = $record->requested_location_type_id;
+                                    }
+                                    $attendance->approval_status = 'Verified';
+                                    $attendance->save();
 
+                                    $record->status = 'approved';
+                                    $record->reviewed_by_id = auth()->id();
+                                    $record->manager_comment = $data['manager_comment'];
+                                    $record->save();
+                                }
+                            });
+                            Notification::make()
+                                ->title('Approved ' . $records->count() . ' records successfully')
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\BulkAction::make('reject')
+                        ->label('Reject Selected')
+                        ->color('danger')
+                        ->icon('heroicon-o-x-circle')
+                        ->requiresConfirmation()
+                        ->form([
+                            Textarea::make('manager_comment')
+                                ->label('Reason for Rejection')
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            DB::transaction(function () use ($records, $data) {
+                                foreach ($records as $record) {
+                                    $record->attendance->update(['approval_status' => 'Rejected']);
+                                    $record->update([
+                                        'status' => 'rejected',
+                                        'reviewed_by_id' => auth()->id(),
+                                        'manager_comment' => $data['manager_comment'],
+                                    ]);
+                                }
+                            });
+                            Notification::make()
+                                ->title('Rejected ' . $records->count() . ' records successfully')
+                                ->success()
+                                ->send();
+                        }),
+                ]),
             ]);
     }
 
