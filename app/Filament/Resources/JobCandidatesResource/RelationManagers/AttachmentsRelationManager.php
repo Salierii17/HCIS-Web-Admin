@@ -20,8 +20,8 @@ class AttachmentsRelationManager extends RelationManager
                 Forms\Components\FileUpload::make('attachment')
                     ->preserveFilenames()
                     ->storeFileNamesIn('attachmentName')
-                    ->directory('JobOpening-attachments')
-                    ->visibility('private')
+                    ->directory('JobCandidate-attachments')
+                    ->visibility('public')
                     ->openable()
                     ->downloadable()
                     ->previewable()
@@ -78,17 +78,19 @@ class AttachmentsRelationManager extends RelationManager
                     ->color('primary')
                     ->url(function ($record) {
                         $filePath = str_replace('public/', '', $record->attachment);
+
                         return asset('storage/'.$filePath);
                     })
                     ->openUrlInNewTab()
                     ->hidden(fn ($record) => empty($record->attachment)),
-                    
+
                 Tables\Actions\Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function ($record) {
                         $path = storage_path('app/public/'.$record->attachment);
+
                         return response()->download($path, $record->attachmentName);
                     })
                     ->hidden(fn ($record) => empty($record->attachment)),

@@ -32,7 +32,8 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
     public function toMail($notifiable)
     {
         $mailMessage = (new MailMessage)
-            ->from(env('MAIL_FROM_ADDRESS'), $this->companyName)
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            // ->from(env('MAIL_FROM_ADDRESS'), $this->companyName)
             ->greeting("Dear {$this->content['candidate_name']},");
 
         // Status-specific content
@@ -42,20 +43,20 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
             case 'Interview-in-Progress':
                 $this->addInterviewDetails($mailMessage);
                 break;
-                
+
             case 'Offer-Made':
                 $this->addOfferDetails($mailMessage);
                 break;
-                
+
             case 'Hired':
                 $this->addHiredDetails($mailMessage);
                 break;
-                
+
             case 'Rejected':
             case 'Rejected-by-Hiring-Manager':
                 $this->addRejectionDetails($mailMessage);
                 break;
-                
+
             default:
                 $this->addDefaultStatusDetails($mailMessage);
         }
@@ -88,14 +89,14 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
             ->line(new HtmlString('<strong>Interview Details:</strong>'))
             ->line(new HtmlString('📅 <strong>Date:</strong> ' . $this->content['interview_date']))
             ->line(new HtmlString('🕒 <strong>Time:</strong> ' . $this->content['interview_time']));
-            
+
         // Display either meeting link or location based on type
         if ($this->content['meeting_details']['type'] === 'link') {
-            $mailMessage->line(new HtmlString('🔗 <strong>Meeting Link:</strong> <a href="'.$this->content['meeting_details']['value'].'">Click here to join</a>'));
+            $mailMessage->line(new HtmlString('🔗 <strong>Meeting Link:</strong> <a href="' . $this->content['meeting_details']['value'] . '">Click here to join</a>'));
         } else {
             $mailMessage->line(new HtmlString('📍 <strong>Location:</strong> ' . $this->content['meeting_details']['value']));
         }
-        
+
         $mailMessage->line(new HtmlString('👤 <strong>Interviewer:</strong> ' . $this->content['interviewer_name']))
             ->line(new HtmlString('⏳ <strong>Duration:</strong> Approximately ' . $this->content['interview_duration'] . ' minutes'))
             ->line('')

@@ -15,8 +15,8 @@ use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Filament\Support\Colors\Color;
 use Illuminate\Http\Request;
-use Phpsa\FilamentPasswordReveal\Password;
 use Illuminate\Support\Facades\Hash;
+use Phpsa\FilamentPasswordReveal\Password;
 
 class CreateSystemUserForm extends SimplePage
 {
@@ -40,7 +40,7 @@ class CreateSystemUserForm extends SimplePage
 
     public function mount(Request $request, ?string $id): void
     {
-        if (! $request->hasValidSignature()) {
+        if (!$request->hasValidSignature()) {
             abort(403, 'Invalid Signature');
         }
         $this->user = User::whereInvitationId($id)->first();

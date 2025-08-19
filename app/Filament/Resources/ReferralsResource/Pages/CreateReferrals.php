@@ -22,13 +22,13 @@ class CreateReferrals extends CreateRecord
         return [
             Action::make('View Resume')
                 ->color('success')
-                ->hidden(fn () => !$this->data['resume'] ?? false)
+                ->hidden(fn () => ! $this->data['resume'] ?? false)
                 ->modalContent(function () {
                     $file = $this->data['resume'];
-                    $url = $file instanceof TemporaryUploadedFile 
-                        ? $file->temporaryUrl() 
+                    $url = $file instanceof TemporaryUploadedFile
+                        ? $file->temporaryUrl()
                         : Storage::url($file);
-                    
+
                     return view('referral-form.referral-component.resume-viewer', ['url' => $url]);
                 })
                 ->modalSubmitAction(false)
@@ -40,13 +40,14 @@ class CreateReferrals extends CreateRecord
                 ]),
             Action::make('Download Resume')
                 ->color('primary')
-                ->hidden(fn () => !$this->data['resume'] ?? false)
+                ->hidden(fn () => ! $this->data['resume'] ?? false)
                 ->action(function () {
                     $file = $this->data['resume'];
                     if ($file instanceof TemporaryUploadedFile) {
                         return response()->download($file->getRealPath(), $file->getClientOriginalName());
                     }
-                    return response()->download(storage_path('app/public/' . $file));
+
+                    return response()->download(storage_path('app/public/'.$file));
                 }),
         ];
     }
@@ -55,10 +56,10 @@ class CreateReferrals extends CreateRecord
     {
         $data['ReferredBy'] = auth()->id();
         $data['AssignedRecruiter'] = auth()->id();
-        
+
         try {
             $candidate = Candidates::findOrFail($data['Candidate']);
-            
+
             $jobCandidates = JobCandidates::create([
                 'JobId' => $data['ReferringJob'],
                 'candidate' => $data['Candidate'],
@@ -79,16 +80,16 @@ class CreateReferrals extends CreateRecord
             // Handle resume upload - store in referrals table
             if (isset($data['resume']) && $data['resume'] instanceof TemporaryUploadedFile) {
                 $file = $data['resume'];
-                
+
                 // Generate filename in exact format: [OriginalName]_[12 character random string].pdf
                 $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
                 $randomString = Str::lower(Str::random(12)); // 12 character random string
                 $uniqueName = "{$originalName}_{$randomString}.{$extension}";
-                
+
                 $path = $file->storeAs('referrals/resumes', $uniqueName, 'public');
                 $data['resume'] = $path;
-                
+
                 Attachments::create([
                     'attachment' => $path,
                     'attachmentName' => $file->getClientOriginalName(),
@@ -102,9 +103,9 @@ class CreateReferrals extends CreateRecord
             $data['JobCandidate'] = $jobCandidates->id;
 
         } catch (ModelNotFoundException $e) {
-            throw new \Exception("Candidate not found");
+            throw new \Exception('Candidate not found');
         } catch (\Exception $e) {
-            throw new \Exception("Failed to create referral: " . $e->getMessage());
+            throw new \Exception('Failed to create referral: '.$e->getMessage());
         }
 
         return $data;

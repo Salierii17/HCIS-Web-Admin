@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Shield;
 
+use App\Filament\Resources\Shield\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use App\Filament\Resources\Shield\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as FormAction;
@@ -27,9 +27,9 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     protected static ?string $modelLabel = 'Roles';
 
-    protected static ?string $navigationGroup = 'Training';
-    
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'Security & Control';
+
+    protected static ?int $navigationSort = 1;
 
     public static function getPermissionPrefixes(): array
     {
@@ -94,7 +94,29 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\CheckboxList::make('pages_tab')
                                     ->label('')
-                                    ->options(fn (): array => static::getPageOptions())
+                                    ->options(function ($livewire): array {
+                                        // Get all available page options
+                                        $options = static::getPageOptions();
+
+                                        // Get the role that is being edited
+                                        /** @var \Spatie\Permission\Models\Role $role */
+                                        $role = $livewire->record;
+
+                                        // Get the list of pages to hide for this specific role from our new config
+                                        $hiddenPages = config("filament-shield.permissions_ui.roles_to_exclude.{$role->name}.pages", []);
+
+                                        // If there are pages to hide, filter them out of the options array
+                                        if (count($hiddenPages) > 0) {
+                                            return array_filter(
+                                                $options,
+                                                fn ($key) => ! in_array($key, $hiddenPages),
+                                                ARRAY_FILTER_USE_KEY
+                                            );
+                                        }
+
+                                        // Otherwise, return all options
+                                        return $options;
+                                    })
                                     ->searchable()
                                     ->live()
                                     ->afterStateHydrated(function (Component $component, $livewire, string $operation, ?Model $record, Forms\Set $set) {
@@ -132,7 +154,29 @@ class RoleResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Forms\Components\CheckboxList::make('widgets_tab')
                                     ->label('')
-                                    ->options(fn (): array => static::getWidgetOptions())
+                                    ->options(function ($livewire): array {
+                                        // Get all available widget options
+                                        $options = static::getWidgetOptions();
+
+                                        // Get the role that is being edited
+                                        /** @var \Spatie\Permission\Models\Role $role */
+                                        $role = $livewire->record;
+
+                                        // Get the list of widgets to hide for this specific role from our new config
+                                        $hiddenWidgets = config("filament-shield.permissions_ui.roles_to_exclude.{$role->name}.widgets", []);
+
+                                        // If there are widgets to hide, filter them out of the options array
+                                        if (count($hiddenWidgets) > 0) {
+                                            return array_filter(
+                                                $options,
+                                                fn ($key) => ! in_array($key, $hiddenWidgets),
+                                                ARRAY_FILTER_USE_KEY
+                                            );
+                                        }
+
+                                        // Otherwise, return all options
+                                        return $options;
+                                    })
                                     ->searchable()
                                     ->live()
                                     ->afterStateHydrated(function (Component $component, $livewire, string $operation, ?Model $record, Forms\Set $set) {
@@ -332,7 +376,7 @@ class RoleResource extends Resource implements HasShieldPermissions
         return collect(FilamentShield::getResources())->sortKeys()->reduce(function ($entities, $entity) {
 
             $entities[] = Forms\Components\Section::make(FilamentShield::getLocalizedResourceLabel($entity['fqcn']))
-                ->description(fn () => new HtmlString('<span style="word-break: break-word;">' . Utils::showModelPath($entity['fqcn']) . '</span>'))
+                ->description(fn () => new HtmlString('<span style="word-break: break-word;">'.Utils::showModelPath($entity['fqcn']).'</span>'))
                 ->compact()
                 ->schema([
                     Forms\Components\CheckboxList::make($entity['resource'])
@@ -387,7 +431,7 @@ class RoleResource extends Resource implements HasShieldPermissions
     {
         return collect(Utils::getResourcePermissionPrefixes($entity['fqcn']))
             ->flatMap(fn ($permission) => [
-                $permission . '_' . $entity['resource'] => FilamentShield::getLocalizedResourcePermissionLabel($permission),
+                $permission.'_'.$entity['resource'] => FilamentShield::getLocalizedResourcePermissionLabel($permission),
             ])
             ->toArray();
     }
@@ -480,7 +524,7 @@ class RoleResource extends Resource implements HasShieldPermissions
         $resourcePermissions = collect();
         collect(FilamentShield::getResources())->each(function ($entity) use ($resourcePermissions) {
             collect(Utils::getResourcePermissionPrefixes($entity['fqcn']))->map(function ($permission) use ($resourcePermissions, $entity) {
-                $resourcePermissions->push((string) Str::of($permission . '_' . $entity['resource']));
+                $resourcePermissions->push((string) Str::of($permission.'_'.$entity['resource']));
             });
         });
 

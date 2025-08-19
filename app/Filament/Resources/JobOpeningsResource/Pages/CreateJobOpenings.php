@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\JobOpeningsResource\Pages;
 
 use App\Filament\Resources\JobOpeningsResource;
-use Filament\Resources\Pages\CreateRecord;
 use Carbon\Carbon;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateJobOpenings extends CreateRecord
 {
@@ -13,11 +13,11 @@ class CreateJobOpenings extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['Status'] = 'New';
-        
+
         // Ensure dates are properly formatted (though DateTimePicker should handle this)
         $data['TargetDate'] = Carbon::parse($data['TargetDate'])->format('Y-m-d H:i:s');
         $data['DateOpened'] = Carbon::parse($data['DateOpened'])->format('Y-m-d H:i:s');
-        
+
         // Process rich text fields
         $richTextFields = ['JobDescription', 'JobRequirement', 'JobBenefits', 'AdditionalNotes'];
         foreach ($richTextFields as $field) {
@@ -35,6 +35,7 @@ class CreateJobOpenings extends CreateRecord
         $content = preg_replace('/<p[^>]*>/', '', $content);
         $content = str_replace('</p>', '<br><br>', $content);
         $content = preg_replace('/<[^\/>]*>([\s]?)*<\/[^>]*>/', '', $content);
+
         return trim($content);
     }
 }

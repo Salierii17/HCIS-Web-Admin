@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TryoutResource\Pages;
-use App\Filament\Resources\TryoutResource\RelationManagers;
 use App\Models\Tryout;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,20 +10,19 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class TryoutResource extends Resource
 {
     protected static ?string $model = Tryout::class;
 
-    protected static ?string $navigationIcon = 'heroicon-m-arrow-right-start-on-rectangle';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $modelLabel = 'Records';
 
     protected static ?string $navigationGroup = 'Training';
-    
-    protected static ?int $navigationSort = 4;
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -50,12 +48,13 @@ class TryoutResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 $is_super_admin = Auth::user()->hasRole('super_admin');
 
-                if (!$is_super_admin) {
+                if (! $is_super_admin) {
                     $query->where('user_id', Auth::user()->id);
                 }
             })
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Employee Name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('package.name')
@@ -94,7 +93,7 @@ class TryoutResource extends Resource
                 //
             ])
             ->actions([
-                
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -6,7 +6,7 @@ return [
         'slug' => 'shield/roles',
         'navigation_sort' => -1,
         'navigation_badge' => true,
-        'navigation_group' => true,
+        'navigation_group' => 'Security & Control',
         'is_globally_searchable' => false,
         'show_model_path' => true,
         'is_scoped_to_tenant' => true,
@@ -67,7 +67,8 @@ return [
         ],
 
         'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+            'AccountWidget',
+            'FilamentInfoWidget',
         ],
 
         'resources' => [],
@@ -82,5 +83,23 @@ return [
     'register_role_policy' => [
         'enabled' => true,
     ],
-
+    'permissions_ui' => [
+        'roles_to_exclude' => [
+            'Standard' => [
+                'pages' => [
+                    'Profile',
+                    'Reporting',
+                    'Company',
+                    'Appearance',
+                ],
+                'widgets' => [
+                    'Approval Status (Last 30 Days)',
+                    'Attendance Status Distribution',
+                    'Daily Attendance Trend (Last 30 Days)',
+                ],
+            ],
+            // You can add other roles here in the future
+            // 'SomeOtherRole' => [ ... ]
+        ],
+    ],
 ];

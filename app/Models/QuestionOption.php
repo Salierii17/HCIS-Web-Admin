@@ -8,18 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class QuestionOption extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [
         'question_id',
         'option_text',
-        'score'
+        'score',
     ];
-    
-     public function question(): BelongsTo
+
+    public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
     }
-
 }

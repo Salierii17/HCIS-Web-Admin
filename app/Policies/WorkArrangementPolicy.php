@@ -2,9 +2,8 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
-use App\Models\WorkArrangement;
 use App\Models\User;
+use App\Models\WorkArrangement;
 
 class WorkArrangementPolicy
 {

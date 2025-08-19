@@ -12,18 +12,23 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('app:send-training-reminders')->dailyAt('09:00');
+
+        $schedule->command('attendance:daily-verify')->dailyAt('01:27')
+            ->appendOutputTo(storage_path('logs/scheduler.log'));
+
         // For development - runs every minute
         if (app()->environment('local')) {
             $schedule->command('job-openings:manage-status')
-                    ->everyMinute();
+                ->everyMinute();
         }
-        
+
         // For production - runs hourly at :00
         // $schedule->command('job-openings:manage-status')
         //         ->hourly()
         //         ->withoutOverlapping();
 
-        //---------
+        // ---------
 
         // $schedule->command('job-openings:manage-status')->everyMinute(); // For testing
         // For production, use ->hourly() or ->dailyAt('03:00')

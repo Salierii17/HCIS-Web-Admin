@@ -20,8 +20,8 @@ class AttachmentsRelationManager extends RelationManager
                 Forms\Components\FileUpload::make('attachment')
                     ->preserveFilenames()
                     ->storeFileNamesIn('attachmentName')
-                    ->directory('JobOpening-attachments')
-                    ->visibility('private')
+                    ->directory('candidate_attachments')
+                    ->visibility('public')
                     ->openable()
                     ->downloadable()
                     ->previewable()
@@ -47,7 +47,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->maxLength(255),
                 Forms\Components\TextInput::make('moduleName')
                     ->readOnly()
-                    ->default('CandidatesProfile')
+                    ->default('Candidates')
                     ->hidden()
                     ->maxLength(255),
             ]);
@@ -79,19 +79,21 @@ class AttachmentsRelationManager extends RelationManager
                     ->url(function ($record) {
                         // Remove 'public/' prefix if it exists in the stored path
                         $filePath = str_replace('public/', '', $record->attachment);
+
                         return asset('storage/'.$filePath);
                     })
                     ->openUrlInNewTab()
-                    ->hidden(fn ($record) => !$record->attachment),
+                    ->hidden(fn ($record) => ! $record->attachment),
                 Tables\Actions\Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function ($record) {
                         $path = storage_path('app/public/'.$record->attachment);
+
                         return response()->download($path, $record->attachmentName);
                     })
-                    ->hidden(fn ($record) => !$record->attachment),
+                    ->hidden(fn ($record) => ! $record->attachment),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

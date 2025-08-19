@@ -11,13 +11,15 @@ use App\Models\JobCandidates;
 use App\Models\JobOpenings;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Notifications\Notification;
 use App\Notifications\User\InviteNewSystemUserNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -25,16 +27,14 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Filament\Tables\Actions\BulkAction;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\DateTimePicker;
 use Closure;
 
 class JobCandidatesResource extends Resource
 {
     protected static ?string $model = JobCandidates::class;
 
-    protected static ?string $recordTitleAttribute = 'job.postingTitle';
+    protected static ?string $recordTitleAttribute = 'job.JobTitle';
 
     protected static ?string $navigationGroup = 'Recruitment';
 
@@ -52,12 +52,14 @@ class JobCandidatesResource extends Resource
     {
         return $form
             ->schema(
-                array_merge([],
+                array_merge(
+                    [],
                     self::candidatePipelineFormLayout(),
                     self::candidateBasicInformationFormLayout(),
                     self::candidateCurrentJobInformationFormLayout(),
                     self::candidateAddressInformationFormLayout()
-                ));
+                )
+            );
     }
 
     public static function candidatePipelineFormLayout(): array
@@ -69,10 +71,10 @@ class JobCandidatesResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('JobId')
                                 ->label('Job Associated')
-                                ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
+                                ->options(JobOpenings::all()->pluck('postingTitle', 'id'))
                                 ->required()
                                 ->columnSpan(1),
-                                
+
                             Forms\Components\Grid::make()
                                 ->schema([
                                     Forms\Components\Select::make('CandidateStatus')
@@ -88,9 +90,9 @@ class JobCandidatesResource extends Resource
                                         })
                                         ->columnSpan([
                                             'default' => 2,
-                                            'lg' => fn ($get, $livewire) => $livewire instanceof \App\Filament\Resources\JobCandidatesResource\Pages\EditJobCandidates ? 3 : 2
+                                            'lg' => fn($get, $livewire) => $livewire instanceof \App\Filament\Resources\JobCandidatesResource\Pages\EditJobCandidates ? 3 : 2
                                         ]),
-                                    
+
                                     // Forms\Components\Actions::make([
                                     //     Forms\Components\Actions\Action::make('sendEmail')
                                     //         ->icon('heroicon-o-paper-airplane')
@@ -101,8 +103,8 @@ class JobCandidatesResource extends Resource
                                     //             return session()->get('email_sent_' . $record->id, false);
                                     //         })
                                     //         ->tooltip(function ($record) {
-                                    //             return session()->get('email_sent_' . $record->id, false) 
-                                    //                 ? 'Email already sent' 
+                                    //             return session()->get('email_sent_' . $record->id, false)
+                                    //                 ? 'Email already sent'
                                     //                 : 'Send Status Email';
                                     //         })
                                     //         ->modalHeading(fn ($record) => "Send {$record->CandidateStatus} Notification")
@@ -122,13 +124,13 @@ class JobCandidatesResource extends Resource
                                     // ->columnSpan(1)
                                     // ->alignCenter()
                                     // ->extraAttributes(['style' => 'margin-top: 30px;'])
-                                        
+
                                     Forms\Components\Actions::make([
                                         Forms\Components\Actions\Action::make('sendEmail')
                                             ->icon('heroicon-o-paper-airplane')
                                             ->color('success')
                                             ->tooltip('Send Status Email')
-                                            ->modalHeading(fn ($record) => "Send {$record->CandidateStatus} Notification")
+                                            ->modalHeading(fn($record) => "Send {$record->CandidateStatus} Notification")
                                             ->closeModalByClickingAway(false) // Prevent closing by clicking outside
                                             ->form(function ($record) {
                                                 return [
@@ -146,18 +148,18 @@ class JobCandidatesResource extends Resource
                                                 return !($livewire instanceof \App\Filament\Resources\JobCandidatesResource\Pages\EditJobCandidates);
                                             })
                                     ])
-                                    ->columnSpan([
-                                        'default' => 1,
-                                        'lg' => fn ($get, $livewire) => $livewire instanceof \App\Filament\Resources\JobCandidatesResource\Pages\EditJobCandidates ? 0 : 1
-                                    ])
-                                    ->alignCenter()
-                                    ->extraAttributes(['style' => 'margin-top: 30px;'])
+                                        ->columnSpan([
+                                            'default' => 1,
+                                            'lg' => fn($get, $livewire) => $livewire instanceof \App\Filament\Resources\JobCandidatesResource\Pages\EditJobCandidates ? 0 : 1
+                                        ])
+                                        ->alignCenter()
+                                        ->extraAttributes(['style' => 'margin-top: 30px;'])
                                 ])
                                 ->columns(3) // Total of 3 columns for the inner grid
                                 ->columnSpan(1),
                         ])
                         ->columns(2),
-                    
+
                     Forms\Components\Grid::make()
                         ->schema([
                             Forms\Components\TextInput::make('CandidateSource')
@@ -187,7 +189,7 @@ class JobCandidatesResource extends Resource
     //                             ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
     //                             ->required()
     //                             ->columnSpan(1),
-                                
+
     //                         Forms\Components\Grid::make()
     //                             ->columns(2)
     //                             ->schema([
@@ -202,7 +204,7 @@ class JobCandidatesResource extends Resource
     //                                             session()->put('email_sent_' . $record->id, false);
     //                                         }
     //                                     }),
-                                        
+
     //                                 Forms\Components\Actions::make([
     //                                     Forms\Components\Actions\Action::make('sendEmail')
     //                                         ->icon('heroicon-o-paper-airplane')
@@ -213,10 +215,10 @@ class JobCandidatesResource extends Resource
     //                                             return [
     //                                                 Forms\Components\Hidden::make('CandidateStatus')
     //                                                     ->default($record->CandidateStatus),
-                                                        
+
     //                                                 Forms\Components\Hidden::make('record')
     //                                                     ->default($record),
-                                                        
+
     //                                                 ...self::getEmailFormSchema()
     //                                             ];
     //                                         })
@@ -230,7 +232,7 @@ class JobCandidatesResource extends Resource
     //                             ->columnSpan(1),
     //                     ])
     //                     ->columns(2),
-                    
+
     //                 Forms\Components\Grid::make()
     //                     ->schema([
     //                         Forms\Components\TextInput::make('CandidateSource')
@@ -260,7 +262,7 @@ class JobCandidatesResource extends Resource
     //                             ->options(JobOpenings::all()->pluck('JobTitle', 'id'))
     //                             ->required()
     //                             ->columnSpan(1),
-                                
+
     //                         Forms\Components\Group::make()
     //                             ->schema([
     //                                 Forms\Components\Select::make('CandidateStatus')
@@ -283,10 +285,10 @@ class JobCandidatesResource extends Resource
     //                                             return [
     //                                                 Forms\Components\Hidden::make('CandidateStatus')
     //                                                     ->default($record->CandidateStatus),
-                                                        
+
     //                                                 Forms\Components\Hidden::make('record')
     //                                                     ->default($record),
-                                                        
+
     //                                                 ...self::getEmailFormSchema()
     //                                             ];
     //                                         })
@@ -298,7 +300,7 @@ class JobCandidatesResource extends Resource
     //                             ->columnSpan(1),
     //                     ])
     //                     ->columns(2),
-                    
+
     //                 Forms\Components\Grid::make()
     //                     ->schema([
     //                         Forms\Components\TextInput::make('CandidateSource')
@@ -326,7 +328,7 @@ class JobCandidatesResource extends Resource
                         ->default(function ($get) {
                             $status = $get('CandidateStatus');
                             $position = $get('record.job.JobTitle') ?? 'Position';
-                            return match($status) {
+                            return match ($status) {
                                 'Interview-Scheduled', 'Interview-to-be-Scheduled' => "Interview Invitation: {$position}",
                                 'Offer-Made' => "Exciting News: Job Offer for {$position}!",
                                 'Hired' => "Welcome to Our Team!",
@@ -334,12 +336,12 @@ class JobCandidatesResource extends Resource
                                 default => "Update Regarding Your Application"
                             };
                         }),
-                        
+
                     Forms\Components\Textarea::make('note')
                         ->label('Additional Notes')
                         ->columnSpanFull(),
                 ]),
-                
+
             Forms\Components\Section::make('Appointment Details')
                 ->schema([
                     Forms\Components\Fieldset::make('Interview Date & Time')
@@ -356,7 +358,7 @@ class JobCandidatesResource extends Resource
                                 ->seconds(false) // Hide seconds
                                 ->minutesStep(15) // 15-minute increments
                                 ->withoutDate(), // Show only time picker
-                                
+
                             // Forms\Components\TextInput::make('interview_time')
                             //     ->label('Time (e.g. 10:00 AM)')
                             //     ->required()
@@ -364,7 +366,7 @@ class JobCandidatesResource extends Resource
                             //     ->rule('regex:/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i'),
                         ])
                         ->columnSpanFull(),
-                        
+
                     Forms\Components\Select::make('interview_type')
                         ->label('Interview Type')
                         ->options([
@@ -375,37 +377,39 @@ class JobCandidatesResource extends Resource
                         ->live()
                         ->required()
                         ->columnSpan(1),
-                        
+
                     Forms\Components\TextInput::make('meeting_link')
                         ->label('Meeting Link')
                         ->url()
                         ->required()
-                        ->visible(fn ($get) => 
+                        ->visible(
+                            fn($get) =>
                             in_array($get('CandidateStatus'), [
-                                'Interview-Scheduled', 
+                                'Interview-Scheduled',
                                 'Interview-to-be-Scheduled'
-                            ]) && 
+                            ]) &&
                             $get('interview_type') === 'online'
                         )
                         ->columnSpan(1),
-                        
+
                     Forms\Components\TextInput::make('location')
                         ->label('Location')
                         ->required()
-                        ->visible(fn ($get) => 
+                        ->visible(
+                            fn($get) =>
                             in_array($get('CandidateStatus'), [
-                                'Interview-Scheduled', 
+                                'Interview-Scheduled',
                                 'Interview-to-be-Scheduled'
-                            ]) && 
+                            ]) &&
                             $get('interview_type') === 'offline'
                         )
                         ->columnSpan(1),
-                        
+
                     Forms\Components\TextInput::make('interviewer_name')
                         ->label('Interviewer Name')
                         ->required()
                         ->columnSpan(1),
-                        
+
                     Forms\Components\TextInput::make('interview_duration')
                         ->label('Duration (minutes)')
                         ->numeric()
@@ -424,38 +428,38 @@ class JobCandidatesResource extends Resource
                         ]),
                 ])
                 ->columns(2)
-                ->visible(fn ($get) => in_array($get('CandidateStatus'), [
-                    'Interview-Scheduled', 
+                ->visible(fn($get) => in_array($get('CandidateStatus'), [
+                    'Interview-Scheduled',
                     'Interview-to-be-Scheduled'
                 ])),
-                    
+
             Forms\Components\Section::make('Offer Details')
-                ->visible(fn ($get) => $get('CandidateStatus') === 'Offer-Made')
+                ->visible(fn($get) => $get('CandidateStatus') === 'Offer-Made')
                 ->schema([
                     Forms\Components\FileUpload::make('attachments')
                         ->label('Offer Documents')
                         ->multiple()
                         ->acceptedFileTypes(['application/pdf'])
-                        ->directory(fn () => 'offer-documents/' . now()->format('m-d-Y_H-i-s'))
+                        ->directory(fn() => 'offer-documents/' . now()->format('m-d-Y_H-i-s'))
                         ->preserveFilenames()
                         ->downloadable()
                         ->openable()
                         ->columnSpanFull(),
-                        
+
                     Forms\Components\DatePicker::make('response_deadline')
                         ->label('Response Deadline')
                         ->required()
                         ->columnSpan(1),
-                        
+
                     Forms\Components\Textarea::make('offer_details')
                         ->label('Compensation Details')
                         ->required()
                         ->columnSpanFull(),
                 ])
                 ->columns(2),
-                
+
             Forms\Components\Section::make('Onboarding Information')
-                ->visible(fn ($get) => $get('CandidateStatus') === 'Hired')
+                ->visible(fn($get) => $get('CandidateStatus') === 'Hired')
                 ->schema([
                     Forms\Components\TextInput::make('onboarding_location')
                         ->label('Onboarding Location')
@@ -482,9 +486,9 @@ class JobCandidatesResource extends Resource
                         ->columnSpan(1),
                 ])
                 ->columns(2),
-                
+
             Forms\Components\Section::make('Feedback')
-                ->visible(fn ($get) => in_array($get('CandidateStatus'), [
+                ->visible(fn($get) => in_array($get('CandidateStatus'), [
                     'Rejected',
                     'Rejected-by-Hiring-Manager'
                 ]))
@@ -510,12 +514,12 @@ class JobCandidatesResource extends Resource
     //                         'Rejected', 'Rejected-by-Hiring-Manager' => 'Update on Your Application',
     //                         default => 'Application Status Update'
     //                     }),
-                        
+
     //                 Forms\Components\Textarea::make('note')
     //                     ->label('Personal Message')
     //                     ->placeholder('Add a personalized note...')
     //                     ->columnSpanFull(),
-                        
+
     //                 // Common fields
     //                 Forms\Components\TextInput::make('position_name')
     //                     ->label('Position Title')
@@ -540,7 +544,7 @@ class JobCandidatesResource extends Resource
     //                                             ->label('Date')
     //                                             ->required()
     //                                             ->columnSpan(1),
-                                                
+
     //                                         \App\Filament\Forms\Components\AnalogTimePicker::make('interview_time')
     //                                             ->label('Time')
     //                                             ->required()
@@ -549,15 +553,15 @@ class JobCandidatesResource extends Resource
     //                                     ->columns(2),
     //                             ])
     //                             ->columnSpanFull(),
-                                
+
     //                         Forms\Components\TextInput::make('interviewer_name')
     //                             ->required(),
-                                
+
     //                         Forms\Components\TextInput::make('interview_duration')
     //                             ->numeric()
     //                             ->suffix('minutes')
     //                             ->default(45),
-                                
+
     //                         Forms\Components\Select::make('interview_type')
     //                             ->options([
     //                                 'virtual' => 'Virtual',
@@ -567,12 +571,12 @@ class JobCandidatesResource extends Resource
     //                             ->live()
     //                             ->required()
     //                             ->columnSpan(1),
-                                
+
     //                         Forms\Components\TextInput::make('meeting_link')
     //                             ->visible(fn ($get) => $get('interview_type') === 'virtual')
     //                             ->url()
     //                             ->columnSpan(1),
-                                
+
     //                         Forms\Components\TextInput::make('location')
     //                             ->visible(fn ($get) => $get('interview_type') === 'in-person')
     //                             ->columnSpan(1),
@@ -587,34 +591,34 @@ class JobCandidatesResource extends Resource
     //                         //     ->live()
     //                         //     ->required()
     //                         //     ->columnSpan(1),
-                                
+
     //                         // Forms\Components\TextInput::make('meeting_link')
     //                         //     ->label('Meeting Link')
     //                         //     ->url()
     //                         //     ->required()
     //                         //     //->default('https://meet.google.com/new') // Optional: Set default meeting link
-    //                         //     ->visible(fn ($get) => 
+    //                         //     ->visible(fn ($get) =>
     //                         //         in_array($get('CandidateStatus'), [
-    //                         //             'Interview-Scheduled', 
+    //                         //             'Interview-Scheduled',
     //                         //             'Interview-to-be-Scheduled'
-    //                         //         ]) && 
+    //                         //         ]) &&
     //                         //         ($get('interview_type') === 'online' || $get('interview_type') === null) // Show if online or null
     //                         //     )
     //                         //     ->columnSpan(1),
-                                
+
     //                         // Forms\Components\TextInput::make('location')
     //                         //     ->label('Location')
     //                         //     ->required()
-    //                         //     ->visible(fn ($get) => 
+    //                         //     ->visible(fn ($get) =>
     //                         //         in_array($get('CandidateStatus'), [
-    //                         //             'Interview-Scheduled', 
+    //                         //             'Interview-Scheduled',
     //                         //             'Interview-to-be-Scheduled'
-    //                         //         ]) && 
+    //                         //         ]) &&
     //                         //         $get('interview_type') === 'offline'
     //                         //     )
     //                         //     ->columnSpan(1),
     //                     ]),
-                        
+
     //                 // Offer fields
     //                 Forms\Components\Fieldset::make('Offer Details')
     //                     ->visible(fn ($get) => $get('CandidateStatus') === 'Offer-Made')
@@ -622,15 +626,15 @@ class JobCandidatesResource extends Resource
     //                         Forms\Components\Textarea::make('offer_details')
     //                             ->required()
     //                             ->columnSpanFull(),
-                                
+
     //                         Forms\Components\DatePicker::make('response_deadline')
     //                             ->required(),
-                                
+
     //                         Forms\Components\FileUpload::make('offer_letter')
     //                             ->acceptedFileTypes(['application/pdf'])
     //                             ->downloadable()
     //                     ]),
-                        
+
     //                 // Rejection fields
     //                 Forms\Components\Fieldset::make('Feedback')
     //                     ->visible(fn ($get) => in_array($get('CandidateStatus'), [
@@ -641,14 +645,14 @@ class JobCandidatesResource extends Resource
     //                             ->label('Constructive Feedback')
     //                             ->columnSpanFull()
     //                     ]),
-                        
+
     //                 // Onboarding fields
     //                 Forms\Components\Fieldset::make('Onboarding Information')
     //                     ->visible(fn ($get) => $get('CandidateStatus') === 'Hired')
     //                     ->schema([
     //                         Forms\Components\DatePicker::make('start_date')
     //                             ->required(),
-                                
+
     //                         Forms\Components\Textarea::make('onboarding_instructions')
     //                             ->columnSpanFull()
     //                     ]),
@@ -667,7 +671,7 @@ class JobCandidatesResource extends Resource
     //                         return "Update Regarding Your Application: {$get('CandidateStatus')}";
     //                     })
     //                     ->columnSpanFull(),
-                        
+
     //                 Forms\Components\Textarea::make('note')
     //                     //->required()
     //                     ->default(function ($get) {
@@ -676,7 +680,7 @@ class JobCandidatesResource extends Resource
     //                     })
     //                     ->columnSpanFull(),
     //             ]),
-                
+
     //         // Dynamic fields section
     //         Forms\Components\Section::make('Appointment Details')
     //             ->schema([
@@ -688,7 +692,7 @@ class JobCandidatesResource extends Resource
     //                                     ->label('Date')
     //                                     ->required()
     //                                     ->columnSpan(1),
-                                        
+
     //                                 \App\Filament\Forms\Components\AnalogTimePicker::make('interview_time')
     //                                     ->label('Time')
     //                                     ->required()
@@ -705,7 +709,7 @@ class JobCandidatesResource extends Resource
     //                 //                 Forms\Components\DatePicker::make('interview_date')
     //                 //                     ->label('Date')
     //                 //                     ->required(),
-                                        
+
     //                 //                 \App\Filament\Forms\Components\AnalogTimePicker::make('interview_time')
     //                 //                     ->label('Time')
     //                 //                     ->required(),
@@ -721,7 +725,7 @@ class JobCandidatesResource extends Resource
     //                 //                 Forms\Components\DatePicker::make('interview_date')
     //                 //                     ->label('Date')
     //                 //                     ->required(),
-                                        
+
     //                 //                 \App\Filament\Forms\Components\AnalogTimePicker::make('interview_time')
     //                 //                     ->label('Time')
     //                 //                     ->required(),
@@ -734,13 +738,13 @@ class JobCandidatesResource extends Resource
     //                 //         Forms\Components\DatePicker::make('interview_date')
     //                 //             ->label('Date')
     //                 //             ->required(),
-                                
+
     //                 //         \App\Filament\Forms\Components\AnalogTimePicker::make('interview_time')
     //                 //             ->label('Time')
     //                 //             ->required(),
     //                 //     ])
     //                 //     ->columnSpanFull(),
-                        
+
     //                 Forms\Components\Select::make('interview_type')
     //                     ->label('Interview Type')
     //                     ->options([
@@ -751,38 +755,38 @@ class JobCandidatesResource extends Resource
     //                     ->live()
     //                     ->required()
     //                     ->columnSpan(1),
-                        
+
     //                 Forms\Components\TextInput::make('meeting_link')
     //                     ->label('Meeting Link')
     //                     ->url()
     //                     ->required()
     //                     //->default('https://meet.google.com/new') // Optional: Set default meeting link
-    //                     ->visible(fn ($get) => 
+    //                     ->visible(fn ($get) =>
     //                         in_array($get('CandidateStatus'), [
-    //                             'Interview-Scheduled', 
+    //                             'Interview-Scheduled',
     //                             'Interview-to-be-Scheduled'
-    //                         ]) && 
+    //                         ]) &&
     //                         ($get('interview_type') === 'online' || $get('interview_type') === null) // Show if online or null
     //                     )
     //                     ->columnSpan(1),
-                        
+
     //                 Forms\Components\TextInput::make('location')
     //                     ->label('Location')
     //                     ->required()
-    //                     ->visible(fn ($get) => 
+    //                     ->visible(fn ($get) =>
     //                         in_array($get('CandidateStatus'), [
-    //                             'Interview-Scheduled', 
+    //                             'Interview-Scheduled',
     //                             'Interview-to-be-Scheduled'
-    //                         ]) && 
+    //                         ]) &&
     //                         $get('interview_type') === 'offline'
     //                     )
     //                     ->columnSpan(1),
-                        
+
     //                 Forms\Components\TextInput::make('interviewer_name')
     //                     ->label('Interviewer Name')
     //                     ->required()
     //                     ->columnSpan(1),
-                        
+
     //                 Forms\Components\TextInput::make('interview_duration')
     //                     ->label('Duration (minutes)')
     //                     ->numeric()
@@ -791,10 +795,10 @@ class JobCandidatesResource extends Resource
     //             ])
     //             ->columns(2)
     //             ->visible(fn ($get) => in_array($get('CandidateStatus'), [
-    //                 'Interview-Scheduled', 
+    //                 'Interview-Scheduled',
     //                 'Interview-to-be-Scheduled'
     //             ])),
-                    
+
     //         Forms\Components\Section::make('Offer Details')
     //             ->visible(fn ($get) => $get('CandidateStatus') === 'Offer-Made')
     //             ->schema([
@@ -806,7 +810,7 @@ class JobCandidatesResource extends Resource
     //                     ->downloadable()
     //                     ->openable()
     //                     ->columnSpanFull(),
-                        
+
     //                 Forms\Components\DatePicker::make('response_deadline')
     //                     ->label('Response Deadline')
     //                     ->required()
@@ -814,7 +818,7 @@ class JobCandidatesResource extends Resource
     //             ])
     //             ->columns(2)
     //             ->collapsible(),
-                
+
     //         Forms\Components\Section::make('Feedback')
     //             ->visible(fn ($get) => in_array($get('CandidateStatus'), [
     //                 'Rejected',
@@ -826,14 +830,14 @@ class JobCandidatesResource extends Resource
     //                     ->columnSpanFull(),
     //             ])
     //             ->collapsible(),
-                
+
     //         Forms\Components\Section::make('Onboarding Information')
     //             ->visible(fn ($get) => $get('CandidateStatus') === 'Hired')
     //             ->schema([
     //                 Forms\Components\Textarea::make('onboarding_instructions')
     //                     ->label('Instructions')
     //                     ->columnSpanFull(),
-                        
+
     //                 Forms\Components\DatePicker::make('start_date')
     //                     ->label('Start Date')
     //                     ->columnSpan(1),
@@ -850,7 +854,7 @@ class JobCandidatesResource extends Resource
                 'subject' => $data['subject'],
                 'candidate_name' => $record->candidateProfile->full_name ?? 'Candidate',
                 'status' => $record->CandidateStatus,
-                'position_name' => $record->job->JobTitle ?? 'the position',
+                'position_name' => $record->job->postingTitle ?? 'the position',
             ];
 
             // Add note if provided
@@ -864,7 +868,7 @@ class JobCandidatesResource extends Resource
                 case 'Interview-to-be-Scheduled':
                     // Ensure interview_time is a DateTime object
                     $interviewTime = \Carbon\Carbon::parse($data['interview_time']);
-                    
+
                     $emailContent['interview_time'] = $interviewTime->format('h:i A');
                     $emailContent['interview_date'] = \Carbon\Carbon::parse($data['interview_date'])
                         ->setTime(
@@ -875,7 +879,7 @@ class JobCandidatesResource extends Resource
 
                     // Get the raw time input
                     // $timeString = $data['interview_time'];
-                    
+
                     // Validate format (client-side should prevent invalid formats)
                     // if (!preg_match('/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i', $timeString)) {
                     //     throw new \Exception("Invalid time format");
@@ -883,7 +887,7 @@ class JobCandidatesResource extends Resource
 
                     $emailContent['interviewer_name'] = $data['interviewer_name'] ?? 'Our Hiring Team';
                     $emailContent['interview_duration'] = $data['interview_duration'] ?? '60';
-                    
+
                     if ($data['interview_type'] === 'online') {
                         $emailContent['meeting_details'] = [
                             'type' => 'link',
@@ -902,14 +906,14 @@ class JobCandidatesResource extends Resource
                 //     $date = \Carbon\Carbon::parse($data['interview_date']);
                 //     $timeParts = explode(':', $data['interview_time']);
                 //     $date->setTime($timeParts[0], $timeParts[1]);
-                    
+
                 //     // Format date without time
                 //     $emailContent['interview_date'] = $date->format('l, F j, Y');
                 //     // Keep time separate
                 //     $emailContent['interview_time'] = $date->format('g:i A');
                 //     $emailContent['interviewer_name'] = $data['interviewer_name'] ?? 'Our Hiring Team';
                 //     $emailContent['interview_duration'] = $data['interview_duration'] ?? '60';
-                    
+
                 //     // Add meeting link or location based on interview type
                 //     if ($data['interview_type'] === 'online') {
                 //         $emailContent['meeting_details'] = [
@@ -929,7 +933,7 @@ class JobCandidatesResource extends Resource
                 //     $date = \Carbon\Carbon::parse($data['interview_date']);
                 //     $timeParts = explode(':', $data['interview_time']);
                 //     $date->setTime($timeParts[0], $timeParts[1]);
-                    
+
                 //     $emailContent['interview_date'] = $date->format('l, F j, Y \a\t g:i A');
                 //     $emailContent['interview_time'] = $date->format('g:i A');
                 //     $emailContent['interviewer_name'] = $data['interviewer_name'] ?? 'Our Hiring Team';
@@ -947,11 +951,11 @@ class JobCandidatesResource extends Resource
                 //         ];
                 //     }
                 //     break;
-                    
+
                 case 'Offer-Made':
                     $emailContent['offer_details'] = strip_tags($data['offer_details']);
                     $emailContent['response_deadline'] = \Carbon\Carbon::parse($data['response_deadline'])->format('l, F j, Y');
-                    
+
                     // Handle multiple attachments
                     $attachments = [];
                     if (!empty($data['attachments'])) {
@@ -976,30 +980,30 @@ class JobCandidatesResource extends Resource
                     $onboardingTime = \Carbon\Carbon::parse($data['onboarding_time']);
 
                     $emailContent['onboarding_time'] = $onboardingTime->format('h:i A');
-                    
+
                     // $onboardingTime = $data['onboarding_time'];
-                
+
                     // // Validate format
                     // if (!preg_match('/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i', $onboardingTime)) {
                     //     throw new \Exception("Invalid onboarding time format");
                     // }
-                    
+
                     // $emailContent['onboarding_time'] = $onboardingTime;
                     break;
-                
+
                 // case 'Hired':
                 //     $emailContent['onboarding_instructions'] = $data['onboarding_instructions'] ?? 'Our HR team will contact you shortly';
                 //     $emailContent['start_date'] = \Carbon\Carbon::parse($data['start_date'])->format('l, F j, Y');
                 //     $emailContent['onboarding_location'] = $data['onboarding_location'];
                 //     $emailContent['onboarding_time'] = $data['onboarding_time'];
                 //     break;
-                    
+
                 // case 'Hired':
                 //     $emailContent['onboarding_instructions'] = $data['onboarding_instructions'] ?? 'Our HR team will contact you shortly';
                 //     // Fix: Ensure start_date is a Carbon instance before formatting
                 //     $emailContent['start_date'] = \Carbon\Carbon::parse($data['start_date'])->format('l, F j, Y');
                 //     break;
-                    
+
                 case 'Rejected':
                 case 'Rejected-by-Hiring-Manager':
                     $emailContent['feedback'] = $data['feedback'] ?? 'We appreciate your interest in our company';
@@ -1009,11 +1013,11 @@ class JobCandidatesResource extends Resource
             // Handle attachments - Fix: Proper path handling for attachments
             $attachmentPath = null;
             $attachmentName = null;
-            
+
             if ($record->CandidateStatus === 'Offer-Made' && isset($data['offer_letter'])) {
-                $attachmentPath = storage_path('app/public/'.ltrim($data['offer_letter'], '/'));
+                $attachmentPath = storage_path('app/public/' . ltrim($data['offer_letter'], '/'));
                 $attachmentName = basename($data['offer_letter']);
-                
+
                 // Verify the file exists before attaching
                 if (!file_exists($attachmentPath)) {
                     throw new \Exception("Offer letter file not found at: {$attachmentPath}");
@@ -1031,13 +1035,13 @@ class JobCandidatesResource extends Resource
             // Update session
             session()->put('email_sent_' . $record->id, true);
             session()->put('status_changed_' . $record->id, false);
-            
+
             Notification::make()
                 ->title('Status Email Sent')
                 ->body('The candidate has been notified about their application status.')
                 ->success()
                 ->send();
-                
+
         } catch (\Exception $e) {
             Log::error('Failed to send status email: ' . $e->getMessage());
             Notification::make()
@@ -1124,8 +1128,8 @@ class JobCandidatesResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('candidateProfile.full_name')
                     ->label('Candidate Name')
-                    ->searchable(query: function(Builder $query, string $search) {
-                        $query->whereHas('candidateProfile', function($q) use ($search) {
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('candidateProfile', function ($q) use ($search) {
                             $q->where('full_name', 'like', "%{$search}%");
                         });
                     }),
@@ -1190,7 +1194,7 @@ class JobCandidatesResource extends Resource
                         try {
                             // Check if user already exists with this email
                             $existingUser = User::where('email', $record->Email)->first();
-                            
+
                             if ($existingUser) {
                                 Notification::make()
                                     ->title('User already exists')
@@ -1255,7 +1259,8 @@ class JobCandidatesResource extends Resource
                                 'errors' => []
                             ];
 
-                            $hiredCandidates = $records->filter(fn ($record) => 
+                            $hiredCandidates = $records->filter(
+                                fn($record) =>
                                 $record->CandidateStatus === 'Joined'
                             );
 

@@ -3,15 +3,15 @@
 namespace App\Filament\Resources\JobCandidatesResource\Pages;
 
 use App\Filament\Resources\JobCandidatesResource;
-use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use App\Models\User;
 use App\Notifications\User\InviteNewSystemUserNotification;
+use Filament\Actions;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
-use Filament\Notifications\Notification;
 
 class EditJobCandidates extends EditRecord
 {
@@ -56,7 +56,6 @@ class EditJobCandidates extends EditRecord
     //     if ($this->record->wasChanged('CandidateStatus') && $this->record->CandidateStatus === 'Hired') {
     //         // Check if user already exists with this email
     //         $existingUser = User::where('email', $this->record->Email)->first();
-            
     //         if ($existingUser) {
     //             Notification::make()
     //                 ->title('User already exists')

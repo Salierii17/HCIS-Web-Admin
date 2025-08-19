@@ -10,8 +10,9 @@ use App\Models\Departments;
 use App\Models\JobOpenings;
 use App\Models\User;
 use App\Settings\JobOpeningSettings;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
@@ -25,8 +26,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
-use Closure;
 
 class JobOpeningsResource extends Resource
 {
@@ -63,19 +62,8 @@ class JobOpeningsResource extends Resource
                             ->required(),
                         TextInput::make('NumberOfPosition')
                             ->numeric()
-                            ->minValue(1)
-                            ->step(1)
-                            ->required()
-                            ->rules([
-                                function () {
-                                    return function (string $attribute, $value, Closure $fail) {
-                                        if ($value <= 0) {
-                                            $fail('The number of positions must be a positive number.');
-                                        }
-                                    };
-                                }
-                            ]),
-                        TextInput::make('JobTitle')
+                            ->required(),
+                        TextInput::make('postingTitle')
                             ->maxLength(225)
                             ->required(),
                         TextInput::make('JobOpeningSystemID')
@@ -215,7 +203,6 @@ class JobOpeningsResource extends Resource
                                         if ($value) {
                                             $selectedDate = Carbon::parse($value);
                                             $now = Carbon::now();
-                                            
                                             if ($selectedDate->isSameDay($now)) {
                                                 if ($selectedDate->lt($now)) {
                                                     $fail('The Date Opened time must be after the current time for today.');
@@ -418,7 +405,7 @@ class JobOpeningsResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('postingTitle')
-                    ->label('Job Title Name'),
+                    ->label('Job Title'),
                 TextColumn::make('NumberOfPosition')
                     ->label('# of Vacancy'),
                 TextColumn::make('TargetDate')
@@ -434,9 +421,9 @@ class JobOpeningsResource extends Resource
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge'),
             ])->emptyStateActions([
-                Tables\Actions\CreateAction::make()
-                    ->icon('heroicon-m-plus-small'),
-            ])
+                    Tables\Actions\CreateAction::make()
+                        ->icon('heroicon-m-plus-small'),
+                ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

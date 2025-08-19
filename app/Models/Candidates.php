@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Alfa6661\AutoNumber\AutoNumberTrait;
+use App\Filament\Enums\AttachmentCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\HasDatabaseNotifications;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\RoutesNotifications;
-use App\Filament\Enums\AttachmentCategory;
 
 class Candidates extends Model
 {
