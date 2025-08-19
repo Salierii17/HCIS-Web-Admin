@@ -63,7 +63,18 @@ class JobOpeningsResource extends Resource
                             ->required(),
                         TextInput::make('NumberOfPosition')
                             ->numeric()
-                            ->required(),
+                            ->minValue(1)
+                            ->step(1)
+                            ->required()
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value <= 0) {
+                                            $fail('The number of positions must be a positive number.');
+                                        }
+                                    };
+                                }
+                            ]),
                         TextInput::make('JobTitle')
                             ->maxLength(225)
                             ->required(),
@@ -172,7 +183,19 @@ class JobOpeningsResource extends Resource
                             ->native(false)
                             ->default('New')
                             ->required(),
-                        TextInput::make('Salary'),
+                        TextInput::make('Salary')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->minValue(1)
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value <= 0) {
+                                            $fail('The salary must be a positive number.');
+                                        }
+                                    };
+                                }
+                            ]),
                         Select::make('Department')
                             ->options(Departments::all()->pluck('DepartmentName', 'id'))
                             ->required(),
@@ -342,7 +365,18 @@ class JobOpeningsResource extends Resource
                             ->required(),
                         TextInput::make('ZipCode')
                             ->label('Zip/Postal Code')
-                            ->required(),
+                            ->required()
+                            ->numeric()
+                            ->minValue(1)
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value <= 0) {
+                                            $fail('The number of positions must be a positive number.');
+                                        }
+                                    };
+                                }
+                            ]),
                     ])->columns(2),
                 Section::make('Description Information')
                     ->id('job-opening-description-information')

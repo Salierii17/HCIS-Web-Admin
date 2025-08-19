@@ -28,6 +28,7 @@ use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\DateTimePicker;
+use Closure;
 
 class JobCandidatesResource extends Resource
 {
@@ -410,7 +411,17 @@ class JobCandidatesResource extends Resource
                         ->numeric()
                         ->default(60)
                         ->suffix('minutes')
-                        ->columnSpan(1),
+                        ->columnSpan(1)
+                        ->minValue(1)
+                        ->rules([
+                            function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value <= 0) {
+                                        $fail('The number of positions must be a positive number.');
+                                    }
+                                };
+                            }
+                        ]),
                 ])
                 ->columns(2)
                 ->visible(fn ($get) => in_array($get('CandidateStatus'), [
