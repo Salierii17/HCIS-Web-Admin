@@ -14,7 +14,9 @@ class CandidateStatusUpdateMail extends Mailable
     use Queueable, SerializesModels;
 
     public $content;
+
     protected $attachmentPath;
+
     protected $attachmentName;
 
     /**
@@ -61,7 +63,7 @@ class CandidateStatusUpdateMail extends Mailable
         if ($this->attachmentPath && file_exists($this->attachmentPath)) {
             return [
                 Attachment::fromPath($this->attachmentPath)
-                    ->as($this->attachmentName ?? 'document.pdf')
+                    ->as($this->attachmentName ?? 'document.pdf'),
             ];
         }
 

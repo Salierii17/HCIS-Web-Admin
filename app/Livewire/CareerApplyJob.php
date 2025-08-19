@@ -11,6 +11,7 @@ use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\JobOpenings;
 // use DominionSolutions\FilamentCaptcha\Forms\Components\Captcha;
+use Closure;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms;
@@ -23,7 +24,6 @@ use Filament\Notifications\Notification;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use Closure;
 
 class CareerApplyJob extends Component implements HasActions, HasForms
 {
@@ -33,7 +33,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
     public ?array $data = [
         'attachment' => null,
         'country_code' => '+62', // Add this default value
-        'email_valid' => false
+        'email_valid' => false,
     ];
 
     // public ?string $captcha = '';
@@ -79,7 +79,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
         $data['country_code'] = $data['country_code'] ?? '+62';
 
         // Combine country code with mobile number
-        $fullMobileNumber = $data['country_code'] . $data['mobile'];
+        $fullMobileNumber = $data['country_code'].$data['mobile'];
 
         // Create Candidate
         $candidate = Candidates::create([
@@ -103,7 +103,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
         $job_candidates = JobCandidates::create([
             'JobId' => $this->record->id,
             'CandidateSource' => 'Career Page',
-            'CandidateStatus' => JobCandidateStatus::New ,
+            'CandidateStatus' => JobCandidateStatus::New,
             'candidate' => $candidate->id,
             'mobile' => $fullMobileNumber, // Store with country code
             'Email' => $data['Email'],
@@ -178,7 +178,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             $this->applicationStepWizard(),
                             [
                                 Forms\Components\Grid::make(1)
-                                    ->columns(1)
+                                    ->columns(1),
                             ]
                             // ->schema($this->captchaField())
                         )),
@@ -189,7 +189,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                         ->schema(array_merge([], $this->assessmentStepWizard())),
                 ])
                     ->nextAction(
-                        fn(Action $action) => $action->view('career-form.apply-job-components.NextActionButton'),
+                        fn (Action $action) => $action->view('career-form.apply-job-components.NextActionButton'),
                     )
                     ->submitAction(view('career-form.apply-job-components.SubmitApplicationButton')),
             ]);
@@ -864,85 +864,86 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                     // Common validations
                                     if (empty($cleanNumber)) {
                                         $fail('Please enter a valid mobile number.');
+
                                         return;
                                     }
 
                                     // Country-specific validations
                                     switch ($countryCode) {
                                         case '+1': // USA/Canada
-                                            if (!preg_match('/^[2-9]\d{9}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[2-9]\d{9}$/', $cleanNumber)) {
                                                 $fail('US/Canada numbers must be 10 digits starting with 2-9 (excluding 1).');
                                             }
                                             break;
 
                                         case '+44': // UK
-                                            if (!preg_match('/^7\d{9}$/', $cleanNumber)) {
+                                            if (! preg_match('/^7\d{9}$/', $cleanNumber)) {
                                                 $fail('UK mobile numbers must be 10 digits starting with 7.');
                                             }
                                             break;
 
                                         case '+62': // Indonesia
-                                            if (!preg_match('/^8\d{7,11}$/', $cleanNumber)) {
+                                            if (! preg_match('/^8\d{7,11}$/', $cleanNumber)) {
                                                 $fail('Indonesian numbers must start with 8 and be 8-12 digits long.');
                                             }
                                             break;
 
                                         case '+60': // Malaysia
-                                            if (!preg_match('/^1\d{8,9}$/', $cleanNumber)) {
+                                            if (! preg_match('/^1\d{8,9}$/', $cleanNumber)) {
                                                 $fail('Malaysian numbers must start with 1 and be 9-10 digits long.');
                                             }
                                             break;
 
                                         case '+65': // Singapore
-                                            if (!preg_match('/^[89]\d{7}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[89]\d{7}$/', $cleanNumber)) {
                                                 $fail('Singapore numbers must be 8 digits starting with 8 or 9.');
                                             }
                                             break;
 
                                         case '+86': // China
-                                            if (!preg_match('/^1\d{10}$/', $cleanNumber)) {
+                                            if (! preg_match('/^1\d{10}$/', $cleanNumber)) {
                                                 $fail('Chinese numbers must be 11 digits starting with 1.');
                                             }
                                             break;
 
                                         case '+91': // India
-                                            if (!preg_match('/^[6-9]\d{9}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[6-9]\d{9}$/', $cleanNumber)) {
                                                 $fail('Indian numbers must be 10 digits starting with 6-9.');
                                             }
                                             break;
 
                                         case '+81': // Japan
-                                            if (!preg_match('/^[789]\d{8}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[789]\d{8}$/', $cleanNumber)) {
                                                 $fail('Japanese mobile numbers must be 9 digits starting with 7, 8 or 9.');
                                             }
                                             break;
 
                                         case '+82': // South Korea
-                                            if (!preg_match('/^1\d{8,9}$/', $cleanNumber)) {
+                                            if (! preg_match('/^1\d{8,9}$/', $cleanNumber)) {
                                                 $fail('South Korean numbers must be 9-10 digits starting with 1.');
                                             }
                                             break;
 
                                         case '+84': // Vietnam
-                                            if (!preg_match('/^[3-9]\d{7,8}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[3-9]\d{7,8}$/', $cleanNumber)) {
                                                 $fail('Vietnamese numbers must be 8-9 digits starting with 3-9.');
                                             }
                                             break;
 
                                         case '+63': // Philippines
-                                            if (!preg_match('/^[9]\d{9}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[9]\d{9}$/', $cleanNumber)) {
                                                 $fail('Philippine numbers must be 10 digits starting with 9.');
                                             }
                                             break;
 
                                         case '+66': // Thailand
-                                            if (!preg_match('/^[689]\d{8}$/', $cleanNumber)) {
+                                            if (! preg_match('/^[689]\d{8}$/', $cleanNumber)) {
                                                 $fail('Thai numbers must be 9 digits starting with 6, 8 or 9.');
                                             }
                                             break;
 
-                                        // Add more country-specific validations as needed
-                    
+                                            // Add more country-specific validations as needed
+
                                         default:
                                             // Generic validation for other countries
                                             if (strlen($cleanNumber) < 5 || strlen($cleanNumber) > 15) {
@@ -951,7 +952,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                             break;
                                     }
                                 };
-                            }
+                            },
                         ])
                         ->columnSpan(1),
                     Forms\Components\TextInput::make('Email')
@@ -962,30 +963,32 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             function () {
                                 return function (string $attribute, $value, Closure $fail) {
                                     // Basic @ check
-                                    if (!str_contains($value, '@')) {
+                                    if (! str_contains($value, '@')) {
                                         $fail('Please include an \'@\' in the email address. Example: name@example.com');
+
                                         return;
                                     }
 
                                     // Full email validation
-                                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                                    if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
                                         $fail('Please enter a valid email address (e.g. name@example.com)');
+
                                         return;
                                     }
 
                                     // Domain check
-                                    $domain = substr(strrchr($value, "@"), 1);
-                                    if (!checkdnsrr($domain, 'MX')) {
+                                    $domain = substr(strrchr($value, '@'), 1);
+                                    if (! checkdnsrr($domain, 'MX')) {
                                         $fail('We couldn\'t verify this email domain exists');
                                     }
                                 };
-                            }
+                            },
                         ])
                         ->validationMessages([
                             'required' => 'Email address is required',
                         ])
                         ->columnSpan(2)
-                        ->hintColor('danger') // Makes error messages more visible
+                        ->hintColor('danger'), // Makes error messages more visible
                 ]),
             // Forms\Components\TextInput::make('Email')
             //     ->required()
@@ -1212,7 +1215,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                         // Generate a unique filename with original extension
                         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                         $extension = $file->getClientOriginalExtension();
-                        $uniqueName = $originalName . '_' . uniqid() . '.' . $extension;
+                        $uniqueName = $originalName.'_'.uniqid().'.'.$extension;
 
                         return $uniqueName;
                     }

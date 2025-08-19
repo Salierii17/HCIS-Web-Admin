@@ -3,18 +3,19 @@
 namespace App\Console\Commands;
 
 use App\Models\JobOpenings;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ManageJobOpeningStatus extends Command
 {
     protected $signature = 'job-openings:manage-status';
+
     protected $description = 'Automatically manage job opening statuses based on dates';
 
     public function handle()
     {
         $now = Carbon::now();
-        
+
         // Open jobs that have reached their opening date
         $jobsToOpen = JobOpenings::where('DateOpened', '<=', $now)
             ->where('Status', 'New')
@@ -24,7 +25,7 @@ class ManageJobOpeningStatus extends Command
         foreach ($jobsToOpen as $job) {
             $job->update([
                 'Status' => 'Opened',
-                'published_career_site' => 1
+                'published_career_site' => 1,
             ]);
         }
 
@@ -36,11 +37,12 @@ class ManageJobOpeningStatus extends Command
         foreach ($expiredJobs as $job) {
             $job->update([
                 'Status' => 'Closed',
-                'published_career_site' => 0
+                'published_career_site' => 0,
             ]);
         }
 
         $this->info('Job openings statuses updated successfully.');
+
         return 0;
     }
 }

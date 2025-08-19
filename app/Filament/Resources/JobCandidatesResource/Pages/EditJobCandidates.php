@@ -31,8 +31,8 @@ class EditJobCandidates extends EditRecord
     {
         // Check if status was changed in this session
         if ($this->record->wasChanged('CandidateStatus')) {
-            session()->put('status_changed_' . $this->record->id, true);
-            session()->put('email_sent_' . $this->record->id, false);
+            session()->put('status_changed_'.$this->record->id, true);
+            session()->put('email_sent_'.$this->record->id, false);
         }
     }
 
@@ -40,8 +40,8 @@ class EditJobCandidates extends EditRecord
     {
         // Track status changes
         if ($this->record->isDirty('CandidateStatus')) {
-            session()->put('status_changed_' . $this->record->id, true);
-            session()->put('email_sent_' . $this->record->id, false);
+            session()->put('status_changed_'.$this->record->id, true);
+            session()->put('email_sent_'.$this->record->id, false);
         }
     }
 

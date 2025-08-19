@@ -14,7 +14,9 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
     use Queueable;
 
     protected $content;
+
     protected $companyName;
+
     protected $attachments;
 
     public function __construct($content, array $attachments = [])
@@ -62,8 +64,8 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
         }
 
         // Add note if it exists
-        if (!empty($this->content['note'])) {
-            $mailMessage->line(new HtmlString('<i>Note: ' . $this->content['note'] . '</i>'));
+        if (! empty($this->content['note'])) {
+            $mailMessage->line(new HtmlString('<i>Note: '.$this->content['note'].'</i>'));
         }
 
         $mailMessage->salutation(new HtmlString(
@@ -74,7 +76,7 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
         foreach ($this->attachments as $attachment) {
             $mailMessage->attach($attachment['path'], [
                 'as' => $attachment['name'],
-                'mime' => 'application/pdf'
+                'mime' => 'application/pdf',
             ]);
         }
 
@@ -87,18 +89,18 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
             ->line("Thank you for applying to the {$this->content['position_name']} role at {$this->companyName}. We enjoyed reviewing your application and would like to invite you for an interview!")
             ->line('')
             ->line(new HtmlString('<strong>Interview Details:</strong>'))
-            ->line(new HtmlString('📅 <strong>Date:</strong> ' . $this->content['interview_date']))
-            ->line(new HtmlString('🕒 <strong>Time:</strong> ' . $this->content['interview_time']));
+            ->line(new HtmlString('📅 <strong>Date:</strong> '.$this->content['interview_date']))
+            ->line(new HtmlString('🕒 <strong>Time:</strong> '.$this->content['interview_time']));
 
         // Display either meeting link or location based on type
         if ($this->content['meeting_details']['type'] === 'link') {
-            $mailMessage->line(new HtmlString('🔗 <strong>Meeting Link:</strong> <a href="' . $this->content['meeting_details']['value'] . '">Click here to join</a>'));
+            $mailMessage->line(new HtmlString('🔗 <strong>Meeting Link:</strong> <a href="'.$this->content['meeting_details']['value'].'">Click here to join</a>'));
         } else {
-            $mailMessage->line(new HtmlString('📍 <strong>Location:</strong> ' . $this->content['meeting_details']['value']));
+            $mailMessage->line(new HtmlString('📍 <strong>Location:</strong> '.$this->content['meeting_details']['value']));
         }
 
-        $mailMessage->line(new HtmlString('👤 <strong>Interviewer:</strong> ' . $this->content['interviewer_name']))
-            ->line(new HtmlString('⏳ <strong>Duration:</strong> Approximately ' . $this->content['interview_duration'] . ' minutes'))
+        $mailMessage->line(new HtmlString('👤 <strong>Interviewer:</strong> '.$this->content['interviewer_name']))
+            ->line(new HtmlString('⏳ <strong>Duration:</strong> Approximately '.$this->content['interview_duration'].' minutes'))
             ->line('')
             ->line(new HtmlString('<strong>What to Expect:</strong>'))
             ->line('- A discussion about your experience and the role')
@@ -115,13 +117,13 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
             ->line("We're thrilled to extend an offer for the <strong>{$this->content['position_name']}</strong> position at <strong>{$this->companyName}</strong>! Your skills and experience stood out, and we believe you'd be a great fit for our team.")
             ->line('')
             ->line(new HtmlString('<strong>Offer Highlights:</strong>'))
-            ->line(new HtmlString('💼 <strong>Role:</strong> ' . $this->content['position_name']))
-            ->line(new HtmlString('💰 <strong>Compensation:</strong> ' . $this->content['offer_details']))
-            ->line(new HtmlString('📅 <strong>Start Date:</strong> ' . ($this->content['start_date'] ?? 'To be determined')))
+            ->line(new HtmlString('💼 <strong>Role:</strong> '.$this->content['position_name']))
+            ->line(new HtmlString('💰 <strong>Compensation:</strong> '.$this->content['offer_details']))
+            ->line(new HtmlString('📅 <strong>Start Date:</strong> '.($this->content['start_date'] ?? 'To be determined')))
             ->line('')
             ->line(new HtmlString('<strong>Next Steps:</strong>'))
             ->line('1. Review the attached offer letter')
-            ->line('2. Let us know your decision by ' . $this->content['response_deadline'])
+            ->line('2. Let us know your decision by '.$this->content['response_deadline'])
             ->line('3. Feel free to reach out with any questions');
     }
 
@@ -150,7 +152,7 @@ class CandidateStatusUpdateNotification extends Notification implements ShouldQu
             ->line('')
             ->line("After careful consideration, we've decided to move forward with another candidate whose experience aligns closely with the current needs of the role. This was a tough decision, and we were impressed by your skills.");
 
-        if (!empty($this->content['feedback'])) {
+        if (! empty($this->content['feedback'])) {
             $mailMessage->line('')
                 ->line(new HtmlString('<strong>Feedback:</strong>'))
                 ->line($this->content['feedback']);

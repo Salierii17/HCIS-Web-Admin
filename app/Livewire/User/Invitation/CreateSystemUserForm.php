@@ -40,7 +40,7 @@ class CreateSystemUserForm extends SimplePage
 
     public function mount(Request $request, ?string $id): void
     {
-        if (!$request->hasValidSignature()) {
+        if (! $request->hasValidSignature()) {
             abort(403, 'Invalid Signature');
         }
         $this->user = User::whereInvitationId($id)->first();

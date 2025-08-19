@@ -96,7 +96,7 @@ class JobOpeningsResource extends Resource
                                             $data.currentValue = selectedDates[0].toISOString();
                                         }
                                     });
-                                }'
+                                }',
                             ]),
                         // DateTimePicker::make('TargetDate')
                         //     ->label('Target Date')
@@ -182,7 +182,7 @@ class JobOpeningsResource extends Resource
                                             $fail('The salary must be a positive number.');
                                         }
                                     };
-                                }
+                                },
                             ]),
                         Select::make('Department')
                             ->options(Departments::all()->pluck('DepartmentName', 'id'))
@@ -210,7 +210,7 @@ class JobOpeningsResource extends Resource
                                             }
                                         }
                                     };
-                                }
+                                },
                             ])
                             ->extraAttributes([
                                 'x-data' => '{ currentValue: $wire.entangle("data.DateOpened") }',
@@ -228,7 +228,7 @@ class JobOpeningsResource extends Resource
                                             }
                                         }
                                     });
-                                }'
+                                }',
                             ]),
                         // DateTimePicker::make('DateOpened')
                         //     ->label('Date Opened')
@@ -362,7 +362,7 @@ class JobOpeningsResource extends Resource
                                             $fail('The number of positions must be a positive number.');
                                         }
                                     };
-                                }
+                                },
                             ]),
                     ])->columns(2),
                 Section::make('Description Information')
@@ -421,9 +421,9 @@ class JobOpeningsResource extends Resource
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge'),
             ])->emptyStateActions([
-                    Tables\Actions\CreateAction::make()
-                        ->icon('heroicon-m-plus-small'),
-                ])
+                Tables\Actions\CreateAction::make()
+                    ->icon('heroicon-m-plus-small'),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

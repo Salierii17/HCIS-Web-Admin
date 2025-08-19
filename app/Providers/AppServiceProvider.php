@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Models\JobOpenings;
 use Illuminate\Support\ServiceProvider;
-use App\Observers\JobOpeningObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
