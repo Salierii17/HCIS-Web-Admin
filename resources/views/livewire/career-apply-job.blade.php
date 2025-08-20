@@ -4,30 +4,32 @@
         
         <!-- Page content -->
         <main class="c8c54">
-            <section>
-                <div class="c9zbf cfacu c0spu cnm0k">
-                    <div class="cijys c73bz crfxz ctz8u">
-                        <div class="cysna cqlk9">
-                            <div class="cmgbb">
-                                <div class="ctz8u">
-                                    <div class="cnog5">
-                                        <a class="cvqf0 crqt4" href="{{route('career.landing_page')}}">
-                                            <span class="c8b8n">&lt;-</span> All Jobs
-                                        </a>
-                                    </div>
-                                    <h5 class="c5zpx c9gkl cn95v">Applying for {{$jobDetail?->postingTitle}}</h5>
-                                    <div class="c5rk9 coxki">
-                                        <form wire:submit.prevent="create" id="career-form">
-                                            @csrf
-                                            {{ $this->form }}
-                                        </form>
+            <div>
+                <section>
+                    <div class="c9zbf cfacu c0spu cnm0k">
+                        <div class="cijys c73bz crfxz ctz8u">
+                            <div class="cysna cqlk9">
+                                <div class="cmgbb">
+                                    <div class="ctz8u">
+                                        <div class="cnog5">
+                                            <a class="cvqf0 crqt4" href="{{route('career.landing_page')}}">
+                                                <span class="c8b8n">&lt;-</span> All Jobs
+                                            </a>
+                                        </div>
+                                        <h5 class="c5zpx c9gkl cn95v">Applying for {{$jobDetail?->postingTitle}}</h5>
+                                        <div class="c5rk9 coxki">
+                                            <form wire:submit.prevent="create" id="career-form">
+                                                @csrf
+                                                {{ $this->form }}
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </main>
     </div>
 

@@ -7,12 +7,12 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
+use App\Models\candidatePortalInvitation;
+use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\User;
-use App\Models\Candidates;
-use App\Models\candidatePortalInvitation;
-use App\Notifications\Candidates\CandidateStatusUpdateNotification;
 use App\Notifications\Candidates\CandidatePortalInvitation as CandidatePortalInvitationNotification;
+use App\Notifications\Candidates\CandidateStatusUpdateNotification;
 use App\Notifications\SendTrainingNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
@@ -82,13 +82,13 @@ try {
             'email' => $candidate->email,
             'sent_at' => Carbon::now(),
         ]);
-        
+
         // Generate the invitation link
         $invite_link = URL::signedRoute('portal.invite', ['id' => $invite->id]);
-        
+
         // Send the portal invitation notification
         $candidate->notifyNow(new CandidatePortalInvitationNotification($candidate, $invite_link));
-        
+
         echo "✅ Candidate portal invitation sent to: {$candidate->email}\n";
         echo "   Candidate: {$candidate->FirstName} {$candidate->LastName}\n";
         echo "   Candidate ID: {$candidate->CandidateId}\n";

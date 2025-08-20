@@ -10,6 +10,7 @@ use App\Models\JobCandidates;
 use App\Models\JobOpenings;
 use App\Models\User;
 use App\Notifications\User\InviteNewSystemUserNotification;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Form;
@@ -324,7 +325,7 @@ class JobCandidatesResource extends Resource
                         ->required()
                         ->default(function ($get) {
                             $status = $get('CandidateStatus');
-                            $position = $get('record.job.postingTitle') ?? 'Position';
+                            $position = $get('record.job.JobTitle') ?? 'Position';
 
                             return match ($status) {
                                 'Interview-Scheduled', 'Interview-to-be-Scheduled' => "Interview Invitation: {$position}",
@@ -411,7 +412,17 @@ class JobCandidatesResource extends Resource
                         ->numeric()
                         ->default(60)
                         ->suffix('minutes')
-                        ->columnSpan(1),
+                        ->columnSpan(1)
+                        ->minValue(1)
+                        ->rules([
+                            function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($value <= 0) {
+                                        $fail('The number of positions must be a positive number.');
+                                    }
+                                };
+                            },
+                        ]),
                 ])
                 ->columns(2)
                 ->visible(fn ($get) => in_array($get('CandidateStatus'), [
@@ -1248,7 +1259,6 @@ class JobCandidatesResource extends Resource
 
                             $hiredCandidates = $records->filter(
                                 fn ($record) => $record->CandidateStatus === 'Joined'
-
                             );
 
                             foreach ($hiredCandidates as $record) {

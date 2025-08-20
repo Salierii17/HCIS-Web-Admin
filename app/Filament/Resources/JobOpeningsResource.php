@@ -63,7 +63,7 @@ class JobOpeningsResource extends Resource
                         TextInput::make('NumberOfPosition')
                             ->numeric()
                             ->required(),
-                        TextInput::make('postingTitle')
+                        TextInput::make('JobTitle')
                             ->maxLength(225)
                             ->required(),
                         TextInput::make('JobOpeningSystemID')
@@ -77,7 +77,27 @@ class JobOpeningsResource extends Resource
                             ->native(false)
                             ->required()
                             ->rules(['after:DateOpened'])
-                            ->minDate(now()),
+                            ->extraAttributes([
+                                'x-data' => '{ currentValue: $wire.entangle("data.TargetDate") }',
+                                'x-init' => '() => {
+                                    flatpickr($el, {
+                                        enableTime: true,
+                                        time_24hr: true,
+                                        enableSeconds: true,
+                                        dateFormat: "Y-m-d H:i:S",
+                                        defaultDate: new Date($data.currentValue),
+                                        minDate: new Date(),
+                                        onReady: function(selectedDates, dateStr, instance) {
+                                            if ($data.currentValue) {
+                                                instance.setDate(new Date($data.currentValue), false);
+                                            }
+                                        },
+                                        onChange: function(selectedDates) {
+                                            $data.currentValue = selectedDates[0].toISOString();
+                                        }
+                                    });
+                                }',
+                            ]),
                         // DateTimePicker::make('TargetDate')
                         //     ->label('Target Date')
                         //     ->displayFormat('Y-m-d H:i:s')
@@ -151,7 +171,19 @@ class JobOpeningsResource extends Resource
                             ->native(false)
                             ->default('New')
                             ->required(),
-                        TextInput::make('Salary'),
+                        TextInput::make('Salary')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->minValue(1)
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value <= 0) {
+                                            $fail('The salary must be a positive number.');
+                                        }
+                                    };
+                                },
+                            ]),
                         Select::make('Department')
                             ->options(Departments::all()->pluck('DepartmentName', 'id'))
                             ->required(),
@@ -165,14 +197,12 @@ class JobOpeningsResource extends Resource
                             ->seconds(true)
                             ->native(false)
                             ->required()
-                            ->minDate(now())
                             ->rules([
                                 function () {
                                     return function (string $attribute, $value, Closure $fail) {
                                         if ($value) {
                                             $selectedDate = Carbon::parse($value);
                                             $now = Carbon::now();
-
                                             if ($selectedDate->isSameDay($now)) {
                                                 if ($selectedDate->lt($now)) {
                                                     $fail('The Date Opened time must be after the current time for today.');
@@ -181,6 +211,24 @@ class JobOpeningsResource extends Resource
                                         }
                                     };
                                 },
+                            ])
+                            ->extraAttributes([
+                                'x-data' => '{ currentValue: $wire.entangle("data.DateOpened") }',
+                                'x-init' => '() => {
+                                    flatpickr($el, {
+                                        enableTime: true,
+                                        time_24hr: true,
+                                        enableSeconds: true,
+                                        dateFormat: "Y-m-d H:i:S",
+                                        defaultDate: $data.currentValue ? new Date($data.currentValue) : new Date(),
+                                        minDate: "today",
+                                        onClose: function(selectedDates) {
+                                            if (selectedDates.length > 0) {
+                                                $data.currentValue = selectedDates[0].toISOString();
+                                            }
+                                        }
+                                    });
+                                }',
                             ]),
                         // DateTimePicker::make('DateOpened')
                         //     ->label('Date Opened')
@@ -304,7 +352,18 @@ class JobOpeningsResource extends Resource
                             ->required(),
                         TextInput::make('ZipCode')
                             ->label('Zip/Postal Code')
-                            ->required(),
+                            ->required()
+                            ->numeric()
+                            ->minValue(1)
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value <= 0) {
+                                            $fail('The number of positions must be a positive number.');
+                                        }
+                                    };
+                                },
+                            ]),
                     ])->columns(2),
                 Section::make('Description Information')
                     ->id('job-opening-description-information')
@@ -362,9 +421,9 @@ class JobOpeningsResource extends Resource
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge'),
             ])->emptyStateActions([
-                Tables\Actions\CreateAction::make()
-                    ->icon('heroicon-m-plus-small'),
-            ])
+                    Tables\Actions\CreateAction::make()
+                        ->icon('heroicon-m-plus-small'),
+                ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

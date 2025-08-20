@@ -226,7 +226,7 @@ class AttendanceApprovalResource extends Resource
                                 }
                             });
                             Notification::make()
-                                ->title('Approved ' . $records->count() . ' records successfully')
+                                ->title('Approved '.$records->count().' records successfully')
                                 ->success()
                                 ->send();
                         }),
@@ -253,7 +253,7 @@ class AttendanceApprovalResource extends Resource
                                 }
                             });
                             Notification::make()
-                                ->title('Rejected ' . $records->count() . ' records successfully')
+                                ->title('Rejected '.$records->count().' records successfully')
                                 ->success()
                                 ->send();
                         }),
