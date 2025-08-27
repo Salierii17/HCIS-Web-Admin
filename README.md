@@ -111,7 +111,6 @@ Use the credentials you created for the **Super Admin** user during the `php art
 
 
 ### Accessing the Application
-### Accessing the Application
 * **Admin Panel:** You can access the main application and admin login page at `http://127.0.0.1:8000/`. Use the credentials you created for the **Super Admin** user during the `shield:install` step.
 * **Candidate Portal:** The public-facing careers page for candidates to apply for jobs is available at `http://127.0.0.1:8000/career`.
 
