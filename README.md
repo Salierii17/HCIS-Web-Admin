@@ -1,4 +1,4 @@
-# Filament HRIS - Human Resource Information System 🚀
+# Filament HCIS - Human Capital Information System 🚀
 
 A comprehensive, web-based Human Resource Information System (HRIS) built with the elegant **FilamentPHP v3** admin panel on top of the **Laravel** framework. This project streamlines key HR processes, featuring modules for recruitment, training, and attendance tracking, with a dedicated API to connect to a mobile attendance application.
 
