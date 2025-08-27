@@ -19,14 +19,19 @@ class JobOpeningsResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getPublishedJobCount(): int
+    {
+        return static::getModel()::jobStillOpen()->where('published_career_site', 1)->count();
+    }
+
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count() > 0 ? static::getModel()::count() : '';
+        return static::getPublishedJobCount() > 0 ? static::getPublishedJobCount() : '';
     }
 
     public static function getNavigationBadgeColor(): ?string
     {
-        return static::getModel()::count() > 0 ? 'success' : '';
+        return static::getPublishedJobCount() > 0 ? 'success' : '';
     }
 
     public static function form(Form $form): Form

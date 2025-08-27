@@ -10,16 +10,33 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ReferralsResource extends Resource
 {
     protected static ?string $model = Referrals::class;
 
-    protected static ?string $recordTitleAttribute = 'jobopenings.postingTitle';
+    protected static ?string $navigationIcon = 'healthicons-o-referral';
+
+    protected static ?string $navigationGroup = 'Recruitment';
 
     protected static ?int $navigationSort = 5;
 
-    protected static ?string $navigationIcon = 'healthicons-o-referral';
+    public static function getRecordTitle(?Model $record): ?string
+    {
+        return $record?->candidates?->FirstName;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Referral');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Referrals');
+    }
 
     public static function form(Form $form): Form
     {
@@ -30,9 +47,43 @@ class ReferralsResource extends Resource
                         Forms\Components\FileUpload::make('resume')
                             ->hint('Supported file types: .pdf')
                             ->nullable()
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                            ]),
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->directory('referrals/resumes')
+                            ->downloadable()
+                            ->openable(),
+
+                        Forms\Components\Actions::make([
+                            Forms\Components\Actions\Action::make('viewResume')
+                                ->label('View Resume')
+                                ->color('success')
+                                ->icon('heroicon-o-eye')
+                                ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
+                                ->url(fn (Forms\Get $get): string => Storage::url($get('resume')))
+                                ->openUrlInNewTab(),
+
+                            Forms\Components\Actions\Action::make('downloadResume')
+                                ->label('Download Resume')
+                                ->color('primary')
+                                ->icon('heroicon-o-arrow-down-tray')
+                                ->hidden(fn (Forms\Get $get): bool => empty($get('resume')))
+                                ->action(function (Forms\Get $get) {
+                                    $resumePath = $get('resume');
+                                    if ($resumePath && Storage::disk('public')->exists($resumePath)) {
+                                        return response()->download(storage_path('app/public/'.$resumePath));
+                                    }
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Resume not found')
+                                        ->danger()
+                                        ->send();
+                                }),
+                        ])->hidden(
+                            fn (): bool => ! in_array(request()->route()->getName(), [
+                                'filament.recruit.resources.referrals.create',
+                                'filament.recruit.resources.referrals.edit',
+                            ])
+                        ),
+
                         Forms\Components\Section::make('Job Recommendation')
                             ->schema([
                                 Forms\Components\Select::make('ReferringJob')
@@ -50,13 +101,16 @@ class ReferralsResource extends Resource
                                     ->required()
                                     ->createOptionForm([
                                         Forms\Components\TextInput::make('FirstName')
-                                            ->label('First Name'),
+                                            ->label('First Name')
+                                            ->required(),
                                         Forms\Components\TextInput::make('LastName')
-                                            ->label('Last Name'),
+                                            ->label('Last Name')
+                                            ->required(),
                                         Forms\Components\TextInput::make('Mobile')
                                             ->label('Mobile')
                                             ->tel(),
-                                        Forms\Components\TextInput::make('Email')
+                                        Forms\Components\TextInput::make('email')
+                                            ->email()
                                             ->required(),
                                         Forms\Components\TextInput::make('CurrentEmployer')
                                             ->label('Current Employer (Company Name)'),
@@ -94,10 +148,55 @@ class ReferralsResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('candidates.FullName'),
-                Tables\Columns\TextColumn::make('jobopenings.JobTitle'),
-                Tables\Columns\TextColumn::make('jobcandidates.CandidateStatus'),
-                Tables\Columns\TextColumn::make('jobcandidates.candidateOwner'),
+                Tables\Columns\TextColumn::make('candidates.full_name')
+                    ->label('Candidate Name')
+                    ->searchable(['candidates.FirstName', 'candidates.LastName'])
+                    ->url(function ($record) {
+                        if ($record->candidates) {
+                            return \App\Filament\Resources\CandidatesProfileResource::getUrl('view', [
+                                'record' => $record->candidates->id,
+                            ]);
+                        }
+
+                        return null;
+                    })
+                    ->openUrlInNewTab(false)
+                    ->icon(function ($state) {
+                        return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
+                    })
+                    ->iconPosition('after'),
+
+                Tables\Columns\TextColumn::make('jobopenings.JobTitle')
+                    ->label('Job Title')
+                    ->url(function ($record) {
+                        if ($record->jobopenings) {
+                            return \App\Filament\Resources\JobOpeningsResource::getUrl('view', [
+                                'record' => $record->jobopenings->id,
+                            ]);
+                        }
+
+                        return null;
+                    })
+                    ->openUrlInNewTab(false)
+                    ->icon(function ($state) {
+                        return $state ? 'heroicon-m-arrow-top-right-on-square' : null;
+                    })
+                    ->iconPosition('after'),
+
+                Tables\Columns\TextColumn::make('jobcandidates.CandidateStatus')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'New' => 'info',
+                        'Contacted' => 'primary',
+                        'Qualified' => 'success',
+                        'Rejected' => 'danger',
+                        default => 'gray',
+                    }),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -105,22 +204,29 @@ class ReferralsResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('Status')
+                    ->label('Status')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->color('success')
+                    ->url(function ($record) {
+                        return \App\Filament\Resources\JobCandidatesResource::getUrl('view', [
+                            'record' => $record->JobCandidate,
+                        ]);
+                    })
+                    ->hidden(fn ($record): bool => is_null($record->JobCandidate)),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            // '
         ];
     }
 

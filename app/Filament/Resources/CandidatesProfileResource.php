@@ -21,6 +21,8 @@ class CandidatesProfileResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    protected static ?string $navigationGroup = 'Recruitment';
+
     protected static ?string $recordTitleAttribute = 'full_name';
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
@@ -114,7 +116,6 @@ class CandidatesProfileResource extends Resource
                 ])->columns(2),
 
         ];
-
     }
 
     public static function standardSkillSetFormLayout(): array
@@ -155,9 +156,7 @@ class CandidatesProfileResource extends Resource
                                     $lastUsedOptions = [];
                                     $counter = 30;
                                     for ($i = $counter; $i >= 0; $i--) {
-                                        $lastUsedOptions[
-                                        sprintf('%s', Carbon::now()->subYear($i)->year)
-                                            ] =
+                                        $lastUsedOptions[sprintf('%s', Carbon::now()->subYear($i)->year)] =
                                             sprintf('%s', Carbon::now()->subYear($i)->year);
                                     }
 
@@ -169,7 +168,6 @@ class CandidatesProfileResource extends Resource
                 ]),
 
         ];
-
     }
 
     public static function standardCurrentJobInformationFormLayout(): array
@@ -217,7 +215,21 @@ class CandidatesProfileResource extends Resource
                                 ->label('Current?')
                                 ->inline(false),
                             Forms\Components\TextInput::make('company_name'),
-                            Forms\Components\TextInput::make('duration'),
+                            Forms\Components\Select::make('duration')
+                                ->options([
+                                    '1year' => '1 Year',
+                                    '2year' => '2 Years',
+                                    '3year' => '3 Years',
+                                    '4year' => '4 Years',
+                                    '5year' => '5 Years',
+                                    '6year' => '6 Years',
+                                    '7year' => '7 Years',
+                                    '8year' => '8 Years',
+                                    '9year' => '9 Years',
+                                    '10year+' => '10 Years & Above',
+                                ])
+                                ->required()
+                                ->label('Duration'),
                             Forms\Components\TextInput::make('role'),
                             Forms\Components\Textarea::make('company_address'),
                         ])
@@ -245,7 +257,36 @@ class CandidatesProfileResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('FirstName')
+                    ->label('First Name')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('LastName')
+                    ->label('Last Name')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('Mobile')
+                    ->label('Phone')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('CurrentJobTitle')
+                    ->label('Current Position')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('ExperienceInYears')
+                    ->label('Experience')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Added On')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 
 class JobOpeningsController extends Controller
 {
+    // public function index()
+    // {
+    //     return JobOpenings::all();
+    // }
+
     public function index()
     {
-        return JobOpenings::all();
+        return JobOpenings::active()->published()->get();
     }
 
     public function store(Request $request)
@@ -19,14 +24,14 @@ class JobOpeningsController extends Controller
             'NumberOfPosition' => ['required'],
             'JobTitle' => ['required'],
             'JobOpeningSystemID' => ['nullable'],
-            'TargetDate' => ['required'],
+            'TargetDate' => ['required', 'datetime', 'after:DateOpened'],
             'Status' => ['required'],
             'Industry' => ['nullable'],
             'Salary' => ['nullable'],
             'Department' => ['required'],
             'HiringManager' => ['nullable'],
             'AssignedRecruiters' => ['nullable'],
-            'DateOpened' => ['required'],
+            'DateOpened' => ['required', 'datetime', 'after_or_equal:now'],
             'JobType' => ['required'],
             'RequiredSkill' => ['required'],
             'WorkExperience' => ['required'],
@@ -55,14 +60,14 @@ class JobOpeningsController extends Controller
             'NumberOfPosition' => ['required'],
             'JobTitle' => ['required'],
             'JobOpeningSystemID' => ['nullable'],
-            'TargetDate' => ['required'],
+            'TargetDate' => ['required', 'datetime', 'after:DateOpened'],
             'Status' => ['required'],
             'Industry' => ['nullable'],
             'Salary' => ['nullable'],
             'Department' => ['required'],
             'HiringManager' => ['nullable'],
             'AssignedRecruiters' => ['nullable'],
-            'DateOpened' => ['required'],
+            'DateOpened' => ['required', 'datetime', 'after_or_equal:now'],
             'JobType' => ['required'],
             'RequiredSkill' => ['required'],
             'WorkExperience' => ['required'],
@@ -74,6 +79,7 @@ class JobOpeningsController extends Controller
             'RemoteJob' => ['required'],
             'CreatedBy' => ['required'],
             'ModifiedBy' => ['required'],
+            'TargetDate' => ['required', 'date', 'after:now'],
         ]);
 
         $jobOpenings->update($request->validated());

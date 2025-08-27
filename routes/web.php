@@ -1,6 +1,25 @@
 <?php
 
+use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Profile;
+use App\Livewire\TryoutOnline;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/do-tryout/{id}', TryoutOnline::class)->name('do-tryout');
+
+Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/profile');
+
+    Route::get('settings/profile', Profile::class)->name('settings.profile');
+    Route::get('settings/password', Password::class)->name('settings.password');
+    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +40,10 @@ Route::get('/career/job/apply/{jobReferenceNumber}', \App\Livewire\CareerApplyJo
 Route::get('portal/invite/{id}', \App\Livewire\Portal\Invitation\CreateCandidateUser::class)->name('portal.invite');
 Route::get('/invite/{id}', \App\Livewire\User\Invitation\CreateSystemUserForm::class)->name('system-user.invite');
 
-//Route::get('/invite', function () {
+// Route::get('/invite', function () {
 
 //    $user = \App\Models\User::find(1);
 //    $candidates = \App\Models\Candidates::find(1);
 //    $candidates->notifyNow(new \App\Notifications\CandidatePortalInvitation($candidates));
 
-//});
+// });

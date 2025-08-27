@@ -3,14 +3,17 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Enums\JobOpeningStatus;
+use App\Filament\Enums\RequiredSkill;
 use App\Filament\Resources\JobOpeningsResource\Pages;
 use App\Filament\Resources\JobOpeningsResource\RelationManagers;
 use App\Models\Departments;
 use App\Models\JobOpenings;
 use App\Models\User;
 use App\Settings\JobOpeningSettings;
+use Carbon\Carbon;
+use Closure;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -32,7 +35,9 @@ class JobOpeningsResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'postingTitle';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Recruitment';
+
+    protected static ?int $navigationSort = -3;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
@@ -58,19 +63,88 @@ class JobOpeningsResource extends Resource
                         TextInput::make('NumberOfPosition')
                             ->numeric()
                             ->required(),
-                        TextInput::make('JobTitle')
+                        TextInput::make('postingTitle')
                             ->maxLength(225)
                             ->required(),
                         TextInput::make('JobOpeningSystemID')
                             ->label('Job Opening Unique Key ID')
                             ->readOnly()
                             ->hiddenOn('create'),
-                        DatePicker::make('TargetDate')
+                        DateTimePicker::make('TargetDate')
                             ->label('Target Date')
-                            ->format('d/m/Y')
+                            ->displayFormat('Y-m-d H:i:s')
+                            ->seconds(true)
                             ->native(false)
-                            ->displayFormat('m/d/Y')
-                            ->required(),
+                            ->required()
+                            ->rules(['after:DateOpened'])
+                            ->minDate(now()),
+                        // DateTimePicker::make('TargetDate')
+                        //     ->label('Target Date')
+                        //     ->displayFormat('Y-m-d H:i:s')
+                        //     ->seconds(true)
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->rules(['after:DateOpened'])
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {
+                        //             enableTime: true,
+                        //             time_24hr: true,
+                        //             enableSeconds: true,
+                        //             dateFormat: "Y-m-d H:i:S",
+                        //             defaultHour: '.now()->format('H').',
+                        //             defaultMinute: '.now()->format('i').',
+                        //             defaultSeconds: '.now()->format('s').',
+                        //             minDate: "today",
+                        //             onReady: function(selectedDates, dateStr, instance) {
+                        //                 if (instance.input.value) {
+                        //                     const currentDate = new Date(instance.input.value);
+                        //                     if (!isNaN(currentDate.getTime())) {
+                        //                         instance.setDate(currentDate, true);
+                        //                     }
+                        //                 }
+                        //             }
+                        //         })'
+                        //     ]),
+                        // DateTimePicker::make('TargetDate')
+                        //     ->label('Target Date')
+                        //     ->displayFormat('Y-m-d H:i:s')
+                        //     ->seconds(true)
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->rules(['after:DateOpened'])
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {
+                        //             enableTime: true,
+                        //             time_24hr: true,
+                        //             enableSeconds: true,
+                        //             dateFormat: "Y-m-d H:i:S"
+                        //         })'
+                        //     ]),
+                        // DateTimePicker::make('TargetDate')
+                        //     ->label('Target Date')
+                        //     ->displayFormat('Y-m-d H:i:s')
+                        //     ->seconds(true)
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->rules([
+                        //         'after:DateOpened'
+                        //     ])
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                        //     ]),
+                        // DateTimePicker::make('TargetDate')
+                        //     ->label('Target Date')
+                        //     ->displayFormat('Y-m-d H:i:s') // Display format
+                        //     ->seconds(true) // Show seconds
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                        //     ]),
                         Select::make('Status')
                             ->options(JobOpeningStatus::class)
                             ->hiddenOn('create')
@@ -85,18 +159,130 @@ class JobOpeningsResource extends Resource
                             ->options(User::all()->pluck('name', 'id')),
                         Select::make('AssignedRecruiters')
                             ->options(User::all()->pluck('name', 'id')),
-                        DatePicker::make('DateOpened')
+                        DateTimePicker::make('DateOpened')
                             ->label('Date Opened')
-                            ->format('d/m/Y')
+                            ->displayFormat('Y-m-d H:i:s')
+                            ->seconds(true)
                             ->native(false)
-                            ->displayFormat('m/d/Y')
-                            ->required(),
+                            ->required()
+                            ->minDate(now())
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, Closure $fail) {
+                                        if ($value) {
+                                            $selectedDate = Carbon::parse($value);
+                                            $now = Carbon::now();
+
+                                            if ($selectedDate->isSameDay($now)) {
+                                                if ($selectedDate->lt($now)) {
+                                                    $fail('The Date Opened time must be after the current time for today.');
+                                                }
+                                            }
+                                        }
+                                    };
+                                },
+                            ]),
+                        // DateTimePicker::make('DateOpened')
+                        //     ->label('Date Opened')
+                        //     ->displayFormat('Y-m-d H:i:s')
+                        //     ->seconds(true)
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->minDate(now())
+                        //     ->default(now())
+                        //     ->extraAttributes([
+                        //         'x-data' => '{ currentValue: $wire.entangle("data.DateOpened") }',
+                        //         'x-init' => '() => {
+                        //             flatpickr($el, {
+                        //                 enableTime: true,
+                        //                 time_24hr: true,
+                        //                 enableSeconds: true,
+                        //                 dateFormat: "Y-m-d H:i:S",
+                        //                 defaultDate: new Date($data.currentValue),
+                        //                 minDate: new Date(),
+                        //                 onReady: function(selectedDates, dateStr, instance) {
+                        //                     if ($data.currentValue) {
+                        //                         instance.setDate(new Date($data.currentValue), false);
+                        //                     }
+                        //                 },
+                        //                 onChange: function(selectedDates) {
+                        //                     $data.currentValue = selectedDates[0].toISOString();
+                        //                 }
+                        //             });
+                        //         }'
+                        //     ]),
+                        // DateTimePicker::make('DateOpened')
+                        //     ->label('Date Opened')
+                        //     ->displayFormat('Y-m-d H:i:s')
+                        //     ->seconds(true)
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->minDate(now())
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {
+                        //             enableTime: true,
+                        //             time_24hr: true,
+                        //             enableSeconds: true,
+                        //             dateFormat: "Y-m-d H:i:S",
+                        //             defaultHour: '.now()->format('H').',
+                        //             defaultMinute: '.now()->format('i').',
+                        //             defaultSeconds: '.now()->format('s').',
+                        //             minDate: "today",
+                        //             onReady: function(selectedDates, dateStr, instance) {
+                        //                 if (instance.input.value) {
+                        //                     const currentDate = new Date(instance.input.value);
+                        //                     if (!isNaN(currentDate.getTime())) {
+                        //                         instance.setDate(currentDate, true);
+                        //                     }
+                        //                 }
+                        //             }
+                        //         })'
+                        //     ]),
+                        // DateTimePicker::make('DateOpened')
+                        //     ->label('Date Opened')
+                        //     ->displayFormat('Y-m-d H:i:s') // Show both date and time
+                        //     ->seconds(true) // Show seconds if needed
+                        //     ->native(false) // Use custom picker
+                        //     ->required()
+                        //     ->minDate(now()) // Optional: prevent past dates
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {
+                        //             enableTime: true,
+                        //             time_24hr: true,
+                        //             enableSeconds: true,
+                        //             dateFormat: "Y-m-d H:i:S",
+                        //             minDate: new Date()
+                        //         })'
+                        //     ]),
+                        // DateTimePicker::make('DateOpened')
+                        //     ->label('Date Opened')
+                        //     ->displayFormat('Y-m-d H:i:s')
+                        //     ->seconds(true)
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->minDate(now())
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                        //     ]),
+                        // DateTimePicker::make('DateOpened')
+                        //     ->label('Date Opened')
+                        //     ->displayFormat('Y-m-d H:i:s') // Display format
+                        //     ->seconds(true) // Show seconds
+                        //     ->native(false)
+                        //     ->required()
+                        //     ->extraAttributes([
+                        //         'x-data' => '',
+                        //         'x-init' => 'flatpickr($el, {time_24hr: true, enableSeconds: true})'
+                        //     ]),
                         Select::make('JobType')
                             ->options(config('recruit.job_opening.job_type_options'))
                             ->required(),
                         Select::make('RequiredSkill')
                             ->multiple()
-                            ->options(self::$requiredSkills)
+                            ->options(RequiredSkill::class)
                             ->required(),
                         Select::make('WorkExperience')
                             ->options(config('recruit.job_opening.work_experience'))
@@ -160,13 +346,15 @@ class JobOpeningsResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('postingTitle')
-                    ->label('Job Title Name'),
+                    ->label('Job Title'),
                 TextColumn::make('NumberOfPosition')
                     ->label('# of Vacancy'),
                 TextColumn::make('TargetDate')
-                    ->label('Target Date'),
+                    ->label('Target Date')
+                    ->dateTime('Y-m-d H:i:s'),
                 TextColumn::make('DateOpened')
-                    ->label('Date Opened'),
+                    ->label('Date Opened')
+                    ->dateTime('Y-m-d H:i:s'),
                 TextColumn::make('JobType')
                     ->label('Job Type'),
                 IconColumn::make('RemoteJob')

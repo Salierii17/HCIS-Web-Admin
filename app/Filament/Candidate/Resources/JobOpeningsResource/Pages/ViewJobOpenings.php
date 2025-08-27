@@ -5,6 +5,7 @@ namespace App\Filament\Candidate\Resources\JobOpeningsResource\Pages;
 use App\Filament\Candidate\Pages\MyResumeProfile;
 use App\Filament\Candidate\Resources\JobOpeningsResource;
 use App\Filament\Enums\JobCandidateStatus;
+use App\Models\Attachments;
 use App\Models\Candidates;
 use App\Models\CandidateUser;
 use App\Models\JobCandidates;
@@ -89,65 +90,96 @@ class ViewJobOpenings extends ViewRecord
     {
         // Make sure that the applicant didn't applied to the same job using the email address
         $myAppliedJobs = CandidateUser::find(auth()->id())->myAppliedJobs()->whereId($this->record->id)->get()->toArray();
+
         if (count($myAppliedJobs) > 0) {
             Notifications\Notification::make()
                 ->color(Color::Orange)
                 ->icon('heroicon-o-exclamation-circle')
                 ->body('You\'ve already applied this job.')
                 ->send();
-        } else {
-            if (count($this->getMyCandidateProfile()->toArray()) === 0) {
-                Notifications\Notification::make()
-                    ->color(Color::Orange)
-                    ->icon('heroicon-o-exclamation-circle')
-                    ->title('Applying Job Cancelled.')
-                    ->body('Please update your resume profile before applying a job.')
-                    ->actions([
-                        Notifications\Actions\Action::make('update_resume')
-                            ->label('Update Resume')
-                            ->icon('heroicon-o-document-text')
-                            ->color(Color::Green)
-                            ->url(MyResumeProfile::getUrl())
-                            ->button(),
-                        Notifications\Actions\Action::make('maybe_later')
-                            ->label('Maybe Later')
-                            ->button(),
-                    ])
-                    ->persistent()
-                    ->send();
-            } else {
-                // create a candidate job record
-                $candidateProfile = $this->getMyCandidateProfile()->toArray()[0];
-                $job = JobCandidates::create([
-                    'JobId' => $this->record->id,
-                    'CandidateSource' => 'Portal',
-                    'candidate' => $this->getMyCandidateProfile()->toArray()[0]['id'],
-                    'mobile' => $this->getMyCandidateProfile()->toArray()[0]['Mobile'],
-                    'Email' => $this->getMyCandidateProfile()->toArray()[0]['Email'],
-                    'ExperienceInYears' => $this->getMyCandidateProfile()->toArray()[0]['ExperienceInYears'],
-                    'ExpectedSalary' => $this->getMyCandidateProfile()->toArray()[0]['ExpectedSalary'],
-                    'HighestQualificationHeld' => $this->getMyCandidateProfile()->toArray()[0]['HighestQualificationHeld'],
-                    'CurrentEmployer' => $this->getMyCandidateProfile()->toArray()[0]['CurrentEmployer'],
-                    'CurrentJobTitle' => $this->getMyCandidateProfile()->toArray()[0]['CurrentJobTitle'],
-                    'CurrentSalary' => $this->getMyCandidateProfile()->toArray()[0]['CurrentSalary'],
-                    'CandidateStatus' => JobCandidateStatus::New,
-                    'SkillSet' => $this->getMyCandidateProfile()->toArray()[0]['SkillSet'],
-                    'Street' => $this->getMyCandidateProfile()->toArray()[0]['Street'],
-                    'City' => $this->getMyCandidateProfile()->toArray()[0]['City'],
-                    'Country' => $this->getMyCandidateProfile()->toArray()[0]['Country'],
-                    'ZipCode' => $this->getMyCandidateProfile()->toArray()[0]['ZipCode'],
-                    'State' => $this->getMyCandidateProfile()->toArray()[0]['State'],
-                ]);
-                Notifications\Notification::make()
-                    ->color(Color::Green)
-                    ->icon('heroicon-o-check-circle')
-                    ->title('Job Applied')
-                    ->body('You\'re resume and data has been sent to the hiring party.')
-                    ->send();
-            }
 
+            return;
         }
 
+        $candidateProfile = $this->getMyCandidateProfile()->first();
+
+        if (! $candidateProfile) {
+            Notifications\Notification::make()
+                ->color(Color::Orange)
+                ->icon('heroicon-o-exclamation-circle')
+                ->title('Applying Job Cancelled.')
+                ->body('Please update your resume profile before applying a job.')
+                ->actions([
+                    Notifications\Actions\Action::make('update_resume')
+                        ->label('Update Resume')
+                        ->icon('heroicon-o-document-text')
+                        ->color(Color::Green)
+                        ->url(MyResumeProfile::getUrl())
+                        ->button(),
+                    Notifications\Actions\Action::make('maybe_later')
+                        ->label('Maybe Later')
+                        ->button(),
+                ])
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
+        try {
+            // create a candidate job record
+            $job = JobCandidates::create([
+                'JobId' => $this->record->id,
+                'CandidateSource' => 'Portal',
+                'candidate' => $candidateProfile->id,
+                'mobile' => $candidateProfile->Mobile ?? null,
+                'Email' => $candidateProfile->Email ?? $candidateProfile->email ?? null,
+                'ExperienceInYears' => $candidateProfile->ExperienceInYears ?? null,
+                'ExpectedSalary' => $candidateProfile->ExpectedSalary ?? null,
+                'HighestQualificationHeld' => $candidateProfile->HighestQualificationHeld ?? null,
+                'CurrentEmployer' => $candidateProfile->CurrentEmployer ?? null,
+                'CurrentJobTitle' => $candidateProfile->CurrentJobTitle ?? null,
+                'CurrentSalary' => $candidateProfile->CurrentSalary ?? null,
+                'CandidateStatus' => JobCandidateStatus::New,
+                'SkillSet' => $candidateProfile->SkillSet ?? null,
+                'Street' => $candidateProfile->Street ?? null,
+                'City' => $candidateProfile->City ?? null,
+                'Country' => $candidateProfile->Country ?? null,
+                'ZipCode' => $candidateProfile->ZipCode ?? null,
+                'State' => $candidateProfile->State ?? null,
+            ]);
+
+            // Get the latest resume from candidate
+            $latestResume = $candidateProfile->resume()->latest()->first();
+
+            if ($latestResume) {
+                // Create attachment for this job candidate
+                Attachments::create([
+                    'attachment' => $latestResume->attachment,
+                    'attachmentName' => $latestResume->attachmentName,
+                    'category' => 'Resume',
+                    'attachmentOwner' => $job->id,
+                    'moduleName' => 'JobCandidates',
+                ]);
+            }
+
+            Notifications\Notification::make()
+                ->color(Color::Green)
+                ->icon('heroicon-o-check-circle')
+                ->title('Job Applied')
+                ->body('Your resume and data has been sent to the hiring party.')
+                ->send();
+
+        } catch (\Exception $e) {
+            Notifications\Notification::make()
+                ->color(Color::Red)
+                ->icon('heroicon-o-exclamation-circle')
+                ->title('Application Failed')
+                ->body('There was an error submitting your application. Please try again.')
+                ->send();
+
+            report($e); // Log the error for debugging
+        }
     }
 
     protected function isAlreadySaveJob(): bool

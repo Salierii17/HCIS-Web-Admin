@@ -131,7 +131,8 @@
                                                                     <a class="cbde7 c89yv c8tys" href="{{route('career.job_details', [$jobs['JobOpeningSystemID']])}}">{{$jobs['postingTitle']}}</a>
                                                                 </div>
                                                                 <div class="italic font-thin ">
-                                                                    <p class="clvg0 text-xs mb-5">{{\Illuminate\Support\Str::limit($jobs['JobDescription'], 200)}}</p>
+                                                                    <p class="clvg0 text-xs mb-5">{{ \Illuminate\Support\Str::limit(strip_tags($jobs['JobDescription']), 200) }}</p>
+                                                                    <!-- <p class="clvg0 text-xs mb-5">{{\Illuminate\Support\Str::limit($jobs['JobDescription'], 200)}}</p> -->
                                                                 </div>
                                                                 <div class="cvrk3">
                                                                     <p class="cwu8g c00re cx250 ckpu6 csdzj c7x38 cobkt cesao crqt4 cdfls cdo22 chdfx ct9wm cebbr">💰 {{$jobs['Salary']}}</p>

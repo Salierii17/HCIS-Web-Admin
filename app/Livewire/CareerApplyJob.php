@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use AbanoubNassem\FilamentGRecaptchaField\Forms\Components\GRecaptcha;
 use Afatmustafa\FilamentTurnstile\Forms\Components\Turnstile;
+use App\Filament\Enums\AttachmentCategory;
 use App\Filament\Enums\JobCandidateStatus;
+use App\Models\Attachments;
 use App\Models\Candidates;
 use App\Models\JobCandidates;
 use App\Models\JobOpenings;
@@ -20,6 +22,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class CareerApplyJob extends Component implements HasActions, HasForms
 {
@@ -103,20 +106,51 @@ class CareerApplyJob extends Component implements HasActions, HasForms
             'State' => $data['State'],
         ]);
 
-        if ($candidate && $job_candidates) {
-            Notification::make()
-                ->title('Application submitted!')
-                ->success()
-                ->body('Thank you for submitting your application details.')
-                ->send();
-            Notification::make()
-                ->title('Reminder!')
-                ->success()
-                ->body('Please always check your communication for our hiring party response.')
-                ->send();
-            $this->redirectRoute('career.landing_page');
+        // Store the resume file in attachments table
+        if (isset($data['attachment'])) {
+            $this->storeResumeAttachment($data['attachment'], $candidate, $job_candidates);
         }
 
+        $this->sendSuccessNotifications();
+    }
+
+    protected function storeResumeAttachment(string $filePath, Candidates $candidate, JobCandidates $jobCandidate): void
+    {
+        // Get just the filename from the path
+        $fileName = basename($filePath);
+
+        // Store attachment linked to Candidate
+        $candidate->attachments()->create([
+            'attachment' => $filePath,
+            'attachmentName' => $fileName, // This will now be the unique filename
+            'category' => AttachmentCategory::Resume->value,
+            'moduleName' => 'Candidates',
+        ]);
+
+        // Store attachment linked to JobCandidate
+        $jobCandidate->attachments()->create([
+            'attachment' => $filePath,
+            'attachmentName' => $fileName, // This will now be the unique filename
+            'category' => AttachmentCategory::Resume->value,
+            'moduleName' => 'JobCandidates',
+        ]);
+    }
+
+    protected function sendSuccessNotifications(): void
+    {
+        Notification::make()
+            ->title('Application submitted!')
+            ->success()
+            ->body('Thank you for submitting your application details.')
+            ->send();
+
+        Notification::make()
+            ->title('Reminder!')
+            ->success()
+            ->body('Please always check your communication for our hiring party response.')
+            ->send();
+
+        $this->redirectRoute('career.landing_page');
     }
 
     public function form(Form $form): Form
@@ -130,8 +164,9 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                         ->columns(2)
                         ->schema(array_merge($this->applicationStepWizard(),
                             [Forms\Components\Grid::make(1)
-                                ->columns(1)
-                                ->schema($this->captchaField())]
+                                ->columns(1),
+                                // ->schema($this->captchaField())
+                            ]
                         )),
                     Wizard\Step::make('Assessment')
                         ->visible(false)
@@ -188,7 +223,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             ->label('Current Job Title'),
                         Forms\Components\Select::make('experience')
                             ->options([
-                                '1year' => '1year',
+                                '1year' => '1 Year',
                                 '2year' => '2 Years',
                                 '3year' => '3 Years',
                                 '4year' => '4 Years',
@@ -213,12 +248,19 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                                     ->required(),
                                 Forms\Components\Select::make('duration')
                                     ->options([
+                                        '3years' => '3 Years',
                                         '4years' => '4 Years',
                                         '5years' => '5 Years',
                                     ])
                                     ->required(),
                                 Forms\Components\Checkbox::make('pursuing')
-                                    ->inline(false),
+                                    ->label('Pursuing')
+                                    ->live()
+                                    ->inline(false)
+                                    ->extraAttributes([
+                                        'style' => 'cursor: pointer;',
+                                        'wire:key' => 'pursuing-checkbox',
+                                    ]),
                             ])
                             ->deletable(true)
                             ->columns(4),
@@ -231,9 +273,28 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             ->schema([
                                 Forms\Components\Checkbox::make('current')
                                     ->label('Current?')
-                                    ->inline(false),
+                                    ->live()
+                                    ->inline(false)
+                                    ->extraAttributes([
+                                        'style' => 'cursor: pointer;',
+                                        'wire:key' => 'current-checkbox',
+                                    ]),
                                 Forms\Components\TextInput::make('company_name'),
-                                Forms\Components\TextInput::make('duration'),
+                                Forms\Components\Select::make('duration')
+                                    ->options([
+                                        '1year' => '1 Year',
+                                        '2year' => '2 Years',
+                                        '3year' => '3 Years',
+                                        '4year' => '4 Years',
+                                        '5year' => '5 Years',
+                                        '6year' => '6 Years',
+                                        '7year' => '7 Years',
+                                        '8year' => '8 Years',
+                                        '9year' => '9 Years',
+                                        '10year+' => '10 Years & Above',
+                                    ])
+                                    ->required()
+                                    ->label('Duration'),
                                 Forms\Components\TextInput::make('role'),
                                 Forms\Components\Textarea::make('company_address'),
                             ])
@@ -241,7 +302,7 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                             ->columns(5),
                     ]),
                 Forms\Components\FileUpload::make('attachment')
-                    ->preserveFilenames()
+                    ->preserveFilenames(false) // Changed from true to false to allow filename modification
                     ->directory('JobCandidate-attachments')
                     ->visibility('private')
                     ->openable()
@@ -251,7 +312,17 @@ class CareerApplyJob extends Component implements HasActions, HasForms
                         'application/pdf',
                     ])
                     ->required()
-                    ->label('Resume'),
+                    ->label('Resume')
+                    ->getUploadedFileNameForStorageUsing(
+                        function (TemporaryUploadedFile $file): string {
+                            // Generate a unique filename with original extension
+                            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                            $extension = $file->getClientOriginalExtension();
+                            $uniqueName = $originalName.'_'.uniqid().'.'.$extension;
+
+                            return $uniqueName;
+                        }
+                    ),
             ];
     }
 
