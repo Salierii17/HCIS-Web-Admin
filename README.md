@@ -2,6 +2,10 @@
 
 A comprehensive, web-based Human Resource Information System (HRIS) built with the elegant **FilamentPHP v3** admin panel on top of the **Laravel** framework. This project streamlines key HR processes, featuring modules for recruitment, training, and attendance tracking, with a dedicated API to connect to a mobile attendance application.
 
+https://img.shields.io/badge/Laravel-11-FF2D20?style=flat&logo=laravel 
+https://img.shields.io/badge/FilamentPHP-3-FB70A9?style=flat 
+https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php
+
 ## ✨ Core Features
 
 This HRIS is designed with modularity and efficiency in mind.
@@ -29,7 +33,7 @@ This project leverages the power of the TALL stack and the Laravel ecosystem.
 -   **Admin Panel:** FilamentPHP v3
 -   **Role & Permission Management:** `bezhanSalleh/filament-shield`
 -   **UI/Frontend:** Livewire, Alpine.js, Tailwind CSS
--   **Database:** MySQL / PostgreSQL
+-   **Database:** MySQL
 -   **API Authentication:** Laravel Sanctum
 
 ---
@@ -43,7 +47,7 @@ Follow these instructions to get a local copy of the project up and running for 
 -   PHP 8.2+
 -   Composer
 -   Node.js & NPM
--   A database server (e.g., MySQL, PostgreSQL)
+-   A database server (MySQL)
 
 ### Installation
 
@@ -51,7 +55,7 @@ Follow these instructions to get a local copy of the project up and running for 
 
     ```bash
     [Click here to clone the repository](https://github.com/Salierii17/HCIS-Web-Admin)
-    cd your-repo
+    cd HCIS-Web-Admin
     ```
 
 
@@ -104,32 +108,26 @@ Follow these instructions to get a local copy of the project up and running for 
     php artisan serve
     ```
 
-You can now access the application at `http://127.0.0.1:8000`.
-
-### Logging In
-
-Use the credentials you created for the **Super Admin** user during the `php artisan shield:install` step to log in.
-
-
-### Accessing the Application
-* **Admin Panel:** You can access the main application and admin login page at `http://127.0.0.1:8000/`. Use the credentials you created for the **Super Admin** user during the `shield:install` step.
-* **Candidate Portal:** The public-facing careers page for candidates to apply for jobs is available at `http://127.0.0.1:8000/career`.
-
-Candidate Portal: The public-facing careers page for candidates to apply for jobs is available at http://127.0.0.1:8000/career.
-
+### Access Points
+* **Admin Panel:** http://127.0.0.1:8000
+* **Candidate Portal:** http://127.0.0.1:8000/career
 ---
 
 ## 📱 Mobile App Integration
 
-The attendance module exposes several API endpoints to communicate with the companion mobile application.
+### API OVERVIEW
+The attendance module provides RESTful API endpoints protected by Laravel Sanctum authentication.
 
-* **Authentication:** API requests are protected using **Laravel Sanctum** with Bearer Tokens. The mobile app must first authenticate via the `/login` endpoint to receive an API token for subsequent requests.
-* **Base URL:** All API endpoints are prefixed with `http://your-domain.com/api/v1/`.
-* **Key Endpoint Groups:**
-    * **Authentication:** `POST /login`, `POST /logout`
-    * **Attendance Management:** `POST /attendance` (Clock In), `PUT /attendance/{id}` (Clock Out), `GET /attendance` (History).
+* **Base URL:** `http://your-domain.com/api/v1/`.
+
+### Authentication
+    * 'POST /login' - Obtain API token
+    * 'POST /logout' - Revoke authentication
+
+### Key Endpoints
+    * **Attendance:** `POST /attendance` (Clock In), `PUT /attendance/{id}` (Clock Out), `GET /attendance` (History).
     * **Attendance Correction:** `POST /attendance-requests`
-    * **User Profile:** `GET /profile`, `PUT /profile`, `POST /profile/photo`, `PUT /profile/password`
+    * **User Management:** `GET /profile`, `PUT /profile`, `POST /profile/photo`
     * **Notifications:** `GET /notifications`, `POST /notifications/{id}/read`
 
 For detailed API documentation, please refer to the Postman collection or the `API_DOCS.md` file in this repository.
