@@ -2,9 +2,10 @@
 
 A comprehensive, web-based Human Resource Information System (HRIS) built with the elegant **FilamentPHP v3** admin panel on top of the **Laravel** framework. This project streamlines key HR processes, featuring modules for recruitment, training, and attendance tracking, with a dedicated API to connect to a mobile attendance application.
 
-https://img.shields.io/badge/Laravel-11-FF2D20?style=flat&logo=laravel 
-https://img.shields.io/badge/FilamentPHP-3-FB70A9?style=flat 
-https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php
+[![Laravel 11](https://img.shields.io/badge/Laravel-11-FF2D20?style=flat&logo=laravel)](https://laravel.com/)
+[![FilamentPHP 3](https://img.shields.io/badge/FilamentPHP-3-FB70A9?style=flat)](https://filamentphp.com/)
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php)](https://www.php.net/)
+
 
 ## ✨ Core Features
 
