@@ -55,7 +55,7 @@ Follow these instructions to get a local copy of the project up and running for 
 1.  **Clone the repository:**
 
     ```bash
-    [Click here to clone the repository](https://github.com/Salierii17/HCIS-Web-Admin)
+    git clone https://github.com/Salierii17/HCIS-Web-Admin
     cd HCIS-Web-Admin
     ```
 
