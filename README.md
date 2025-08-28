@@ -1,4 +1,4 @@
-# Filament HCIS - Human Capital Information System 🚀
+# Filament HCIS - Human Capital Information System 
 
 A comprehensive, web-based Human Resource Information System (HRIS) built with the elegant **FilamentPHP v3** admin panel on top of the **Laravel** framework. This project streamlines key HR processes, featuring modules for recruitment, training, and attendance tracking, with a dedicated API to connect to a mobile attendance application.
 
@@ -50,9 +50,10 @@ Follow these instructions to get a local copy of the project up and running for 
 1.  **Clone the repository:**
 
     ```bash
-    git clone [https://github.com/your-username/your-repo.git](https://github.com/your-username/your-repo.git)
+    [Click here to clone the repository](https://github.com/Salierii17/HCIS-Web-Admin)
     cd your-repo
     ```
+
 
 2.  **Install dependencies:**
 
