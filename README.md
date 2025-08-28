@@ -122,14 +122,14 @@ The attendance module provides RESTful API endpoints protected by Laravel Sanctu
 * **Base URL:** `http://your-domain.com/api/v1/`.
 
 ### Authentication
-    * 'POST /login' - Obtain API token
-    * 'POST /logout' - Revoke authentication
+* 'POST /login' - Obtain API token
+* 'POST /logout' - Revoke authentication
 
 ### Key Endpoints
-    * **Attendance:** `POST /attendance` (Clock In), `PUT /attendance/{id}` (Clock Out), `GET /attendance` (History).
-    * **Attendance Correction:** `POST /attendance-requests`
-    * **User Management:** `GET /profile`, `PUT /profile`, `POST /profile/photo`
-    * **Notifications:** `GET /notifications`, `POST /notifications/{id}/read`
+* **Attendance:** `POST /attendance` (Clock In), `PUT /attendance/{id}` (Clock Out), `GET /attendance` (History).
+* **Attendance Correction:** `POST /attendance-requests`
+* **User Management:** `GET /profile`, `PUT /profile`, `POST /profile/photo`
+* **Notifications:** `GET /notifications`, `POST /notifications/{id}/read`
 
 For detailed API documentation, please refer to the Postman collection or the `API_DOCS.md` file in this repository.
 
